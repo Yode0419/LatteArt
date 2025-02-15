@@ -1,0 +1,20 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background-color: #f8f5f2;
+}
+canvas {
+  display: block;
+  margin: 20px auto;
+  background-color: #d2b48c;
+  border-radius: 50%;
+}
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #d2a679;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
