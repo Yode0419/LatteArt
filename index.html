@@ -3,67 +3,113 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Euler Fluid</title>
+    <title>Coffee Latte Art Simulation</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="controls">
-      <!-- 流體模擬控制 -->
+      <!-- 流體模擬參數 -->
       <div class="control-group">
-        <h3>流體模擬參數</h3>
+        <h3>流體模擬參數 (Fluid Parameters)</h3>
         <div>
-          <label for="density">密度:</label>
-          <input type="range" id="density" />
+          <label for="density">密度 (Density):</label>
+          <input type="range" id="density" min="500" max="2000" step="100" />
           <span class="value-display" id="density-value"></span>
         </div>
         <div>
-          <label for="gravity">重力:</label>
-          <input type="range" id="gravity" />
+          <label for="gravity">重力 (Gravity):</label>
+          <input type="range" id="gravity" min="-20" max="20" step="1" />
           <span class="value-display" id="gravity-value"></span>
         </div>
         <div>
-          <label for="numIters">迭代次數:</label>
-          <input type="range" id="numIters" />
+          <label for="numIters">迭代次數 (Iterations):</label>
+          <input type="range" id="numIters" min="10" max="100" step="5" />
           <span class="value-display" id="numIters-value"></span>
         </div>
         <div>
-          <label for="overRelaxation">過度鬆弛:</label>
-          <input type="range" id="overRelaxation" />
+          <label for="overRelaxation">過度鬆弛 (Over-relaxation):</label>
+          <input type="range" id="overRelaxation" min="1" max="2" step="0.1" />
           <span class="value-display" id="overRelaxation-value"></span>
         </div>
       </div>
 
-      <!-- 顯示控制 -->
+      <!-- 顯示設定 -->
       <div class="control-group">
-        <h3>顯示設定</h3>
+        <h3>顯示設定 (Display)</h3>
         <div>
-          <label for="resolution">解析度:</label>
-          <input type="range" id="resolution" />
+          <label for="resolution">解析度 (Resolution):</label>
+          <input type="range" id="resolution" min="80" max="300" step="20" />
           <span class="value-display" id="resolution-value"></span>
         </div>
         <div>
           <label>
-            <input type="checkbox" id="showSmoke" checked /> 顯示煙霧
-          </label>
-        </div>
-        <div>
-          <label>
             <input type="checkbox" id="showStreamlines" /> 顯示流線
+            (Streamlines)
           </label>
         </div>
       </div>
 
-      <!-- 障礙物控制 -->
+      <!-- 操作模式選擇 -->
       <div class="control-group">
-        <h3>障礙物設定</h3>
-        <div>
-          <label for="obstacleRadius">障礙物半徑:</label>
-          <input type="range" id="obstacleRadius" />
-          <span class="value-display" id="obstacleRadius-value"></span>
+        <h3>操作模式 (Operation Mode)</h3>
+        <div class="mode-selector">
+          <button id="stirringMode" class="mode-btn active">
+            拉花棒攪拌 (Stirring)
+          </button>
+          <button id="pouringMode" class="mode-btn">
+            注入牛奶 (Pour Milk)
+          </button>
         </div>
       </div>
 
-      <button id="restartButton">重新開始</button>
+      <!-- 攪拌參數 -->
+      <div class="control-group" id="stirringControls">
+        <h3>攪拌設定 (Stirring Settings)</h3>
+        <div>
+          <label for="stirRadius">攪拌半徑 (Radius):</label>
+          <input
+            type="range"
+            id="stirRadius"
+            min="0.05"
+            max="0.3"
+            step="0.05"
+          />
+          <span class="value-display" id="stirRadius-value"></span>
+        </div>
+        <div>
+          <label for="stirStrength">攪拌強度 (Strength):</label>
+          <input type="range" id="stirStrength" min="0.5" max="5" step="0.5" />
+          <span class="value-display" id="stirStrength-value"></span>
+        </div>
+      </div>
+
+      <!-- 注入參數 -->
+      <div class="control-group" id="pouringControls">
+        <h3>注入設定 (Pouring Settings)</h3>
+        <div>
+          <label for="pourRadius">注入半徑 (Radius):</label>
+          <input
+            type="range"
+            id="pourRadius"
+            min="0.01"
+            max="0.1"
+            step="0.01"
+          />
+          <span class="value-display" id="pourRadius-value"></span>
+        </div>
+        <div>
+          <label for="pourStrength">注入強度 (Strength):</label>
+          <input type="range" id="pourStrength" min="0.5" max="5" step="0.5" />
+          <span class="value-display" id="pourStrength-value"></span>
+        </div>
+        <div>
+          <label for="pourDensity">牛奶濃度 (Milk Density):</label>
+          <input type="range" id="pourDensity" min="0.1" max="1" step="0.1" />
+          <span class="value-display" id="pourDensity-value"></span>
+        </div>
+      </div>
+
+      <button id="restartButton">重新開始 (Reset)</button>
     </div>
 
     <canvas id="myCanvas"></canvas>

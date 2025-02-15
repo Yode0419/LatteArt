@@ -1,18 +1,16 @@
 export class FluidInteraction {
-  constructor(canvas, renderer, fluid, config) {
+  constructor(canvas, renderer) {
     this.canvas = canvas;
     this.renderer = renderer;
-    this.fluid = fluid;
-    this.config = config; // 直接存儲 config 物件
     this.mouseDown = false;
-    this.obstacleX = 0.0;
-    this.obstacleY = 0.0;
+    this.currentHandler = null; // 當前的互動處理器
 
     this.setupEventListeners();
   }
 
-  setFluid(fluid) {
-    this.fluid = fluid;
+  // 設置當前的互動處理器
+  setInteractionHandler(handler) {
+    this.currentHandler = handler;
   }
 
   setupEventListeners() {
@@ -49,13 +47,6 @@ export class FluidInteraction {
       },
       { passive: false }
     );
-
-    // Keyboard events
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "p") {
-        this.config.debug.paused = !this.config.debug.paused;
-      }
-    });
   }
 
   startDrag(x, y) {
@@ -64,64 +55,28 @@ export class FluidInteraction {
     const my = y - bounds.top - this.canvas.clientTop;
     this.mouseDown = true;
 
-    const simX = mx / this.renderer.cScale;
-    const simY = (this.canvas.height - my) / this.renderer.cScale;
-    this.setObstacle(simX, simY, true);
+    if (this.currentHandler) {
+      const simX = mx / this.renderer.cScale;
+      const simY = (this.canvas.height - my) / this.renderer.cScale;
+      this.currentHandler.start(simX, simY);
+    }
   }
 
   drag(x, y) {
-    if (this.mouseDown) {
+    if (this.mouseDown && this.currentHandler) {
       const bounds = this.canvas.getBoundingClientRect();
       const mx = x - bounds.left - this.canvas.clientLeft;
       const my = y - bounds.top - this.canvas.clientTop;
       const simX = mx / this.renderer.cScale;
       const simY = (this.canvas.height - my) / this.renderer.cScale;
-      this.setObstacle(simX, simY, false);
+      this.currentHandler.update(simX, simY);
     }
   }
 
   endDrag() {
+    if (this.currentHandler) {
+      this.currentHandler.end();
+    }
     this.mouseDown = false;
-  }
-
-  setObstacle(x, y, reset) {
-    let vx = 0.0;
-    let vy = 0.0;
-
-    if (!reset) {
-      vx = (x - this.obstacleX) / this.config.fluid.dt;
-      vy = (y - this.obstacleY) / this.config.fluid.dt;
-    }
-
-    this.obstacleX = x;
-    this.obstacleY = y;
-    const n = this.fluid.numY;
-
-    for (let i = 1; i < this.fluid.numX - 2; i++) {
-      for (let j = 1; j < this.fluid.numY - 2; j++) {
-        this.fluid.s[i * n + j] = 1.0;
-
-        const dx = (i + 0.5) * this.fluid.h - x;
-        const dy = (j + 0.5) * this.fluid.h - y;
-
-        if (
-          dx * dx + dy * dy <
-          this.config.obstacle.radius * this.config.obstacle.radius
-        ) {
-          this.fluid.s[i * n + j] = 0.0;
-          this.fluid.m[i * n + j] =
-            0.5 + 0.5 * Math.sin(0.1 * this.config.debug.frameNr);
-          this.fluid.u[i * n + j] = vx;
-          this.fluid.u[(i + 1) * n + j] = vx;
-          this.fluid.v[i * n + j] = vy;
-          this.fluid.v[i * n + j + 1] = vy;
-        }
-      }
-    }
-  }
-
-  resetObstacle() {
-    this.obstacleX = 0.0;
-    this.obstacleY = 0.0;
   }
 }

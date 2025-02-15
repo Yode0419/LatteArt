@@ -18,7 +18,7 @@ export class Fluid {
     this.s = new Float32Array(this.numCells);
     this.m = new Float32Array(this.numCells);
     this.newM = new Float32Array(this.numCells);
-    this.m.fill(1.0);
+    this.m.fill(0.0);
   }
 
   integrate(dt, gravity) {
