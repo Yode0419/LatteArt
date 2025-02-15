@@ -1,15 +1,38 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>拉花模擬器</title>
+    <title>Euler Fluid</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <h1>歡迎來到拉花模擬器 ☕</h1>
-    <canvas id="fluidCanvas"></canvas>
-    <button id="simulateButton">開始拉花</button>
-    <script type="module" src="main.js"></script>
+    <button class="button" onclick="setupScene()">Reset</button>
+
+    <input
+      type="checkbox"
+      id="streamButton"
+      onclick="scene.showStreamlines = !scene.showStreamlines"
+    />
+    Streamlines
+    <input
+      type="checkbox"
+      id="smokeButton"
+      onclick="scene.showSmoke = !scene.showSmoke;"
+      checked
+    />
+    Smoke
+    <input
+      type="checkbox"
+      id="overrelaxButton"
+      onclick="scene.overRelaxation = scene.overRelaxation == 1.0 ? 1.9 : 1.0"
+      checked
+    />
+    Overrelax
+
+    <br />
+    <canvas id="myCanvas" style="border: 2px solid"></canvas>
+
+    <script src="main.js"></script>
   </body>
 </html>

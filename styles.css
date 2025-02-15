@@ -1,20 +1,24 @@
 body {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  background-color: #f8f5f2;
+  font-family: verdana;
+  font-size: 15px;
 }
-canvas {
-  display: block;
-  margin: 20px auto;
-  background-color: #d2b48c;
-  border-radius: 50%;
-}
-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #d2a679;
-  color: white;
+.button {
+  background-color: #606060;
   border: none;
-  border-radius: 10px;
+  color: white;
+  padding: 10px 10px;
+  font-size: 16px;
+  margin: 4px 2px;
   cursor: pointer;
+}
+.slider {
+  -webkit-appearance: none;
+  width: 80px;
+  height: 6px;
+  border-radius: 5px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: 0.2s;
+  transition: opacity 0.2s;
 }
