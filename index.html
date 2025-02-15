@@ -7,32 +7,18 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <button class="button" onclick="setupScene()">Reset</button>
+    <button id="restartButton" class="button">Reset</button>
 
-    <input
-      type="checkbox"
-      id="streamButton"
-      onclick="scene.showStreamlines = !scene.showStreamlines"
-    />
+    <input type="checkbox" id="streamButton" />
     Streamlines
-    <input
-      type="checkbox"
-      id="smokeButton"
-      onclick="scene.showSmoke = !scene.showSmoke;"
-      checked
-    />
+    <input type="checkbox" id="smokeButton" checked />
     Smoke
-    <input
-      type="checkbox"
-      id="overrelaxButton"
-      onclick="scene.overRelaxation = scene.overRelaxation == 1.0 ? 1.9 : 1.0"
-      checked
-    />
+    <input type="checkbox" id="overrelaxButton" checked />
     Overrelax
 
     <br />
     <canvas id="myCanvas" style="border: 2px solid"></canvas>
 
-    <script src="main.js"></script>
+    <script type="module" src="main.js"></script>
   </body>
 </html>

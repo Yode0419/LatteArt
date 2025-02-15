@@ -1,65 +1,231 @@
-// 設定流體模擬參數
-const canvas = document.getElementById("fluidCanvas");
-const ctx = canvas.getContext("2d");
+// Field type constants
+export const U_FIELD = 0;
+export const V_FIELD = 1;
+export const S_FIELD = 2;
 
-// 設定畫布大小
-canvas.width = 300;
-canvas.height = 300;
-
-const gridSizeX = 50; // X方向的網格數量
-const gridSizeY = 50; // Y方向的網格數量
-const cellSize = canvas.width / gridSizeX; // 計算每個網格的大小
-
-const fluid = new Fluid(1.0, gridSizeX, gridSizeY, cellSize);
-
-// 初始化杯子邊緣障礙物
-for (let i = 0; i < gridSizeX + 2; i++) {
-  for (let j = 0; j < gridSizeY + 2; j++) {
-    let centerX = (gridSizeX + 2) / 2;
-    let centerY = (gridSizeY + 2) / 2;
-    let radius = gridSizeX / 2 - 2; // 確保杯子邊界
-    let distance = Math.sqrt((i - centerX) ** 2 + (j - centerY) ** 2);
-    if (distance >= radius) {
-      fluid.s[i * fluid.numY + j] = 0.0; // 設定為障礙物
-    }
+export class Fluid {
+  constructor(density, numX, numY, h) {
+    this.density = density;
+    this.numX = numX + 2;
+    this.numY = numY + 2;
+    this.numCells = this.numX * this.numY;
+    this.h = h;
+    this.u = new Float32Array(this.numCells);
+    this.v = new Float32Array(this.numCells);
+    this.newU = new Float32Array(this.numCells);
+    this.newV = new Float32Array(this.numCells);
+    this.p = new Float32Array(this.numCells);
+    this.s = new Float32Array(this.numCells);
+    this.m = new Float32Array(this.numCells);
+    this.newM = new Float32Array(this.numCells);
+    this.m.fill(1.0);
   }
-}
 
-// 初始化流體從杯子頂部中央區域開始流動
-const startX = Math.floor(gridSizeX / 2);
-for (let j = 1; j <= 3; j++) {
-  // 讓流體從最上面3層開始
-  fluid.m[startX * fluid.numY + j] = 1.0; // 設定密度
-  fluid.v[startX * fluid.numY + j] = 1.0; // 設定初始向下速度
-}
-
-// 繪製流體
-function drawFluid() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  for (let i = 1; i < gridSizeX + 1; i++) {
-    for (let j = 1; j < gridSizeY + 1; j++) {
-      let density = fluid.m[i * fluid.numY + j];
-      if (fluid.s[i * fluid.numY + j] === 0.0) {
-        ctx.fillStyle = "#654321"; // 杯子邊緣顏色
-      } else {
-        let alpha = Math.min(density, 1.0);
-        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`; // 流體顏色
+  integrate(dt, gravity) {
+    var n = this.numY;
+    for (var i = 1; i < this.numX; i++) {
+      for (var j = 1; j < this.numY - 1; j++) {
+        if (this.s[i * n + j] != 0.0 && this.s[i * n + j - 1] != 0.0)
+          this.v[i * n + j] += gravity * dt;
       }
-      ctx.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
     }
   }
-}
 
-// 更新動畫
-function update() {
-  fluid.integrate(0.01, 10); // 模擬重力
-  fluid.solveIncompressibility(10, 0.01);
-  fluid.advectVel(0.01);
-  fluid.advectSmoke(0.01);
-  drawFluid();
-  requestAnimationFrame(update);
-}
+  solveIncompressibility(numIters, dt, overRelaxation) {
+    var n = this.numY;
+    var cp = (this.density * this.h) / dt;
 
-// 啟動模擬
-update();
+    for (var iter = 0; iter < numIters; iter++) {
+      for (var i = 1; i < this.numX - 1; i++) {
+        for (var j = 1; j < this.numY - 1; j++) {
+          if (this.s[i * n + j] == 0.0) continue;
+
+          var s = this.s[i * n + j];
+          var sx0 = this.s[(i - 1) * n + j];
+          var sx1 = this.s[(i + 1) * n + j];
+          var sy0 = this.s[i * n + j - 1];
+          var sy1 = this.s[i * n + j + 1];
+          var s = sx0 + sx1 + sy0 + sy1;
+          if (s == 0.0) continue;
+
+          var div =
+            this.u[(i + 1) * n + j] -
+            this.u[i * n + j] +
+            this.v[i * n + j + 1] -
+            this.v[i * n + j];
+
+          var p = -div / s;
+          p *= overRelaxation;
+          this.p[i * n + j] += cp * p;
+
+          this.u[i * n + j] -= sx0 * p;
+          this.u[(i + 1) * n + j] += sx1 * p;
+          this.v[i * n + j] -= sy0 * p;
+          this.v[i * n + j + 1] += sy1 * p;
+        }
+      }
+    }
+  }
+
+  extrapolate() {
+    var n = this.numY;
+    for (var i = 0; i < this.numX; i++) {
+      this.u[i * n + 0] = this.u[i * n + 1];
+      this.u[i * n + this.numY - 1] = this.u[i * n + this.numY - 2];
+    }
+    for (var j = 0; j < this.numY; j++) {
+      this.v[0 * n + j] = this.v[1 * n + j];
+      this.v[(this.numX - 1) * n + j] = this.v[(this.numX - 2) * n + j];
+    }
+  }
+
+  sampleField(x, y, field) {
+    var n = this.numY;
+    var h = this.h;
+    var h1 = 1.0 / h;
+    var h2 = 0.5 * h;
+
+    x = Math.max(Math.min(x, this.numX * h), h);
+    y = Math.max(Math.min(y, this.numY * h), h);
+
+    var dx = 0.0;
+    var dy = 0.0;
+
+    var f;
+
+    switch (field) {
+      case U_FIELD:
+        f = this.u;
+        dy = h2;
+        break;
+      case V_FIELD:
+        f = this.v;
+        dx = h2;
+        break;
+      case S_FIELD:
+        f = this.m;
+        dx = h2;
+        dy = h2;
+        break;
+    }
+
+    var x0 = Math.min(Math.floor((x - dx) * h1), this.numX - 1);
+    var tx = (x - dx - x0 * h) * h1;
+    var x1 = Math.min(x0 + 1, this.numX - 1);
+
+    var y0 = Math.min(Math.floor((y - dy) * h1), this.numY - 1);
+    var ty = (y - dy - y0 * h) * h1;
+    var y1 = Math.min(y0 + 1, this.numY - 1);
+
+    var sx = 1.0 - tx;
+    var sy = 1.0 - ty;
+
+    var val =
+      sx * sy * f[x0 * n + y0] +
+      tx * sy * f[x1 * n + y0] +
+      tx * ty * f[x1 * n + y1] +
+      sx * ty * f[x0 * n + y1];
+
+    return val;
+  }
+
+  avgU(i, j) {
+    var n = this.numY;
+    var u =
+      (this.u[i * n + j - 1] +
+        this.u[i * n + j] +
+        this.u[(i + 1) * n + j - 1] +
+        this.u[(i + 1) * n + j]) *
+      0.25;
+    return u;
+  }
+
+  avgV(i, j) {
+    var n = this.numY;
+    var v =
+      (this.v[(i - 1) * n + j] +
+        this.v[i * n + j] +
+        this.v[(i - 1) * n + j + 1] +
+        this.v[i * n + j + 1]) *
+      0.25;
+    return v;
+  }
+
+  advectVel(dt) {
+    this.newU.set(this.u);
+    this.newV.set(this.v);
+
+    var n = this.numY;
+    var h = this.h;
+    var h2 = 0.5 * h;
+
+    for (var i = 1; i < this.numX; i++) {
+      for (var j = 1; j < this.numY; j++) {
+        // u component
+        if (
+          this.s[i * n + j] != 0.0 &&
+          this.s[(i - 1) * n + j] != 0.0 &&
+          j < this.numY - 1
+        ) {
+          var x = i * h;
+          var y = j * h + h2;
+          var u = this.u[i * n + j];
+          var v = this.avgV(i, j);
+          x = x - dt * u;
+          y = y - dt * v;
+          u = this.sampleField(x, y, U_FIELD);
+          this.newU[i * n + j] = u;
+        }
+        // v component
+        if (
+          this.s[i * n + j] != 0.0 &&
+          this.s[i * n + j - 1] != 0.0 &&
+          i < this.numX - 1
+        ) {
+          var x = i * h + h2;
+          var y = j * h;
+          var u = this.avgU(i, j);
+          var v = this.v[i * n + j];
+          x = x - dt * u;
+          y = y - dt * v;
+          v = this.sampleField(x, y, V_FIELD);
+          this.newV[i * n + j] = v;
+        }
+      }
+    }
+
+    this.u.set(this.newU);
+    this.v.set(this.newV);
+  }
+
+  advectSmoke(dt) {
+    this.newM.set(this.m);
+
+    var n = this.numY;
+    var h = this.h;
+    var h2 = 0.5 * h;
+
+    for (var i = 1; i < this.numX - 1; i++) {
+      for (var j = 1; j < this.numY - 1; j++) {
+        if (this.s[i * n + j] != 0.0) {
+          var u = (this.u[i * n + j] + this.u[(i + 1) * n + j]) * 0.5;
+          var v = (this.v[i * n + j] + this.v[i * n + j + 1]) * 0.5;
+          var x = i * h + h2 - dt * u;
+          var y = j * h + h2 - dt * v;
+
+          this.newM[i * n + j] = this.sampleField(x, y, S_FIELD);
+        }
+      }
+    }
+    this.m.set(this.newM);
+  }
+
+  simulate(dt, gravity, numIters, overRelaxation) {
+    this.integrate(dt, gravity);
+    this.p.fill(0.0);
+    this.solveIncompressibility(numIters, dt, overRelaxation);
+    this.extrapolate();
+    this.advectVel(dt);
+    this.advectSmoke(dt);
+  }
+}
