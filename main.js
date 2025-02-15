@@ -286,7 +286,7 @@ function setupScene() {
   scene.dt = 1.0 / 60.0;
   scene.numIters = 40;
 
-  var res = 100;
+  var res = 160;
 
   var domainHeight = 1.0;
   var domainWidth = (domainHeight / simHeight) * simWidth;
@@ -302,7 +302,6 @@ function setupScene() {
   var n = f.numY;
 
   scene.gravity = 0.0;
-  scene.overRelaxation = 1.0;
   scene.showPressure = false;
   scene.showSmoke = true;
   scene.showStreamlines = false;
