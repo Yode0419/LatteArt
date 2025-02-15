@@ -7,18 +7,66 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <button id="restartButton" class="button">Reset</button>
+    <div class="controls">
+      <!-- 流體模擬控制 -->
+      <div class="control-group">
+        <h3>流體模擬參數</h3>
+        <div>
+          <label for="density">密度:</label>
+          <input type="range" id="density" />
+          <span class="value-display" id="density-value"></span>
+        </div>
+        <div>
+          <label for="gravity">重力:</label>
+          <input type="range" id="gravity" />
+          <span class="value-display" id="gravity-value"></span>
+        </div>
+        <div>
+          <label for="numIters">迭代次數:</label>
+          <input type="range" id="numIters" />
+          <span class="value-display" id="numIters-value"></span>
+        </div>
+        <div>
+          <label for="overRelaxation">過度鬆弛:</label>
+          <input type="range" id="overRelaxation" />
+          <span class="value-display" id="overRelaxation-value"></span>
+        </div>
+      </div>
 
-    <input type="checkbox" id="streamButton" />
-    Streamlines
-    <input type="checkbox" id="smokeButton" checked />
-    Smoke
-    <input type="checkbox" id="overrelaxButton" checked />
-    Overrelax
+      <!-- 顯示控制 -->
+      <div class="control-group">
+        <h3>顯示設定</h3>
+        <div>
+          <label for="resolution">解析度:</label>
+          <input type="range" id="resolution" />
+          <span class="value-display" id="resolution-value"></span>
+        </div>
+        <div>
+          <label>
+            <input type="checkbox" id="showSmoke" checked /> 顯示煙霧
+          </label>
+        </div>
+        <div>
+          <label>
+            <input type="checkbox" id="showStreamlines" /> 顯示流線
+          </label>
+        </div>
+      </div>
 
-    <br />
-    <canvas id="myCanvas" style="border: 2px solid"></canvas>
+      <!-- 障礙物控制 -->
+      <div class="control-group">
+        <h3>障礙物設定</h3>
+        <div>
+          <label for="obstacleRadius">障礙物半徑:</label>
+          <input type="range" id="obstacleRadius" />
+          <span class="value-display" id="obstacleRadius-value"></span>
+        </div>
+      </div>
 
+      <button id="restartButton">重新開始</button>
+    </div>
+
+    <canvas id="myCanvas"></canvas>
     <script type="module" src="main.js"></script>
   </body>
 </html>
