@@ -8,8 +8,8 @@ import { config, SIMULATION_MODES } from "./config.js"; // 修改這行，從 co
 
 // Canvas setup
 const canvas = document.getElementById("myCanvas");
-canvas.width = window.innerWidth - 20;
-canvas.height = window.innerHeight - 100;
+canvas.width = canvas.clientWidth;
+canvas.height = canvas.clientHeight;
 canvas.focus();
 
 // Simulation state
@@ -18,6 +18,14 @@ let renderer;
 let interaction;
 let stirringSimulator;
 let milkInjector;
+
+// 顯示與隱藏controls介面
+const toggleControlsBtn = document.getElementById("toggleControls");
+const controlsPanel = document.querySelector(".controls");
+
+toggleControlsBtn.addEventListener("click", () => {
+  controlsPanel.classList.toggle("hidden");
+});
 
 // 設置模式切換
 function setupModeButtons() {

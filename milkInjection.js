@@ -23,10 +23,9 @@ export class MilkInjector {
   }
 
   applyInjection(x, y, reset) {
-    const { radius, strength, density } = this.config?.simulation?.pouring ?? {
+    const { radius, strength } = this.config?.simulation?.pouring ?? {
       radius: 0.3,
       strength: 2.0,
-      density: 1.0,
     };
     let vx = 0.0;
     let vy = 0.0;
@@ -55,11 +54,8 @@ export class MilkInjector {
           this.fluid.v[i * n + j] = vy * strength * factor;
           this.fluid.v[i * n + j + 1] = vy * strength * factor;
 
-          // 影響密度場，讓牛奶顏色變白，考慮密度影響
-          this.fluid.m[i * n + j] = Math.min(
-            this.fluid.m[i * n + j] + factor * density * 0.5, // 控制白色變化速度
-            1.0 // 限制最大值為 1.0，避免過度增亮
-          );
+          // 影響密度場，讓牛奶顏色變白
+          this.fluid.m[i * n + j] = 1.0;
         }
       }
     }

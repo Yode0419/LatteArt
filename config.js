@@ -23,7 +23,7 @@ export const config = {
 
   // 模擬模式設定
   simulation: {
-    currentMode: SIMULATION_MODES.STIRRING, // 預設為攪拌模式
+    currentMode: SIMULATION_MODES.POURING, // 預設為注入模式
 
     // 攪拌模式參數
     stirring: {
@@ -35,7 +35,6 @@ export const config = {
     pouring: {
       radius: 0.1, // 注入點半徑
       strength: 2.0, // 注入力度
-      density: 1.0, // 牛奶密度
     },
   },
 
