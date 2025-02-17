@@ -8,12 +8,12 @@ export class Controls {
   setupControls() {
     // 流體模擬參數
     this.setupRangeControl("viscosity", "fluid", 0.9, 1.0, 0.005);
-    this.setupRangeControl("gravity", "fluid", -20, 20, 1);
+    this.setupRangeControl("gravity", "fluid", -5, 5, 0.5);
     this.setupRangeControl("numIters", "fluid", 1, 50, 1);
     this.setupRangeControl("overRelaxation", "fluid", 1, 2, 0.1);
 
     // 顯示設定
-    this.setupRangeControl("resolution", "display", 40, 160, 20);
+    this.setupRangeControl("resolution", "display", 40, 200, 20);
     this.setupCheckboxControl("showSmoke", "display");
     this.setupCheckboxControl("showStreamlines", "display");
 
@@ -25,7 +25,7 @@ export class Controls {
       "pourRadius",
       "simulation",
       0.01,
-      0.1,
+      0.2,
       0.01,
       "pouring",
       "radius"
@@ -44,9 +44,9 @@ export class Controls {
     this.setupRangeControl(
       "stirRadius",
       "simulation",
+      0.01,
       0.05,
-      0.3,
-      0.05,
+      0.005,
       "stirring",
       "radius"
     );
@@ -82,7 +82,7 @@ export class Controls {
     input.max = max;
     input.step = step;
     input.value = paramValue;
-    value.textContent = paramValue.toFixed(2);
+    value.textContent = paramValue.toFixed(3);
 
     input.addEventListener("input", (e) => {
       if (nestedProperty) {
@@ -92,7 +92,7 @@ export class Controls {
       } else {
         this.config[section][subProperty] = Number(e.target.value);
       }
-      value.textContent = Number(e.target.value).toFixed(2);
+      value.textContent = Number(e.target.value).toFixed(3);
       this.onParamChange(section, subProperty, nestedProperty);
     });
   }

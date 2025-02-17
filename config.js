@@ -18,7 +18,7 @@ export const config = {
 
   // 顯示設定
   display: {
-    resolution: 100,
+    resolution: 120,
     showStreamlines: false,
   },
 
@@ -28,14 +28,14 @@ export const config = {
 
     // 攪拌模式參數
     stirring: {
-      radius: 0.01, // 攪拌棒半徑
-      strength: 1.0, // 攪拌力度
+      radius: 0.02, // 攪拌棒半徑
+      strength: 2.5, // 攪拌力度
     },
 
     // 注入模式參數
     pouring: {
       radius: 0.1, // 注入點半徑
-      strength: 2.0, // 注入力度
+      strength: 2.5, // 注入力度
     },
   },
 

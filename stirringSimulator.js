@@ -23,7 +23,10 @@ export class StirringSimulator {
   }
 
   applyStirring(x, y, reset) {
-    const { radius, strength } = this.config.simulation.stirring;
+    const { radius, strength } = this.config?.simulation?.stirring ?? {
+      radius: 0.1,
+      strength: 1.0,
+    };
     let vx = 0.0;
     let vy = 0.0;
 
@@ -40,13 +43,16 @@ export class StirringSimulator {
 
         const dx = (i + 0.5) * this.fluid.h - x;
         const dy = (j + 0.5) * this.fluid.h - y;
+        const d = Math.sqrt(dx * dx + dy * dy);
 
-        if (dx * dx + dy * dy < radius * radius) {
-          this.fluid.s[i * n + j] = 0.0;
-          this.fluid.u[i * n + j] = vx * strength;
-          this.fluid.u[(i + 1) * n + j] = vx * strength;
-          this.fluid.v[i * n + j] = vy * strength;
-          this.fluid.v[i * n + j + 1] = vy * strength;
+        if (d < radius) {
+          const factor = 1.0 - d / radius;
+
+          // 影響速度場，使流體流動
+          this.fluid.u[i * n + j] = vx * strength * factor;
+          this.fluid.u[(i + 1) * n + j] = vx * strength * factor;
+          this.fluid.v[i * n + j] = vy * strength * factor;
+          this.fluid.v[i * n + j + 1] = vy * strength * factor;
         }
       }
     }
