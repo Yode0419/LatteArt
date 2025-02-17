@@ -11,6 +11,7 @@ export class Fluid {
     this.numCells = this.numX * this.numY;
     this.h = h;
     this.viscosity = viscosity; //新增黏滯性參數
+    this.velocityThreshold = 0.001; //速度過小時設為 0
 
     this.u = new Float32Array(this.numCells);
     this.v = new Float32Array(this.numCells);
@@ -176,7 +177,8 @@ export class Fluid {
           x = x - dt * u;
           y = y - dt * v;
           u = this.sampleField(x, y, U_FIELD);
-          this.newU[i * n + j] = u * this.viscosity; //施加衰減
+          this.newU[i * n + j] =
+            Math.abs(u) < this.velocityThreshold ? 0 : u * this.viscosity; //施加衰減，如果 u 過小，直接視為 0
         }
         // v component
         if (
@@ -191,7 +193,8 @@ export class Fluid {
           x = x - dt * u;
           y = y - dt * v;
           v = this.sampleField(x, y, V_FIELD);
-          this.newV[i * n + j] = v * this.viscosity; //施加衰減
+          this.newV[i * n + j] =
+            Math.abs(v) < this.velocityThreshold ? 0 : v * this.viscosity; //施加衰減，如果 v 過小，直接視為 0
         }
       }
     }

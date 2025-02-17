@@ -11,14 +11,14 @@ export const config = {
     density: 1000.0,
     gravity: 0.0,
     dt: 1.0 / 60.0,
-    numIters: 40,
+    numIters: 20,
     overRelaxation: 1.9,
-    viscosity: 0.98, // 🔹 新增黏滯性參數 (範圍建議 0.9 - 1.0)
+    viscosity: 0.95, // 🔹 新增黏滯性參數 (範圍建議 0.9 - 1.0)
   },
 
   // 顯示設定
   display: {
-    resolution: 160,
+    resolution: 100,
     showStreamlines: false,
   },
 

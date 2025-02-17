@@ -9,11 +9,11 @@ export class Controls {
     // 流體模擬參數
     this.setupRangeControl("viscosity", "fluid", 0.9, 1.0, 0.005);
     this.setupRangeControl("gravity", "fluid", -20, 20, 1);
-    this.setupRangeControl("numIters", "fluid", 10, 100, 5);
+    this.setupRangeControl("numIters", "fluid", 1, 50, 1);
     this.setupRangeControl("overRelaxation", "fluid", 1, 2, 0.1);
 
     // 顯示設定
-    this.setupRangeControl("resolution", "display", 80, 300, 20);
+    this.setupRangeControl("resolution", "display", 40, 160, 20);
     this.setupCheckboxControl("showSmoke", "display");
     this.setupCheckboxControl("showStreamlines", "display");
 
