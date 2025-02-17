@@ -54,6 +54,9 @@ function handleParamChange(section, property) {
   if (section === "display" && property === "resolution") {
     init(); // Resolution change requires reinitialization
   }
+  if (section === "fluid" && property === "viscosity") {
+    fluid.viscosity = config.fluid.viscosity; // 🔹 更新 fluid 內的 viscosity
+  }
 }
 // Initialize controls
 const controls = new Controls(config, handleParamChange);
@@ -67,7 +70,13 @@ function init() {
   const numX = Math.floor(domainWidth / h);
   const numY = Math.floor(domainHeight / h);
 
-  fluid = new Fluid(config.fluid.density, numX, numY, h);
+  fluid = new Fluid(
+    config.fluid.density,
+    numX,
+    numY,
+    h,
+    config.fluid.viscosity // 確保黏滯性參數被傳入
+  );
 
   if (!renderer) {
     renderer = new FluidRenderer(canvas, domainHeight);
@@ -103,7 +112,8 @@ function update() {
       config.fluid.dt,
       config.fluid.gravity,
       config.fluid.numIters,
-      config.fluid.overRelaxation
+      config.fluid.overRelaxation,
+      config.fluid.viscosity //新增傳遞 viscosity
     );
     config.debug.frameNr++;
   }

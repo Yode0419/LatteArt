@@ -7,6 +7,7 @@ export class Controls {
 
   setupControls() {
     // 流體模擬參數
+    this.setupRangeControl("viscosity", "fluid", 0.9, 1.0, 0.005);
     this.setupRangeControl("gravity", "fluid", -20, 20, 1);
     this.setupRangeControl("numIters", "fluid", 10, 100, 5);
     this.setupRangeControl("overRelaxation", "fluid", 1, 2, 0.1);

@@ -4,12 +4,14 @@ export const V_FIELD = 1;
 export const S_FIELD = 2;
 
 export class Fluid {
-  constructor(density, numX, numY, h) {
+  constructor(density, numX, numY, h, viscosity) {
     this.density = density;
     this.numX = numX + 2;
     this.numY = numY + 2;
     this.numCells = this.numX * this.numY;
     this.h = h;
+    this.viscosity = viscosity; //新增黏滯性參數
+
     this.u = new Float32Array(this.numCells);
     this.v = new Float32Array(this.numCells);
     this.newU = new Float32Array(this.numCells);
@@ -174,7 +176,7 @@ export class Fluid {
           x = x - dt * u;
           y = y - dt * v;
           u = this.sampleField(x, y, U_FIELD);
-          this.newU[i * n + j] = u;
+          this.newU[i * n + j] = u * this.viscosity; //施加衰減
         }
         // v component
         if (
@@ -189,7 +191,7 @@ export class Fluid {
           x = x - dt * u;
           y = y - dt * v;
           v = this.sampleField(x, y, V_FIELD);
-          this.newV[i * n + j] = v;
+          this.newV[i * n + j] = v * this.viscosity; //施加衰減
         }
       }
     }
@@ -220,7 +222,9 @@ export class Fluid {
     this.m.set(this.newM);
   }
 
-  simulate(dt, gravity, numIters, overRelaxation) {
+  simulate(dt, gravity, numIters, overRelaxation, viscosity) {
+    this.viscosity = viscosity; //更新黏滯參數
+
     this.integrate(dt, gravity);
     this.p.fill(0.0);
     this.solveIncompressibility(numIters, dt, overRelaxation);

@@ -13,6 +13,7 @@ export const config = {
     dt: 1.0 / 60.0,
     numIters: 40,
     overRelaxation: 1.9,
+    viscosity: 0.98, // 🔹 新增黏滯性參數 (範圍建議 0.9 - 1.0)
   },
 
   // 顯示設定
