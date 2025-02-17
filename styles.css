@@ -69,7 +69,8 @@ body {
   background: rgba(240, 240, 240, 0.9);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  padding: 15px;
+  padding: 8px;
+  padding-bottom: 64px;
   font-size: 0.9em;
   transition: transform 0.3s ease;
   top: 0;
