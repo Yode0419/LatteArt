@@ -41,45 +41,50 @@ export class Fluid {
     }
   }
 
-  solveIncompressibility(numIters, dt, overRelaxation) {
+  solveIncompressibility(
+    numIters,
+    dt,
+    overRelaxation,
+    sourceX,
+    sourceY,
+    sourceRate
+  ) {
     const n = this.numY;
-    const cp = (this.density * this.h) / dt; // 壓力係數，由密度、格子大小和時間步長決定
+    const cp = (this.density * this.h) / dt; // 壓力係數
 
     for (let iter = 0; iter < numIters; iter++) {
-      //迭代次數
       for (let i = 1; i < this.numX - 1; i++) {
         for (let j = 1; j < this.numY - 1; j++) {
           if (this.s[i * n + j] == 0.0) continue; // 跳過固體格子
 
-          const sx0 = this.s[(i - 1) * n + j]; // 左邊格子
-          const sx1 = this.s[(i + 1) * n + j]; // 右邊格子
-          const sy0 = this.s[i * n + j - 1]; // 下邊格子
-          const sy1 = this.s[i * n + j + 1]; // 上邊格子
-          const sum = sx0 + sx1 + sy0 + sy1; // 改名為 sum
-          if (sum == 0.0) continue; // 計算周圍流體格子數量
+          const sx0 = this.s[(i - 1) * n + j];
+          const sx1 = this.s[(i + 1) * n + j];
+          const sy0 = this.s[i * n + j - 1];
+          const sy1 = this.s[i * n + j + 1];
+          const sum = sx0 + sx1 + sy0 + sy1;
+          if (sum == 0.0) continue; // 沒有可影響的流體格子
 
-          const div =
-            this.u[(i + 1) * n + j] - // 右邊界流入
-            this.u[i * n + j] + // 左邊界流出
-            this.v[i * n + j + 1] - // 上邊界流入
-            this.v[i * n + j]; // 下邊界流出
+          // 計算發散度（Divergence）
+          let div =
+            this.u[(i + 1) * n + j] -
+            this.u[i * n + j] +
+            this.v[i * n + j + 1] -
+            this.v[i * n + j];
 
-          //注入與吸取的邏輯
-          // if (i === sourceX && j === sourceY) {
-          //   div -= injectionRate; // 在 (sourceX, sourceY) 位置注入流體
-          // }
-          // if (i === drainX && j === drainY) {
-          //   div += suctionRate; // 在 (drainX, drainY) 位置吸取流體
-          // }
+          // 如果當前格點是注入/吸取點，調整 `div`
+          if (i === sourceX && j === sourceY) {
+            div -= sourceRate; // 正值代表注入，負值代表吸取
+          }
 
-          let p = -div / sum; // 計算需要的壓力修正
-          p *= overRelaxation; // 使用過鬆弛因子來加速收斂
+          let p = -div / sum; // 計算壓力修正
+          p *= overRelaxation;
           this.p[i * n + j] += cp * p; // 更新壓力場
 
-          this.u[i * n + j] -= sx0 * p; // 修正左邊界速度
-          this.u[(i + 1) * n + j] += sx1 * p; // 修正右邊界速度
-          this.v[i * n + j] -= sy0 * p; // 修正下邊界速度
-          this.v[i * n + j + 1] += sy1 * p; // 修正上邊界速度
+          // 修正速度場
+          this.u[i * n + j] -= sx0 * p;
+          this.u[(i + 1) * n + j] += sx1 * p;
+          this.v[i * n + j] -= sy0 * p;
+          this.v[i * n + j + 1] += sy1 * p;
         }
       }
     }
@@ -294,12 +299,28 @@ export class Fluid {
     return result;
   }
 
-  simulate(dt, gravity, numIters, overRelaxation, viscosity) {
+  simulate(
+    dt,
+    gravity,
+    numIters,
+    overRelaxation,
+    viscosity,
+    sourceX,
+    sourceY,
+    sourceRate
+  ) {
     this.viscosity = viscosity;
 
     this.integrate(dt, gravity);
     this.p.fill(0.0);
-    this.solveIncompressibility(numIters, dt, overRelaxation);
+    this.solveIncompressibility(
+      numIters,
+      dt,
+      overRelaxation,
+      sourceX,
+      sourceY,
+      sourceRate
+    );
     this.extrapolate();
     this.advectVel(dt);
     this.advectDensities(dt);
