@@ -54,8 +54,8 @@ export class MilkInjector {
           this.fluid.v[i * n + j] = vy * strength * factor;
           this.fluid.v[i * n + j + 1] = vy * strength * factor;
 
-          // 影響密度場，讓牛奶顏色變白
-          this.fluid.m[i * n + j] = 1.0;
+          // 設置牛奶密度
+          this.fluid.densityField.setDensity(i, j, "milk", 1.0);
         }
       }
     }

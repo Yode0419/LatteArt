@@ -1,7 +1,7 @@
-// Field type constants
 export const U_FIELD = 0;
 export const V_FIELD = 1;
-export const S_FIELD = 2;
+
+import { DensityField } from "./densityField.js";
 
 export class Fluid {
   constructor(density, numX, numY, h, viscosity) {
@@ -10,54 +10,60 @@ export class Fluid {
     this.numY = numY + 2;
     this.numCells = this.numX * this.numY;
     this.h = h;
-    this.viscosity = viscosity; //新增黏滯性參數
-    this.velocityThreshold = 0.001; //速度過小時設為 0
+    this.viscosity = viscosity;
+    this.velocityThreshold = 0.001;
 
+    // 速度場相關
     this.u = new Float32Array(this.numCells);
     this.v = new Float32Array(this.numCells);
     this.newU = new Float32Array(this.numCells);
     this.newV = new Float32Array(this.numCells);
     this.p = new Float32Array(this.numCells);
     this.s = new Float32Array(this.numCells);
-    this.m = new Float32Array(this.numCells);
-    this.newM = new Float32Array(this.numCells);
-    this.m.fill(0.0);
+
+    // 創建密度場
+    this.densityField = new DensityField(numX, numY);
+  }
+
+  // 向後兼容的密度場訪問
+  get m() {
+    return this.densityField.m;
   }
 
   integrate(dt, gravity) {
-    var n = this.numY;
-    for (var i = 1; i < this.numX; i++) {
-      for (var j = 1; j < this.numY - 1; j++) {
-        if (this.s[i * n + j] != 0.0 && this.s[i * n + j - 1] != 0.0)
+    const n = this.numY;
+    for (let i = 1; i < this.numX; i++) {
+      for (let j = 1; j < this.numY - 1; j++) {
+        if (this.s[i * n + j] != 0.0 && this.s[i * n + j - 1] != 0.0) {
           this.v[i * n + j] += gravity * dt;
+        }
       }
     }
   }
 
   solveIncompressibility(numIters, dt, overRelaxation) {
-    var n = this.numY;
-    var cp = (this.density * this.h) / dt;
+    const n = this.numY;
+    const cp = (this.density * this.h) / dt;
 
-    for (var iter = 0; iter < numIters; iter++) {
-      for (var i = 1; i < this.numX - 1; i++) {
-        for (var j = 1; j < this.numY - 1; j++) {
+    for (let iter = 0; iter < numIters; iter++) {
+      for (let i = 1; i < this.numX - 1; i++) {
+        for (let j = 1; j < this.numY - 1; j++) {
           if (this.s[i * n + j] == 0.0) continue;
 
-          var s = this.s[i * n + j];
-          var sx0 = this.s[(i - 1) * n + j];
-          var sx1 = this.s[(i + 1) * n + j];
-          var sy0 = this.s[i * n + j - 1];
-          var sy1 = this.s[i * n + j + 1];
-          var s = sx0 + sx1 + sy0 + sy1;
-          if (s == 0.0) continue;
+          const sx0 = this.s[(i - 1) * n + j];
+          const sx1 = this.s[(i + 1) * n + j];
+          const sy0 = this.s[i * n + j - 1];
+          const sy1 = this.s[i * n + j + 1];
+          const sum = sx0 + sx1 + sy0 + sy1; // 改名為 sum
+          if (sum == 0.0) continue;
 
-          var div =
+          const div =
             this.u[(i + 1) * n + j] -
             this.u[i * n + j] +
             this.v[i * n + j + 1] -
             this.v[i * n + j];
 
-          var p = -div / s;
+          let p = -div / sum; // 使用 sum
           p *= overRelaxation;
           this.p[i * n + j] += cp * p;
 
@@ -71,31 +77,34 @@ export class Fluid {
   }
 
   extrapolate() {
-    var n = this.numY;
-    for (var i = 0; i < this.numX; i++) {
+    const n = this.numY;
+    // 處理水平邊界
+    for (let i = 0; i < this.numX; i++) {
       this.u[i * n + 0] = this.u[i * n + 1];
       this.u[i * n + this.numY - 1] = this.u[i * n + this.numY - 2];
     }
-    for (var j = 0; j < this.numY; j++) {
+    // 處理垂直邊界
+    for (let j = 0; j < this.numY; j++) {
       this.v[0 * n + j] = this.v[1 * n + j];
       this.v[(this.numX - 1) * n + j] = this.v[(this.numX - 2) * n + j];
     }
   }
 
+  // 速度場採樣
   sampleField(x, y, field) {
-    var n = this.numY;
-    var h = this.h;
-    var h1 = 1.0 / h;
-    var h2 = 0.5 * h;
+    const n = this.numY;
+    const h = this.h;
+    const h1 = 1.0 / h;
+    const h2 = 0.5 * h;
 
     x = Math.max(Math.min(x, this.numX * h), h);
     y = Math.max(Math.min(y, this.numY * h), h);
 
-    var dx = 0.0;
-    var dy = 0.0;
+    let dx = 0.0;
+    let dy = 0.0;
+    let f;
 
-    var f;
-
+    // 根據場類型選擇數據和偏移
     switch (field) {
       case U_FIELD:
         f = this.u;
@@ -105,80 +114,76 @@ export class Fluid {
         f = this.v;
         dx = h2;
         break;
-      case S_FIELD:
-        f = this.m;
-        dx = h2;
-        dy = h2;
-        break;
+      default:
+        return 0.0;
     }
 
-    var x0 = Math.min(Math.floor((x - dx) * h1), this.numX - 1);
-    var tx = (x - dx - x0 * h) * h1;
-    var x1 = Math.min(x0 + 1, this.numX - 1);
+    const x0 = Math.min(Math.floor((x - dx) * h1), this.numX - 1);
+    const tx = (x - dx - x0 * h) * h1;
+    const x1 = Math.min(x0 + 1, this.numX - 1);
 
-    var y0 = Math.min(Math.floor((y - dy) * h1), this.numY - 1);
-    var ty = (y - dy - y0 * h) * h1;
-    var y1 = Math.min(y0 + 1, this.numY - 1);
+    const y0 = Math.min(Math.floor((y - dy) * h1), this.numY - 1);
+    const ty = (y - dy - y0 * h) * h1;
+    const y1 = Math.min(y0 + 1, this.numY - 1);
 
-    var sx = 1.0 - tx;
-    var sy = 1.0 - ty;
+    const sx = 1.0 - tx;
+    const sy = 1.0 - ty;
 
-    var val =
+    return (
       sx * sy * f[x0 * n + y0] +
       tx * sy * f[x1 * n + y0] +
       tx * ty * f[x1 * n + y1] +
-      sx * ty * f[x0 * n + y1];
-
-    return val;
+      sx * ty * f[x0 * n + y1]
+    );
   }
 
   avgU(i, j) {
-    var n = this.numY;
-    var u =
+    const n = this.numY;
+    return (
       (this.u[i * n + j - 1] +
         this.u[i * n + j] +
         this.u[(i + 1) * n + j - 1] +
         this.u[(i + 1) * n + j]) *
-      0.25;
-    return u;
+      0.25
+    );
   }
 
   avgV(i, j) {
-    var n = this.numY;
-    var v =
+    const n = this.numY;
+    return (
       (this.v[(i - 1) * n + j] +
         this.v[i * n + j] +
         this.v[(i - 1) * n + j + 1] +
         this.v[i * n + j + 1]) *
-      0.25;
-    return v;
+      0.25
+    );
   }
 
   advectVel(dt) {
     this.newU.set(this.u);
     this.newV.set(this.v);
 
-    var n = this.numY;
-    var h = this.h;
-    var h2 = 0.5 * h;
+    const n = this.numY;
+    const h = this.h;
+    const h2 = 0.5 * h;
 
-    for (var i = 1; i < this.numX; i++) {
-      for (var j = 1; j < this.numY; j++) {
+    for (let i = 1; i < this.numX; i++) {
+      for (let j = 1; j < this.numY; j++) {
         // u component
         if (
           this.s[i * n + j] != 0.0 &&
           this.s[(i - 1) * n + j] != 0.0 &&
           j < this.numY - 1
         ) {
-          var x = i * h;
-          var y = j * h + h2;
-          var u = this.u[i * n + j];
-          var v = this.avgV(i, j);
+          let x = i * h;
+          let y = j * h + h2;
+          let u = this.u[i * n + j];
+          let v = this.avgV(i, j);
           x = x - dt * u;
           y = y - dt * v;
           u = this.sampleField(x, y, U_FIELD);
           this.newU[i * n + j] =
-            Math.abs(u) < this.velocityThreshold ? 0 : u * this.viscosity; //施加衰減，如果 u 過小，直接視為 0
+            Math.abs(u) < this.velocityThreshold ? 0 : u * this.viscosity;
         }
         // v component
         if (
@@ -186,15 +191,15 @@ export class Fluid {
           this.s[i * n + j - 1] != 0.0 &&
           i < this.numX - 1
         ) {
-          var x = i * h + h2;
-          var y = j * h;
-          var u = this.avgU(i, j);
-          var v = this.v[i * n + j];
+          let x = i * h + h2;
+          let y = j * h;
+          let u = this.avgU(i, j);
+          let v = this.v[i * n + j];
           x = x - dt * u;
           y = y - dt * v;
           v = this.sampleField(x, y, V_FIELD);
           this.newV[i * n + j] =
-            Math.abs(v) < this.velocityThreshold ? 0 : v * this.viscosity; //施加衰減，如果 v 過小，直接視為 0
+            Math.abs(v) < this.velocityThreshold ? 0 : v * this.viscosity;
         }
       }
     }
@@ -203,36 +208,91 @@ export class Fluid {
     this.v.set(this.newV);
   }
 
-  advectSmoke(dt) {
-    this.newM.set(this.m);
+  // 密度場平流計算
+  advectDensities(dt) {
+    const n = this.numY;
+    const h = this.h;
+    const h2 = 0.5 * h;
 
-    var n = this.numY;
-    var h = this.h;
-    var h2 = 0.5 * h;
+    // 創建臨時密度場
+    const tempDensities = this.densityField.createTemp();
 
-    for (var i = 1; i < this.numX - 1; i++) {
-      for (var j = 1; j < this.numY - 1; j++) {
-        if (this.s[i * n + j] != 0.0) {
-          var u = (this.u[i * n + j] + this.u[(i + 1) * n + j]) * 0.5;
-          var v = (this.v[i * n + j] + this.v[i * n + j + 1]) * 0.5;
-          var x = i * h + h2 - dt * u;
-          var y = j * h + h2 - dt * v;
+    // 對每個網格點進行計算
+    for (let i = 1; i < this.numX - 1; i++) {
+      for (let j = 1; j < this.numY - 1; j++) {
+        if (this.s[i * n + j] !== 0.0) {
+          // 計算速度
+          const u = (this.u[i * n + j] + this.u[(i + 1) * n + j]) * 0.5;
+          const v = (this.v[i * n + j] + this.v[i * n + j + 1]) * 0.5;
 
-          this.newM[i * n + j] = this.sampleField(x, y, S_FIELD);
+          // 回溯位置
+          const x = i * h + h2 - dt * u;
+          const y = j * h + h2 - dt * v;
+
+          // 從回溯位置採樣所有流體的密度
+          const sampledDensities = this.sampleDensities(x, y);
+
+          // 將採樣結果存入臨時密度場
+          tempDensities[i * n + j] = sampledDensities;
         }
       }
     }
-    this.m.set(this.newM);
+
+    // 更新密度場
+    this.densityField.updateFromTemp(tempDensities);
+  }
+
+  // 密度場採樣
+  sampleDensities(x, y) {
+    const n = this.numY;
+    const h = this.h;
+    const h1 = 1.0 / h;
+    const h2 = 0.5 * h;
+
+    x = Math.max(Math.min(x, this.numX * h), h);
+    y = Math.max(Math.min(y, this.numY * h), h);
+
+    const dx = h2;
+    const dy = h2;
+
+    const x0 = Math.min(Math.floor((x - dx) * h1), this.numX - 1);
+    const tx = (x - dx - x0 * h) * h1;
+    const x1 = Math.min(x0 + 1, this.numX - 1);
+
+    const y0 = Math.min(Math.floor((y - dy) * h1), this.numY - 1);
+    const ty = (y - dy - y0 * h) * h1;
+    const y1 = Math.min(y0 + 1, this.numY - 1);
+
+    const sx = 1.0 - tx;
+    const sy = 1.0 - ty;
+
+    // 取得四個角落的密度值
+    const d00 = this.densityField.getDensities(x0, y0);
+    const d10 = this.densityField.getDensities(x1, y0);
+    const d11 = this.densityField.getDensities(x1, y1);
+    const d01 = this.densityField.getDensities(x0, y1);
+
+    // 對每種流體進行雙線性插值
+    const result = {};
+    for (const fluidType in d00) {
+      result[fluidType] =
+        sx * sy * d00[fluidType] +
+        tx * sy * d10[fluidType] +
+        tx * ty * d11[fluidType] +
+        sx * ty * d01[fluidType];
+    }
+
+    return result;
   }
 
   simulate(dt, gravity, numIters, overRelaxation, viscosity) {
-    this.viscosity = viscosity; //更新黏滯參數
+    this.viscosity = viscosity;
 
     this.integrate(dt, gravity);
     this.p.fill(0.0);
     this.solveIncompressibility(numIters, dt, overRelaxation);
     this.extrapolate();
     this.advectVel(dt);
-    this.advectSmoke(dt);
+    this.advectDensities(dt);
   }
 }

@@ -8,12 +8,11 @@ export class FluidRenderer {
     this.cScale = canvas.height / simHeight;
     this.simWidth = canvas.width / this.cScale;
 
-    // 定義咖啡和牛奶的顏色
-    this.coffeeColor = { r: 76, g: 47, b: 39 }; // 深咖啡色
-    this.milkColor = { r: 255, g: 252, b: 245 }; // 暖白色
+    // 修改顏色定義
+    this.backgroundColor = { r: 81, g: 50, b: 36 }; // 深咖啡色作為背景
+    this.milkColor = { r: 255, g: 252, b: 245 }; // 暖白色作為牛奶
   }
 
-  // 座標轉換函數
   cX(x) {
     return x * this.cScale;
   }
@@ -22,27 +21,25 @@ export class FluidRenderer {
     return this.canvas.height - y * this.cScale;
   }
 
-  // 新的顏色計算函數
   getFluidColor(density) {
     // 確保密度值在 0-1 之間
     density = Math.min(Math.max(density, 0.0), 1.0);
 
-    // 線性插值計算顏色
+    // 背景和牛奶顏色混合
     return [
       Math.floor(
-        this.coffeeColor.r + (this.milkColor.r - this.coffeeColor.r) * density
+        this.backgroundColor.r * (1 - density) + this.milkColor.r * density
       ),
       Math.floor(
-        this.coffeeColor.g + (this.milkColor.g - this.coffeeColor.g) * density
+        this.backgroundColor.g * (1 - density) + this.milkColor.g * density
       ),
       Math.floor(
-        this.coffeeColor.b + (this.milkColor.b - this.coffeeColor.b) * density
+        this.backgroundColor.b * (1 - density) + this.milkColor.b * density
       ),
-      255,
+      255, // 不透明度固定為 255
     ];
   }
 
-  // 主要繪製函數
   draw(fluid, options = {}) {
     const { showStreamlines = false } = options;
 
@@ -62,8 +59,8 @@ export class FluidRenderer {
     // 繪製流體
     for (let i = 0; i < fluid.numX; i++) {
       for (let j = 0; j < fluid.numY; j++) {
-        // 不論是否為煙霧效果，都使用基於密度的顏色混合
-        const density = fluid.m[i * n + j];
+        // 獲取牛奶密度
+        const density = fluid.densityField.getDensity(i, j, "milk");
         const color = this.getFluidColor(density);
 
         const x = Math.floor(this.cX(i * h));
@@ -82,21 +79,19 @@ export class FluidRenderer {
         }
       }
     }
+
     this.ctx.putImageData(id, 0, 0);
     if (showStreamlines) {
-      this.drawStreamlines(fluid); // 繪製流線
+      this.drawStreamlines(fluid);
     }
-    // console.log("Drawing frame");
   }
 
-  // 繪製流線
   drawStreamlines(fluid) {
-    const numSegs = 30; // 增加線段數
-    this.ctx.strokeStyle = "rgba(255, 0, 0, 1)";
+    const numSegs = 30;
+    this.ctx.strokeStyle = "rgba(255, 0, 0, 0.5)"; // 降低流線的不透明度
     this.ctx.lineWidth = 1;
 
     for (let i = 1; i < fluid.numX - 1; i += 3) {
-      // 減少間距以增加流線密度
       for (let j = 1; j < fluid.numY - 1; j += 3) {
         let x = (i + 0.5) * fluid.h;
         let y = (j + 0.5) * fluid.h;
@@ -107,7 +102,7 @@ export class FluidRenderer {
         for (let n = 0; n < numSegs; n++) {
           const u = fluid.sampleField(x, y, U_FIELD);
           const v = fluid.sampleField(x, y, V_FIELD);
-          x += u * 0.015; // 調整流線長度
+          x += u * 0.015;
           y += v * 0.015;
           if (
             x > fluid.numX * fluid.h ||
@@ -122,6 +117,5 @@ export class FluidRenderer {
         this.ctx.stroke();
       }
     }
-    // console.log("Drawing streamlines");
   }
 }
