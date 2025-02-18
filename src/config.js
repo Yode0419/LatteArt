@@ -3,6 +3,7 @@
 export const SIMULATION_MODES = {
   STIRRING: "STIRRING",
   POURING: "POURING",
+  SUCTION: "SUCTION", // 新增吸取模式
 };
 
 export const config = {
@@ -36,6 +37,11 @@ export const config = {
     pouring: {
       radius: 0.1, // 注入點半徑
       strength: 2.5, // 注入力度
+    },
+
+    suction: {
+      radius: 0.2, // 吸取範圍
+      strength: 5.0, // 吸取強度
     },
   },
 

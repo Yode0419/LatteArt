@@ -76,6 +76,9 @@
           <button id="stirringMode" class="mode-btn">
             拉花棒攪拌 (Stirring)
           </button>
+          <button id="suctionMode" class="mode-btn">
+            吸取咖啡花紋 (Suction)
+          </button>
         </div>
       </div>
 
@@ -116,6 +119,32 @@
           <label for="stirStrength">攪拌強度 (Strength):</label>
           <input type="range" id="stirStrength" min="0.5" max="5" step="0.5" />
           <span class="value-display" id="stirStrength-value"></span>
+        </div>
+      </div>
+
+      <div class="control-group" id="suctionControls">
+        <h3>吸取設定 (Suction Settings)</h3>
+        <div>
+          <label for="suctionRadius">吸取範圍 (Radius):</label>
+          <input
+            type="range"
+            id="suctionRadius"
+            min="0.01"
+            max="0.2"
+            step="0.01"
+          />
+          <span class="value-display" id="suctionRadius-value"></span>
+        </div>
+        <div>
+          <label for="suctionStrength">吸取強度 (Strength):</label>
+          <input
+            type="range"
+            id="suctionStrength"
+            min="0.5"
+            max="5"
+            step="0.5"
+          />
+          <span class="value-display" id="suctionStrength-value"></span>
         </div>
       </div>
     </div>

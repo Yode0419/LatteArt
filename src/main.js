@@ -1,8 +1,9 @@
 import { Fluid } from "./fluid/fluidCore.js";
 import { FluidRenderer } from "./render.js";
 import { FluidInteraction } from "./interaction/interaction.js";
-import { StirringSimulator } from "./fluid/stir.js";
 import { MilkInjector } from "./fluid/pouring.js";
+import { StirringSimulator } from "./fluid/stir.js";
+import { SuctionSimulator } from "./fluid/suction.js"; // 引入 suction 模擬器
 import { Controls } from "./interaction/controlPanel.js";
 import { config, SIMULATION_MODES } from "./config.js"; // 修改這行，從 config.js 導入 SIMULATION_MODES
 
@@ -17,6 +18,7 @@ let fluid;
 let renderer;
 let interaction;
 let stirringSimulator;
+let suctionSimulator;
 let milkInjector;
 
 // 顯示與隱藏controls介面
@@ -29,23 +31,35 @@ toggleControlsBtn.addEventListener("click", () => {
 
 // 設置模式切換
 function setupModeButtons() {
-  const stirringBtn = document.getElementById("stirringMode");
   const pouringBtn = document.getElementById("pouringMode");
-
-  stirringBtn.addEventListener("click", () => {
-    config.simulation.currentMode = SIMULATION_MODES.STIRRING;
-    stirringBtn.classList.add("active");
-    pouringBtn.classList.remove("active");
-    interaction.setInteractionHandler(stirringSimulator);
-    console.log("stirring mode");
-  });
+  const stirringBtn = document.getElementById("stirringMode");
+  const suctionBtn = document.getElementById("suctionMode"); // 新增按鈕
 
   pouringBtn.addEventListener("click", () => {
     config.simulation.currentMode = SIMULATION_MODES.POURING;
     pouringBtn.classList.add("active");
     stirringBtn.classList.remove("active");
+    suctionBtn.classList.remove("active");
     interaction.setInteractionHandler(milkInjector);
     console.log("pouring mode");
+  });
+
+  stirringBtn.addEventListener("click", () => {
+    config.simulation.currentMode = SIMULATION_MODES.STIRRING;
+    stirringBtn.classList.add("active");
+    pouringBtn.classList.remove("active");
+    suctionBtn.classList.remove("active");
+    interaction.setInteractionHandler(stirringSimulator);
+    console.log("stirring mode");
+  });
+
+  suctionBtn.addEventListener("click", () => {
+    config.simulation.currentMode = SIMULATION_MODES.SUCTION;
+    suctionBtn.classList.add("active");
+    pouringBtn.classList.remove("active");
+    stirringBtn.classList.remove("active");
+    interaction.setInteractionHandler(suctionSimulator);
+    console.log("suction mode");
   });
 }
 
@@ -87,8 +101,9 @@ function init() {
   }
 
   // 初始化模擬器
-  stirringSimulator = new StirringSimulator(fluid, config);
   milkInjector = new MilkInjector(fluid, config);
+  stirringSimulator = new StirringSimulator(fluid, config);
+  suctionSimulator = new SuctionSimulator(fluid, config);
 
   // 設置預設模式
   interaction.setInteractionHandler(

@@ -59,6 +59,25 @@ export class Controls {
       "stirring",
       "strength"
     );
+    // 吸取參數
+    this.setupRangeControl(
+      "suctionRadius",
+      "simulation",
+      0.01,
+      0.1,
+      0.01,
+      "suction",
+      "radius"
+    );
+    this.setupRangeControl(
+      "suctionStrength",
+      "simulation",
+      0.1,
+      10,
+      0.1,
+      "suction",
+      "strength"
+    );
   }
 
   setupRangeControl(
