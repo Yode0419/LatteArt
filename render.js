@@ -1,4 +1,4 @@
-import { U_FIELD, V_FIELD } from "./fluidSimulation.js";
+import { U_FIELD, V_FIELD } from "./fluidCore.js";
 
 export class FluidRenderer {
   constructor(canvas, simHeight) {

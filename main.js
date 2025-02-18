@@ -1,4 +1,4 @@
-import { Fluid } from "./fluidSimulation.js";
+import { Fluid } from "./fluidCore.js";
 import { FluidRenderer } from "./render.js";
 import { FluidInteraction } from "./interaction.js";
 import { StirringSimulator } from "./stirringSimulator.js";
