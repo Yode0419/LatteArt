@@ -1,9 +1,9 @@
-import { Fluid } from "../fluid/fluidCore.js";
+import { Fluid } from "./fluid/fluidCore.js";
 import { FluidRenderer } from "./render.js";
-import { FluidInteraction } from "../interaction/interaction.js";
-import { StirringSimulator } from "../fluid/stir.js";
-import { MilkInjector } from "../fluid/pouring.js";
-import { Controls } from "../interaction/controlPanel.js";
+import { FluidInteraction } from "./interaction/interaction.js";
+import { StirringSimulator } from "./fluid/stir.js";
+import { MilkInjector } from "./fluid/pouring.js";
+import { Controls } from "./interaction/controlPanel.js";
 import { config, SIMULATION_MODES } from "./config.js"; // 修改這行，從 config.js 導入 SIMULATION_MODES
 
 // Canvas setup
