@@ -2,7 +2,7 @@ import { Fluid } from "./fluidCore.js";
 import { FluidRenderer } from "./render.js";
 import { FluidInteraction } from "./interaction.js";
 import { StirringSimulator } from "./stirringSimulator.js";
-import { MilkInjector } from "./milkInjection.js";
+import { MilkInjector } from "./pouring.js";
 import { Controls } from "./controls.js";
 import { config, SIMULATION_MODES } from "./config.js"; // 修改這行，從 config.js 導入 SIMULATION_MODES
 
