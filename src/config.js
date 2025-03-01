@@ -35,13 +35,13 @@ export const config = {
 
     // 注入模式參數
     pouring: {
-      radius: 0.1, // 注入點半徑
-      strength: 2.5, // 注入力度
+      radius: 0.05, // 注入點半徑
+      strength: 0.05, // 注入力度
     },
 
     suction: {
-      radius: 0.2, // 吸取範圍
-      strength: 5.0, // 吸取強度
+      radius: 0.1, // 吸取範圍
+      strength: 0.1, // 吸取強度
     },
   },
 

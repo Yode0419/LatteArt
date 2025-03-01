@@ -25,7 +25,7 @@ export class Controls {
       "pourRadius",
       "simulation",
       0.01,
-      0.2,
+      0.1,
       0.01,
       "pouring",
       "radius"
@@ -33,9 +33,9 @@ export class Controls {
     this.setupRangeControl(
       "pourStrength",
       "simulation",
-      0.5,
-      5,
-      0.5,
+      0.01,
+      0.1,
+      0.01,
       "pouring",
       "strength"
     );
@@ -64,7 +64,7 @@ export class Controls {
       "suctionRadius",
       "simulation",
       0.01,
-      0.1,
+      0.2,
       0.01,
       "suction",
       "radius"
@@ -72,9 +72,9 @@ export class Controls {
     this.setupRangeControl(
       "suctionStrength",
       "simulation",
-      0.1,
-      10,
-      0.1,
+      0.01,
+      0.2,
+      0.01,
       "suction",
       "strength"
     );

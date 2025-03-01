@@ -1,5 +1,6 @@
 export const U_FIELD = 0;
 export const V_FIELD = 1;
+export const W_FIELD = 2;
 
 import { DensityField } from "./densityField.js";
 
@@ -16,8 +17,10 @@ export class Fluid {
     // 速度場相關
     this.u = new Float32Array(this.numCells);
     this.v = new Float32Array(this.numCells);
+    this.w = new Float32Array(this.numCells); // 新增z方向速度場
     this.newU = new Float32Array(this.numCells);
     this.newV = new Float32Array(this.numCells);
+    this.newW = new Float32Array(this.numCells); // 新增
     this.p = new Float32Array(this.numCells);
     this.s = new Float32Array(this.numCells);
 
@@ -41,14 +44,7 @@ export class Fluid {
     }
   }
 
-  solveIncompressibility(
-    numIters,
-    dt,
-    overRelaxation,
-    sourceX,
-    sourceY,
-    sourceRate
-  ) {
+  solveIncompressibility(numIters, dt, overRelaxation) {
     const n = this.numY;
     const cp = (this.density * this.h) / dt; // 壓力係數
 
@@ -71,10 +67,10 @@ export class Fluid {
             this.v[i * n + j + 1] -
             this.v[i * n + j];
 
-          // 如果當前格點是注入/吸取點，調整 `div`
-          if (i === sourceX && j === sourceY) {
-            div -= sourceRate; // 正值代表注入，負值代表吸取
-          }
+          // 考慮z方向的貢獻 - 這是關鍵修改
+          // 我們沒有實際的z網格，所以使用當前的w值作為∂w/∂z的簡化近似
+          // 正的w值表示流體從上方注入，增加發散度
+          div -= this.w[i * n + j];
 
           let p = -div / sum; // 計算壓力修正
           p *= overRelaxation;
@@ -96,11 +92,19 @@ export class Fluid {
     for (let i = 0; i < this.numX; i++) {
       this.u[i * n + 0] = this.u[i * n + 1];
       this.u[i * n + this.numY - 1] = this.u[i * n + this.numY - 2];
+      this.v[i * n + 0] = this.v[i * n + 1];
+      this.v[i * n + this.numY - 1] = this.v[i * n + this.numY - 2];
+      this.w[i * n + 0] = this.w[i * n + 1];
+      this.w[i * n + this.numY - 1] = this.w[i * n + this.numY - 2];
     }
     // 處理垂直邊界
     for (let j = 0; j < this.numY; j++) {
+      this.u[0 * n + j] = this.u[1 * n + j];
+      this.u[(this.numX - 1) * n + j] = this.u[(this.numX - 2) * n + j];
       this.v[0 * n + j] = this.v[1 * n + j];
       this.v[(this.numX - 1) * n + j] = this.v[(this.numX - 2) * n + j];
+      this.w[0 * n + j] = this.w[1 * n + j];
+      this.w[(this.numX - 1) * n + j] = this.w[(this.numX - 2) * n + j];
     }
   }
 
@@ -127,6 +131,11 @@ export class Fluid {
       case V_FIELD:
         f = this.v;
         dx = h2;
+        break;
+      case W_FIELD:
+        f = this.w;
+        dx = h2;
+        dy = h2;
         break;
       default:
         return 0.0;
@@ -173,9 +182,21 @@ export class Fluid {
     );
   }
 
+  avgW(i, j) {
+    const n = this.numY;
+    return (
+      (this.w[(i - 1) * n + j] +
+        this.w[i * n + j] +
+        this.w[(i - 1) * n + j + 1] +
+        this.w[i * n + j + 1]) *
+      0.25
+    );
+  }
+
   advectVel(dt) {
     this.newU.set(this.u);
     this.newV.set(this.v);
+    this.newW.set(this.w);
 
     const n = this.numY;
     const h = this.h;
@@ -215,11 +236,27 @@ export class Fluid {
           this.newV[i * n + j] =
             Math.abs(v) < this.velocityThreshold ? 0 : v * this.viscosity;
         }
+        // w component
+        if (this.s[i * n + j] != 0.0 && i < this.numX - 1 && j < this.numY - 1) {
+          let x = i * h + h2;
+          let y = j * h + h2;
+          let u = this.avgU(i, j);
+          let v = this.avgV(i, j);
+          let w = this.w[i * n + j];
+          x = x - dt * u;
+          y = y - dt * v;
+          w = this.sampleField(x, y, W_FIELD);
+          
+          // w場隨時間的衰減（模擬z方向的擴散）
+          this.newW[i * n + j] = Math.abs(w) < this.velocityThreshold ? 
+            0 : w * this.viscosity* 1.0; // 0.95是衰減因子，可調整
+        }
       }
     }
 
     this.u.set(this.newU);
     this.v.set(this.newV);
+    this.w.set(this.newW);
   }
 
   // 密度場平流計算
@@ -245,6 +282,20 @@ export class Fluid {
 
           // 從回溯位置採樣所有流體的密度
           const sampledDensities = this.sampleDensities(x, y);
+          
+          // 考慮w場對密度的影響（注入效果）
+          const w = this.w[i * n + j];
+          if (w > 0) {  // 正的w表示有液體從z方向注入
+            for (const fluidType in sampledDensities) {
+              if (fluidType === "milk") {  // 假設注入的是牛奶
+                // 根據w的大小增加密度
+                const addedDensity = w * dt * 0.5;  // 係數可調整
+                sampledDensities[fluidType] += addedDensity;
+                // 確保密度不超過1.0
+                sampledDensities[fluidType] = Math.min(sampledDensities[fluidType], 1.0);
+              }
+            }
+          }
 
           // 將採樣結果存入臨時密度場
           tempDensities[i * n + j] = sampledDensities;
@@ -299,28 +350,12 @@ export class Fluid {
     return result;
   }
 
-  simulate(
-    dt,
-    gravity,
-    numIters,
-    overRelaxation,
-    viscosity,
-    sourceX,
-    sourceY,
-    sourceRate
-  ) {
+  simulate(dt, gravity, numIters, overRelaxation, viscosity) {
     this.viscosity = viscosity;
 
     this.integrate(dt, gravity);
     this.p.fill(0.0);
-    this.solveIncompressibility(
-      numIters,
-      dt,
-      overRelaxation,
-      sourceX,
-      sourceY,
-      sourceRate
-    );
+    this.solveIncompressibility(numIters, dt, overRelaxation);
     this.extrapolate();
     this.advectVel(dt);
     this.advectDensities(dt);
