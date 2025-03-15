@@ -62,6 +62,9 @@ body {
   align-items: center;
   position: relative;
 
+  /* 向上偏移，可以調整這個值來控制上移距離 */
+  margin-top: -80px; /* 負值使容器向上移動 */
+
   /* 定義基礎單位，基於咖啡杯尺寸 */
   --cup-size: min(90vw, 560px);
   --border-width: calc(var(--cup-size) * 0.043); /* 約為24px，當尺寸為560px時 */
@@ -180,43 +183,77 @@ input[type="range"] {
 
 #restartButton {
   padding: 6px 12px;
-  background-color: rgba(23, 58, 200, 0.9);
-  color: white;
+  background-color: rgba(224, 220, 217, 0.9);
+  color: rgb(51, 20, 7);
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  width: 100%;
-  margin-bottom: 8px;
+  width: 90%;
+  height: 48px;
+  max-width: 450px;
+
+  /* 新增定位樣式 */
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 48px; /* 距離底部64px */
+  z-index: 50; /* 確保按鈕在適當的層級 */
 }
 
 #restartButton:hover {
-  background-color: rgba(56, 89, 220, 0.9);
+  background-color: rgba(226, 201, 183, 0.9);
 }
 
+/* 添加模式選擇器容器的樣式 */
+.mode-selector-container {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 120px; /* 比重新開始按鈕高一些 */
+  width: 90%;
+  max-width: 450px;
+  z-index: 50;
+}
+
+/* 更新模式選擇器樣式，使其適應新位置 */
 .mode-selector {
   display: flex;
   gap: 8px;
   margin: 8px 0;
+  justify-content: space-between;
 }
 
 .mode-btn {
-  padding: 6px 12px;
-  border: 2px solid rgba(74, 52, 41, 0.8);
+  padding: 8px 12px;
+  border: 2px solid rgba(126, 53, 19, 0.8);
   border-radius: 4px;
-  background-color: rgba(255, 255, 255, 0.8);
-  color: #4a3429;
+  background-color: rgba(255, 255, 255, 0.95);
+  color: rgba(126, 53, 19, 0.8);
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 0.85em;
   flex: 1;
+  max-width: 140px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* 手機適配 */
+@media (max-width: 768px) {
+  .mode-btn {
+    font-size: 0.75em;
+    padding: 8px 6px;
+  }
+
+  .mode-selector-container {
+    bottom: 115px;
+  }
+}
 .mode-btn:hover {
   background-color: rgba(240, 240, 240, 0.8);
 }
 
 .mode-btn.active {
-  background-color: rgba(74, 52, 41, 0.8);
+  background-color: rgba(104, 46, 17, 0.8);
   color: white;
 }
 

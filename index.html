@@ -17,10 +17,24 @@
     <div class="canvas-container">
       <canvas id="myCanvas"></canvas>
     </div>
+    <!-- 放置在主頁面中，在重新開始按鈕上方 -->
+    <div class="mode-selector-container">
+      <div class="mode-selector">
+        <button id="pouringMode" class="mode-btn active">
+          注入牛奶 (Pour Milk)
+        </button>
+        <button id="stirringMode" class="mode-btn">
+          拉花棒攪拌 (Stirring)
+        </button>
+        <button id="suctionMode" class="mode-btn">
+          吸取咖啡花紋 (Suction)
+        </button>
+      </div>
+    </div>
+
+    <button id="restartButton">重新開始 (Reset)</button>
 
     <div class="controls hidden">
-      <button id="restartButton">重新開始 (Reset)</button>
-
       <div class="control-group">
         <h3>顯示設定 (Display)</h3>
         <div>
@@ -64,21 +78,6 @@
           <label for="overRelaxation">過度鬆弛 (Over-relaxation):</label>
           <input type="range" id="overRelaxation" min="1" max="2" step="0.1" />
           <span class="value-display" id="overRelaxation-value"></span>
-        </div>
-      </div>
-
-      <div class="control-group">
-        <h3>操作模式 (Operation Mode)</h3>
-        <div class="mode-selector">
-          <button id="pouringMode" class="mode-btn active">
-            注入牛奶 (Pour Milk)
-          </button>
-          <button id="stirringMode" class="mode-btn">
-            拉花棒攪拌 (Stirring)
-          </button>
-          <button id="suctionMode" class="mode-btn">
-            吸取咖啡花紋 (Suction)
-          </button>
         </div>
       </div>
 
