@@ -13,7 +13,7 @@ export class Controls {
     this.setupRangeControl("overRelaxation", "fluid", 1, 2, 0.1);
 
     // 顯示設定
-    this.setupRangeControl("resolution", "display", 40, 200, 20);
+    this.setupRangeControl("resolution", "display", 120, 240, 20);
     this.setupCheckboxControl("showSmoke", "display");
     this.setupCheckboxControl("showStreamlines", "display");
 

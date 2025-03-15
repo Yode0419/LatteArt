@@ -19,7 +19,7 @@ export const config = {
 
   // 顯示設定
   display: {
-    resolution: 120,
+    resolution: 200,
     showStreamlines: false,
   },
 

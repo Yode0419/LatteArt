@@ -9,7 +9,7 @@ export class FluidRenderer {
     this.simWidth = canvas.width / this.cScale;
 
     // 修改顏色定義
-    this.backgroundColor = { r: 81, g: 50, b: 36 }; // 深咖啡色作為背景
+    this.backgroundColor = { r: 198, g: 102, b: 33 }; // 深咖啡色作為背景
     this.milkColor = { r: 255, g: 252, b: 245 }; // 暖白色作為牛奶
   }
 
