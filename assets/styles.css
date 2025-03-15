@@ -45,6 +45,7 @@ body {
   font-size: 1.4em;
 }
 
+/* 使用偽元素添加內邊框 */
 .canvas-container {
   width: 100vw;
   height: 100vh;
@@ -53,12 +54,33 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+
+  /* 定義基礎單位，基於咖啡杯尺寸 */
+  --cup-size: min(90vw, 560px);
+  --border-width: calc(var(--cup-size) * 0.043); /* 約為24px，當尺寸為560px時 */
+  --border-offset: calc(
+    var(--cup-size) * 0.036
+  ); /* 約為20px，當尺寸為560px時 */
+}
+
+.canvas-container::after {
+  content: "";
+  position: absolute;
+  width: calc(var(--cup-size) + var(--border-offset));
+  height: calc(var(--cup-size) + var(--border-offset));
+  border-radius: 50%;
+  border: var(--border-width) solid #f3f3f2;
+  box-sizing: border-box;
+  pointer-events: none;
+  z-index: 2;
 }
 
 #myCanvas {
-  width: 100%;
-  height: 100%;
-  border: none;
+  width: var(--cup-size);
+  height: var(--cup-size);
+  border-radius: 50%;
+  margin: auto;
 }
 
 .controls {

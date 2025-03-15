@@ -9,8 +9,12 @@ import { config, SIMULATION_MODES } from "./config.js"; // 修改這行，從 co
 
 // Canvas setup
 const canvas = document.getElementById("myCanvas");
-canvas.width = canvas.clientWidth;
-canvas.height = canvas.clientHeight;
+const size = Math.min(
+  Math.min(window.innerWidth * 0.9, 560),
+  Math.min(window.innerHeight * 0.9, 560)
+);
+canvas.width = size;
+canvas.height = size;
 canvas.focus();
 
 // Simulation state
@@ -78,7 +82,7 @@ const controls = new Controls(config, handleParamChange);
 // Initialize and start simulation
 function init() {
   const domainHeight = 1.0;
-  const domainWidth = domainHeight * (canvas.width / canvas.height);
+  const domainWidth = domainHeight; // 確保模擬領域是正方形
   const h = domainHeight / config.display.resolution;
 
   const numX = Math.floor(domainWidth / h);
@@ -91,6 +95,9 @@ function init() {
     h,
     config.fluid.viscosity // 確保黏滯性參數被傳入
   );
+
+  // 在初始化流體後立即設置圓形邊界
+  setupCircularBoundary(fluid);
 
   if (!renderer) {
     renderer = new FluidRenderer(canvas, domainHeight);
@@ -120,6 +127,28 @@ document.getElementById("restartButton").addEventListener("click", () => {
   init();
   config.debug.frameNr = 0;
 });
+
+// 這個函數負責設置圓形邊界
+function setupCircularBoundary(fluid) {
+  const n = fluid.numY;
+  const centerX = (fluid.numX - 3) / 2;
+  const centerY = (fluid.numY - 3) / 2;
+  const radius = Math.min(centerX, centerY) * 0.99; // 稍微小於最大可能半徑
+
+  for (let i = 0; i < fluid.numX; i++) {
+    for (let j = 0; j < fluid.numY; j++) {
+      const dx = i - centerX;
+      const dy = j - centerY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist > radius) {
+        fluid.s[i * n + j] = 0.0; // 圓外設為固體
+      } else {
+        fluid.s[i * n + j] = 1.0; // 圓內設為流體
+      }
+    }
+  }
+}
 
 function update() {
   if (!config.debug.paused) {

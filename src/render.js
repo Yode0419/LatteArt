@@ -21,7 +21,12 @@ export class FluidRenderer {
     return this.canvas.height - y * this.cScale;
   }
 
-  getFluidColor(density) {
+  getFluidColor(density, isSolid = false) {
+    // 如果是固體格子，直接返回藍色
+    if (isSolid) {
+      return [30, 100, 200, 255]; // 藍色
+    }
+
     // 確保密度值在 0-1 之間
     density = Math.min(Math.max(density, 0.0), 1.0);
 
@@ -59,9 +64,12 @@ export class FluidRenderer {
     // 繪製流體
     for (let i = 0; i < fluid.numX; i++) {
       for (let j = 0; j < fluid.numY; j++) {
+        // 判斷是否為固體格子
+        const isSolid = fluid.s[i * n + j] === 0.0;
+
         // 獲取牛奶密度
         const density = fluid.densityField.getDensity(i, j, "milk");
-        const color = this.getFluidColor(density);
+        const color = this.getFluidColor(density, isSolid);
 
         const x = Math.floor(this.cX(i * h));
         const y = Math.floor(this.cY((j + 1) * h));

@@ -237,7 +237,11 @@ export class Fluid {
             Math.abs(v) < this.velocityThreshold ? 0 : v * this.viscosity;
         }
         // w component
-        if (this.s[i * n + j] != 0.0 && i < this.numX - 1 && j < this.numY - 1) {
+        if (
+          this.s[i * n + j] != 0.0 &&
+          i < this.numX - 1 &&
+          j < this.numY - 1
+        ) {
           let x = i * h + h2;
           let y = j * h + h2;
           let u = this.avgU(i, j);
@@ -246,10 +250,10 @@ export class Fluid {
           x = x - dt * u;
           y = y - dt * v;
           w = this.sampleField(x, y, W_FIELD);
-          
+
           // w場隨時間的衰減（模擬z方向的擴散）
-          this.newW[i * n + j] = Math.abs(w) < this.velocityThreshold ? 
-            0 : w * this.viscosity* 1.0; // 0.95是衰減因子，可調整
+          this.newW[i * n + j] =
+            Math.abs(w) < this.velocityThreshold ? 0 : w * this.viscosity * 1.0; // 0.95是衰減因子，可調整
         }
       }
     }
@@ -282,17 +286,22 @@ export class Fluid {
 
           // 從回溯位置採樣所有流體的密度
           const sampledDensities = this.sampleDensities(x, y);
-          
+
           // 考慮w場對密度的影響（注入效果）
           const w = this.w[i * n + j];
-          if (w > 0) {  // 正的w表示有液體從z方向注入
+          if (w > 0) {
+            // 正的w表示有液體從z方向注入
             for (const fluidType in sampledDensities) {
-              if (fluidType === "milk") {  // 假設注入的是牛奶
+              if (fluidType === "milk") {
+                // 假設注入的是牛奶
                 // 根據w的大小增加密度
-                const addedDensity = w * dt * 0.5;  // 係數可調整
+                const addedDensity = w * dt * 0.5; // 係數可調整
                 sampledDensities[fluidType] += addedDensity;
                 // 確保密度不超過1.0
-                sampledDensities[fluidType] = Math.min(sampledDensities[fluidType], 1.0);
+                sampledDensities[fluidType] = Math.min(
+                  sampledDensities[fluidType],
+                  1.0
+                );
               }
             }
           }
@@ -350,6 +359,33 @@ export class Fluid {
     return result;
   }
 
+  // 在 Fluid 類中添加新方法
+  clearBoundaryVelocities() {
+    const n = this.numY;
+
+    for (let i = 0; i < this.numX; i++) {
+      for (let j = 0; j < this.numY; j++) {
+        // 檢查是否為固體格子
+        if (this.s[i * n + j] === 0.0) {
+          // 固體格子自身速度設為0
+          this.u[i * n + j] = 0;
+          this.v[i * n + j] = 0;
+          this.w[i * n + j] = 0;
+
+          // 清除固體格子右邊界的 u 速度
+          if (i < this.numX - 1) {
+            this.u[(i + 1) * n + j] = 0;
+          }
+
+          // 清除固體格子上邊界的 v 速度
+          if (j < this.numY - 1) {
+            this.v[i * n + j + 1] = 0;
+          }
+        }
+      }
+    }
+  }
+
   simulate(dt, gravity, numIters, overRelaxation, viscosity) {
     this.viscosity = viscosity;
 
@@ -359,5 +395,7 @@ export class Fluid {
     this.extrapolate();
     this.advectVel(dt);
     this.advectDensities(dt);
+    // 在每次模擬步驟結束後清除邊界速度
+    this.clearBoundaryVelocities();
   }
 }

@@ -39,20 +39,21 @@ export class StirringSimulator {
 
     for (let i = 1; i < this.fluid.numX - 2; i++) {
       for (let j = 1; j < this.fluid.numY - 2; j++) {
-        this.fluid.s[i * n + j] = 1.0;
+        // 只處理非固體格子
+        if (this.fluid.s[i * n + j] !== 0.0) {
+          const dx = (i + 0.5) * this.fluid.h - x;
+          const dy = (j + 0.5) * this.fluid.h - y;
+          const d = Math.sqrt(dx * dx + dy * dy);
 
-        const dx = (i + 0.5) * this.fluid.h - x;
-        const dy = (j + 0.5) * this.fluid.h - y;
-        const d = Math.sqrt(dx * dx + dy * dy);
+          if (d < radius) {
+            const factor = 1.0 - d / radius;
 
-        if (d < radius) {
-          const factor = 1.0 - d / radius;
-
-          // 影響速度場，使流體流動
-          this.fluid.u[i * n + j] = vx * strength * factor;
-          this.fluid.u[(i + 1) * n + j] = vx * strength * factor;
-          this.fluid.v[i * n + j] = vy * strength * factor;
-          this.fluid.v[i * n + j + 1] = vy * strength * factor;
+            // 影響速度場，使流體流動
+            this.fluid.u[i * n + j] = vx * strength * factor;
+            this.fluid.u[(i + 1) * n + j] = vx * strength * factor;
+            this.fluid.v[i * n + j] = vy * strength * factor;
+            this.fluid.v[i * n + j + 1] = vy * strength * factor;
+          }
         }
       }
     }
