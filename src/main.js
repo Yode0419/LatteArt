@@ -10,8 +10,8 @@ import { config, SIMULATION_MODES } from "./config.js"; // 修改這行，從 co
 // Canvas setup
 const canvas = document.getElementById("myCanvas");
 const size = Math.min(
-  Math.min(window.innerWidth * 0.9, 560),
-  Math.min(window.innerHeight * 0.9, 560)
+  Math.min(window.innerWidth * 0.8, 560),
+  Math.min(window.innerHeight * 0.8, 560)
 );
 canvas.width = size;
 canvas.height = size;
