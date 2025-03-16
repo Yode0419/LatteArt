@@ -244,7 +244,7 @@ input[type="range"] {
   transform: translateX(-50%);
   bottom: 40px; /* 距離底部40px */
   z-index: 50; /* 確保按鈕在適當的層級 */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
 }
 
 /* 添加模式選擇器容器的樣式 */
