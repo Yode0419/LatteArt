@@ -128,32 +128,23 @@ document.getElementById("restartButton").addEventListener("click", () => {
   config.debug.frameNr = 0;
 });
 
-// Share latte art image
+// Share latte art image using html2canvas
 const shareButton = document.getElementById("shareButton");
 const shareLoading = document.getElementById("shareLoading");
 shareButton.addEventListener("click", async () => {
   shareLoading.classList.remove("hidden");
   try {
-    // 將當前畫布內容複製到新的 canvas，並以白色作為背景
-    const capture = document.createElement("canvas");
-    capture.width = canvas.width;
-    capture.height = canvas.height;
-    const cCtx = capture.getContext("2d");
-    cCtx.fillStyle = "#ffffff";
-    cCtx.fillRect(0, 0, capture.width, capture.height);
-    cCtx.drawImage(canvas, 0, 0);
-
-    // 縮放至分享用尺寸
-    const scaled = document.createElement("canvas");
-    scaled.width = 320;
-    scaled.height = 320;
-    const sCtx = scaled.getContext("2d");
-    sCtx.fillStyle = "#ffffff";
-    sCtx.fillRect(0, 0, 320, 320);
-    sCtx.drawImage(capture, 0, 0, 320, 320);
+    // Capture the latte art container so borders are included
+    const container = document.querySelector(".canvas-container");
+    const capture = await html2canvas(container, {
+      backgroundColor: "#ffffff",
+      scale: 2,
+      useCORS: true,
+      logging: false,
+    });
 
     const blob = await new Promise((res) =>
-      scaled.toBlob(res, "image/png")
+      capture.toBlob(res, "image/png")
     );
 
     const file = new File([blob], "latte-art.png", { type: "image/png" });
