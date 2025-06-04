@@ -130,40 +130,56 @@ document.getElementById("restartButton").addEventListener("click", () => {
 
 // Share latte art image
 const shareButton = document.getElementById("shareButton");
+const shareLoading = document.getElementById("shareLoading");
 shareButton.addEventListener("click", async () => {
   const container = document.querySelector(".canvas-container");
+  shareLoading.classList.remove("hidden");
   try {
-    const capture = await html2canvas(container, { backgroundColor: null });
-    capture.toBlob(async (blob) => {
-      const file = new File([blob], "latte-art.png", { type: "image/png" });
-
-      if (
-        navigator.canShare &&
-        navigator.canShare({ files: [file] }) &&
-        navigator.share
-      ) {
-        try {
-          await navigator.share({
-            files: [file],
-            title: "Latte Art",
-            text: "Check out my latte art!",
-          });
-        } catch (err) {
-          console.error("Share failed", err);
-        }
-      } else {
-        const url = URL.createObjectURL(file);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "latte-art.png";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-      }
+    const capture = await html2canvas(container, {
+      backgroundColor: null,
+      useCORS: true,
     });
+
+    const scaled = document.createElement("canvas");
+    scaled.width = 320;
+    scaled.height = 320;
+    const ctx = scaled.getContext("2d");
+    ctx.drawImage(capture, 0, 0, 320, 320);
+
+    const blob = await new Promise((res) =>
+      scaled.toBlob(res, "image/png")
+    );
+
+    const file = new File([blob], "latte-art.png", { type: "image/png" });
+
+    if (
+      navigator.canShare &&
+      navigator.canShare({ files: [file] }) &&
+      navigator.share
+    ) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: "Latte Art",
+          text: "Check out my latte art!",
+        });
+      } catch (err) {
+        console.error("Share failed", err);
+      }
+    } else {
+      const url = URL.createObjectURL(file);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "latte-art.png";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
   } catch (err) {
     console.error("Capture failed", err);
+  } finally {
+    shareLoading.classList.add("hidden");
   }
 });
 
