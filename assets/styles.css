@@ -28,6 +28,11 @@ body {
   z-index: 1000;
 }
 
+.nav-actions {
+  display: flex;
+  gap: 8px;
+}
+
 .nav-title {
   color: rgba(74, 52, 41, 0.9);
   font-size: 1.2em;

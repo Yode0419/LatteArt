@@ -9,9 +9,14 @@
   <body>
     <nav class="navbar">
       <div class="nav-title">Latte Art Simulator</div>
-      <button id="toggleControls" class="nav-btn">
-        <span class="nav-icon">⚙️</span>
-      </button>
+      <div class="nav-actions">
+        <button id="toggleControls" class="nav-btn">
+          <span class="nav-icon">⚙️</span>
+        </button>
+        <button id="shareButton" class="nav-btn">
+          <span class="nav-icon">📤</span>
+        </button>
+      </div>
     </nav>
 
     <div class="canvas-container">
@@ -156,6 +161,7 @@
       </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script type="module" src="src/main.js"></script>
   </body>
 </html>
