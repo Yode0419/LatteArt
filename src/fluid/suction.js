@@ -73,7 +73,8 @@ export class SuctionSimulator {
               "milk"
             );
             // 根據吸取強度減少密度
-            const reductionRate = factor * 0;
+            // 按吸取強度與距離衰減來降低牛奶密度
+            const reductionRate = Math.abs(suctionStrength) * factor * this.config.fluid.dt;
             const newDensity = Math.max(0, currentMilk - reductionRate);
             this.fluid.densityField.setDensity(i, j, "milk", newDensity);
           }
