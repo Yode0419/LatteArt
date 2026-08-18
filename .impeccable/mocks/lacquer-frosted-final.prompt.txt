@@ -1,0 +1,11 @@
+Use case: precise-object-edit
+Asset type: final mobile UI comp adjustment for LatteArt
+Primary request: Change only the Reset control’s position and treatment. Preserve every other aspect of the reference image exactly: dark lacquer café atmosphere, large porcelain latte canvas, modern flat smoked-frosted-glass language and settings controls, three-segment Pour / Stir / Suction control, inward-arrow Suction icon, typography, spacing, palette, bottom collapsed settings handle, and portrait framing.
+Reset change:
+- Remove the existing Reset text action from below the three-mode segmented control, leaving clean intentional breathing room there.
+- Add a compact standalone restart icon button in the top header immediately to the left of the settings gear, aligned with the language and settings controls.
+- Use a simple counterclockwise circular-arrow line icon only; no visible “Reset” text in the compact mobile header.
+- Match the modern flat smoked-frosted-glass treatment of the settings button: same 44–48px square touch target, same 14px radius, same subtle blur and thin low-contrast separator.
+- Keep clear spacing between language, restart, and settings so they read as three distinct controls.
+- Treat restart as a potentially destructive secondary action: visually quieter than settings and well separated from the three creative modes.
+Constraints: move only Reset; do not alter the cup, latte art, tool icons or labels, control widths, language label, logo, background, colors, or bottom drawer. No new words, no emoji, no decorative Reset label, no confirmation dialog shown, no bubble glass, no ornate outline, no device frame, no hands, no watermark.

@@ -1,0 +1,11 @@
+Use case: precise-object-edit
+Asset type: final mobile UI comp adjustment for LatteArt
+Primary request: Add only one clear completion action to the existing mobile interface. Preserve every other aspect of the reference exactly: dark lacquer café atmosphere, modern flat smoked-frosted-glass style, top header with language/restart/settings, large porcelain latte canvas, Pour/Stir/Suction segmented control and icons, palette, typography, spacing, and bottom collapsed advanced-settings handle.
+Completion action:
+- Add one primary completion button directly below the Pour / Stir / Suction segmented control and above the collapsed advanced-settings bottom handle.
+- Place it in the lower thumb-reach zone, centered, with a 52px minimum height and a width of roughly 55–65% of the tool control.
+- Label it exactly “Done” and include a simple checkmark line icon to the left of the label.
+- Use a modern flat frosted-glass treatment with a slightly brighter warm-ivory translucent fill and dark oxblood text, so it is clearly the primary action without becoming glossy or loud.
+- Use a 16px corner radius, subtle background blur, fine grain, one thin low-contrast copper hairline, and no bubble-like edge.
+- Keep enough separation from the tool selector to communicate: tools change how you create; Done finishes the piece.
+Constraints: add only the Done button; do not move or alter Reset, language, settings, cup, latte art, tool labels, Suction icon, control sizes, or drawer handle. No other new words, no share icon in this state, no confirmation sheet shown, no emoji, no bubble glass, no ornate frame, no neon, no device frame, no hands, no watermark.

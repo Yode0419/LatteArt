@@ -1,0 +1,15 @@
+Use case: precise-object-edit
+Asset type: LatteArt mobile UI completion-and-share state comp
+Primary request: Transform the referenced working screen into the immediate state after the user taps Finish. Preserve the exact LatteArt wordmark, dark lacquer café atmosphere, oxblood palette, modern flat smoked-frosted-glass grammar, porcelain cup, and the exact latte artwork. This screen must make completing a latte feel ceremonial while remaining calm and intuitive.
+State transition expressed in the still composition:
+- Remove the three editing tool segments, Reset row, touch trace, and collapsed settings handle from view; editing has paused.
+- Move the finished cup slightly upward and present it as the unquestioned centerpiece, a little larger with a clean soft shadow.
+- Add one extremely thin warm-copper circular halo just outside the porcelain rim and one restrained arc of light near the lower edge, suggesting a single completion sweep. No confetti, badges, stars, sparkles, or celebration graphics.
+- Keep the compact header and language control quiet at top.
+- Raise one flat modern smoked-frosted bottom sheet from the lower edge, about one-quarter of the viewport. It has subtle backdrop blur, fine translucent grain, 20px top corners, no glossy or bubble edges.
+- In the sheet, show the exact title “Your latte is ready” in refined system sans-serif, centered and calm.
+- Add exactly two equal primary actions: “Save Image” with a simple download-to-tray line icon, and “Share” with a standard three-node share line icon. Use large 48–52px touch targets. Make Save Image the slightly stronger wine-tinted action and Share a neutral frosted action.
+- Add one quiet text action “Keep editing” below them.
+Ritual quality: the composition should feel like placing a finished cup on a dark lacquer tray and presenting it to someone. The cup receives attention through scale, stillness, halo, and cleared surroundings—not ornament.
+Text (verbatim): “LatteArt”, “繁中 / EN”, “Your latte is ready”, “Save Image”, “Share”, “Keep editing”.
+Constraints: no other words; no invented claims; no score, date, streak, badge, or user name; no emoji; no childish colors; no confetti; no glossy bubble glass; no thick lens edges; no ornate frames; no neon; no device frame; no hands; no watermark. Modern Apple-like clarity without copying Apple branding. High contrast and minimum 44px touch targets.

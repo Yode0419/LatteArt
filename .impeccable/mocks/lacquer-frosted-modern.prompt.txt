@@ -1,0 +1,13 @@
+Use case: precise-object-edit
+Asset type: final mobile UI direction refinement for LatteArt
+Primary request: Preserve the reference’s exact dark lacquer café atmosphere, warm oxblood palette, large porcelain latte canvas, overall vertical composition, and immediate three-tool workflow. Modernize only the interface chrome and suction icon into a calm, highly intuitive, Apple-like contemporary product UI—minimal, flat, precise, and tactile, without copying Apple branding.
+Modern UI changes:
+- Use a clean system humanist sans-serif similar in character to a premium mobile operating system; reduce the LatteArt wordmark slightly and align the compact header on a strict 8px grid.
+- Replace ornate copper double-rims and decorative outlines with thin low-contrast 1px separators and sparse warm-copper hairlines.
+- Make “繁中 / EN” and settings compact flat frosted-glass controls with subtle background blur, fine translucent grain, 14px corner radius, and no glossy highlight.
+- Rebuild the Pour / Stir / Suction area as one low-profile modern smoked-frosted-glass segmented control with equal-width 52–60px touch zones, 16px outer radius, clean spacing, simple line icons above labels, and one quiet selected Pour segment using a flat translucent wine fill plus an underline. It must look readily implementable with CSS backdrop-filter, not photographic glass.
+- Make Reset a small modern secondary text action with a simple rotate-arrow icon, visually subordinate.
+- Keep the collapsed advanced settings as one thin flat frosted bottom sheet handle, not an ornamental bar.
+Accurate Suction icon: remove the pipette completely. Use a simple professional line icon showing four short arrows pointing inward toward one small central circle, representing the fluid field contracting toward the touch point. No droplets and no nozzle. Keep the exact label “Suction”.
+Text (verbatim): “LatteArt”, “繁中 / EN”, “Pour”, “Stir”, “Suction”, “Reset”.
+Constraints: preserve the cup, latte artwork, lacquer texture, coffeehouse warmth, dark oxblood palette, and all main element positions. The result must feel more contemporary, flatter, clearer, and more intuitive than the reference. No new words, no emoji, no childish colors, no bubble glass, no thick lens edges, no ornate metallic frames, no neon, no device frame, no hands, no watermark, no generic white cards, no copied Apple logos or proprietary interface screenshots. High contrast and minimum 44px touch targets.
