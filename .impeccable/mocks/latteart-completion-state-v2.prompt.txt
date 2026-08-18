@@ -1,0 +1,13 @@
+Use case: precise-object-edit
+Asset type: LatteArt mobile UI completion-and-share state v2 comp
+Primary request: Preserve the referenced completion screen’s exact finished latte artwork, ceremonial cup scale and position, warm-copper halo, dark lacquer café atmosphere, elegant LatteArt wordmark, modern flat smoked-frosted bottom sheet, “Your latte is ready” title, Save Image and Share actions, Keep editing action, palette, typography, spacing, and portrait framing. Change only the header controls and clarify that this sheet rose from the bottom Finish tray.
+Header changes:
+- Remove the “繁中 / EN” language control completely; language now lives inside Settings.
+- Keep a single compact settings gear button at top right in the same flat smoked-frosted style.
+- Do not show Reset in the completion state because editing is paused.
+Bottom-sheet refinement:
+- Preserve all current sheet content and action hierarchy exactly.
+- Add one short subtle drag handle centered at the top edge of the raised completion sheet, showing it is the same bottom component that the user tapped or swiped upward from the working screen.
+- Keep the sheet roughly the lower quarter of the viewport, with refined 20px top corners and flat smoked-frosted material.
+Text (verbatim): “LatteArt”, “Your latte is ready”, “Save Image”, “Share”, “Keep editing”.
+Constraints: preserve all other content and styling. No visible language selector, no Reset, no editing tool controls, no touch trace, no extra words, no confetti, no badges, no emoji, no bubble glass, no ornate frame, no neon, no device frame, no hands, no watermark. Modern Apple-like clarity without copying Apple branding; minimum 44px touch targets.

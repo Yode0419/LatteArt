@@ -1,0 +1,27 @@
+{
+  "asset": "assets/lacquer-texture.png",
+  "dimensions": {
+    "width": 1024,
+    "height": 1024
+  },
+  "format": "PNG",
+  "generator": "OpenAI built-in image generation tool",
+  "source_reference": ".impeccable/mocks/latteart-working-state-v2.png",
+  "generated_source": "C:/Users/yode0/.codex/generated_images/01a013d8-b835-7343-b25f-22dc3c239c1c/exec-68581331-94a7-4d28-95ce-6a9b0536f45b.png",
+  "prompts": [
+    {
+      "sequence": 1,
+      "exact": "Use case: stylized-concept\nAsset type: seamless website background texture tile\nInput images: Image 1: approved visual style and color reference only\nPrimary request: create a 1024x1024 seamless tile of a dark near-black oxblood hand-lacquer café service tray surface matching the approved reference\nScene/backdrop: full-bleed flat material texture only\nSubject: dense, fine, irregular tactile hand-lacquer grain with tiny restrained oxblood and umber variations\nStyle/medium: photorealistic macro material texture, subtle handmade lacquer\nComposition/framing: orthographic flat-on square tile, edge-to-edge texture, uniform detail density, no focal point\nLighting/mood: extremely even diffuse ambient light, very low contrast, no directional light, no hotspot, no vignette\nColor palette: near-black #010000 through #120E0C with sparse muted oxblood undertones; dark enough for warm porcelain text\nMaterials/textures: dense fine lacquer grain, minute irregular ridges and stipple, no coarse cracks\nConstraints: exact 1024x1024 square; perfectly seamless on all four edges for repeated tiling; no visible boundary seams; no objects; no cup; no controls; no lighting hotspot; no text; no border; no logo; no watermark\nAvoid: bright red, glossy reflections, large cracks, embossed symbols, leather, stone, wood grain, obvious repeating motif"
+    }
+  ],
+  "postprocessing": [
+    "Selected a centered 1024x1024 patch from the generated source.",
+    "Applied a restrained highlight-compression curve per RGB channel to keep the surface near-black and low-contrast while retaining the generated grain.",
+    "Applied 96px symmetric wrap-edge crossfades horizontally and vertically so opposite edge pixels match exactly without imposing quadrant mirroring.",
+    "Embedded this complete provenance JSON as PNG iTXt metadata."
+  ],
+  "intent": {
+    "seamless": true,
+    "true_transparency": false
+  }
+}

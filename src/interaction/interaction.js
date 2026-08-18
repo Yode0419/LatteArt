@@ -50,27 +50,29 @@ export class FluidInteraction {
   }
 
   startDrag(x, y) {
-    const bounds = this.canvas.getBoundingClientRect();
-    const mx = x - bounds.left - this.canvas.clientLeft;
-    const my = y - bounds.top - this.canvas.clientTop;
     this.mouseDown = true;
 
     if (this.currentHandler) {
-      const simX = mx / this.renderer.cScale;
-      const simY = (this.canvas.height - my) / this.renderer.cScale;
+      const { simX, simY } = this.toSimulationCoordinates(x, y);
       this.currentHandler.start(simX, simY);
     }
   }
 
   drag(x, y) {
     if (this.mouseDown && this.currentHandler) {
-      const bounds = this.canvas.getBoundingClientRect();
-      const mx = x - bounds.left - this.canvas.clientLeft;
-      const my = y - bounds.top - this.canvas.clientTop;
-      const simX = mx / this.renderer.cScale;
-      const simY = (this.canvas.height - my) / this.renderer.cScale;
+      const { simX, simY } = this.toSimulationCoordinates(x, y);
       this.currentHandler.update(simX, simY);
     }
+  }
+
+  toSimulationCoordinates(x, y) {
+    const bounds = this.canvas.getBoundingClientRect();
+    const normalizedX = (x - bounds.left) / bounds.width;
+    const normalizedY = (y - bounds.top) / bounds.height;
+    return {
+      simX: normalizedX * this.renderer.simWidth,
+      simY: (1 - normalizedY) * this.renderer.simHeight,
+    };
   }
 
   endDrag() {
@@ -78,5 +80,14 @@ export class FluidInteraction {
       this.currentHandler.end();
     }
     this.mouseDown = false;
+  }
+
+  applyKeyboardGesture(from, to = from) {
+    if (!this.currentHandler) return;
+    this.currentHandler.start(from.x, from.y);
+    if (from.x !== to.x || from.y !== to.y) {
+      this.currentHandler.update(to.x, to.y);
+    }
+    this.currentHandler.end();
   }
 }

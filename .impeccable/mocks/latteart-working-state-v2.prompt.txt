@@ -1,0 +1,16 @@
+Use case: precise-object-edit
+Asset type: LatteArt mobile UI working-state v2 comp
+Primary request: Preserve the referenced working-state screen’s exact visual world, dark lacquer café atmosphere, elegant LatteArt wordmark, large porcelain latte canvas, latte artwork and touch trace, finely crafted three-segment smoked-frosted tool control, icons, labels, palette, spacing, and portrait framing. Change only the header actions and the bottom completion entry.
+Header changes:
+- Remove the “繁中 / EN” language control completely from the header; language will live inside Settings in another state.
+- Keep the settings gear at top right.
+- Move Reset from the lower action row into the header as a compact standalone counterclockwise-arrow icon button immediately to the left of Settings.
+- Reset and Settings are matching 44–48px flat smoked-frosted square controls with 14px radius, subtle blur, fine grain, thin low-contrast hairline, and clear separation. Reset is visually quieter.
+Bottom completion interaction:
+- Remove the existing lower Reset + Finish two-action row.
+- Transform the existing collapsed bottom sheet handle into the completion control itself: a full-width, low-profile smoked-frosted tray lip rising 60–68px from the bottom edge, with a short handle, an upward chevron, and the exact label “Finish” centered as one cohesive touch/swipe target.
+- It must clearly afford both tapping and swiping upward, like lifting a finished cup onto a serving tray. Keep it flat and refined, not a large floating button.
+- Use a thin warm-copper top hairline and a very subtle wine tint only at the center; no glossy edge.
+Tool control: preserve exactly “Pour”, “Stir”, “Suction”, with Pour selected and the correct four-arrows-inward Suction icon.
+Text (verbatim): “LatteArt”, “Pour”, “Stir”, “Suction”, “Finish”.
+Constraints: preserve all other composition and styling. No visible language selector, no visible Reset text, no completion sheet contents yet, no Save or Share on this working screen, no extra words, no emoji, no childish colors, no bubble glass, no ornate frames, no neon, no device frame, no hands, no watermark. Modern Apple-like clarity without copying Apple branding; minimum 44px touch targets.

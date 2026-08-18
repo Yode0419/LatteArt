@@ -101,19 +101,26 @@ export class Controls {
     input.max = max;
     input.step = step;
     input.value = paramValue;
-    value.textContent = paramValue.toFixed(3);
+    value.textContent = this.formatValue(paramValue, step);
+    input.setAttribute("aria-valuetext", value.textContent);
 
     input.addEventListener("input", (e) => {
+      const nextValue = Number(e.target.value);
       if (nestedProperty) {
-        this.config[section][subProperty][nestedProperty] = Number(
-          e.target.value
-        );
+        this.config[section][subProperty][nestedProperty] = nextValue;
       } else {
-        this.config[section][subProperty] = Number(e.target.value);
+        this.config[section][subProperty] = nextValue;
       }
-      value.textContent = Number(e.target.value).toFixed(3);
+      value.textContent = this.formatValue(nextValue, step);
+      input.setAttribute("aria-valuetext", value.textContent);
       this.onParamChange(section, subProperty, nestedProperty);
     });
+  }
+
+  formatValue(value, step) {
+    if (Number.isInteger(step)) return String(Math.round(value));
+    const decimalPlaces = Math.min(3, String(step).split(".")[1]?.length ?? 0);
+    return Number(value).toFixed(decimalPlaces).replace(/\.0+$/, "");
   }
 
   setupCheckboxControl(id, section, subProperty = id) {

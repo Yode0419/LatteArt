@@ -1,0 +1,19 @@
+Use case: precise-object-edit
+Asset type: LatteArt mobile UI open settings-drawer state comp
+Primary request: Starting from the referenced working screen, show the Settings bottom drawer fully open while preserving the exact dark lacquer café world, elegant LatteArt wordmark, cup and latte artwork behind it, modern flat smoked-frosted-glass grammar, oxblood palette, copper hairlines, and portrait framing.
+Background state:
+- Keep the header visible with LatteArt, Reset icon, and Settings gear; do not add a language control to the header.
+- Make the Settings gear visibly active with a restrained wine tint.
+- Dim the cup and tool area behind the drawer slightly with a subtle dark scrim, but keep the product context recognizable.
+Open drawer:
+- Raise one scrollable smoked-frosted bottom sheet from the bottom edge to roughly 68–72% of the viewport height.
+- Use a short drag handle centered at top, 22px top corner radius, subtle backdrop blur, fine translucent grain, thin low-contrast separators, and no nested floating cards.
+- Header row inside sheet: exact title “Settings” at left and one simple X close icon button at right.
+Information architecture in reading order:
+1. A row labeled exactly “Language” with one flat two-option segmented control labeled exactly “繁中” and “English”; English is selected.
+2. A section label exactly “Active tool · Pour”. Show two clean slider rows labeled exactly “Radius” and “Strength”, each with a visible current-value number aligned right.
+3. A section label exactly “Display”. Show a slider row labeled exactly “Resolution” and one toggle row labeled exactly “Streamlines”; toggle is off.
+4. One disclosure row at the bottom labeled exactly “Advanced simulation” with a downward chevron, visibly collapsed. This contains viscosity, gravity, iterations, and over-relaxation when opened, but do not show those fields in this state.
+Layout and interaction: use full-width list rows and separators inside one sheet, not a bento grid. Slider thumbs and toggles use the same restrained wine accent. Touch targets at least 44px. The drawer should clearly support vertical scrolling on smaller phones.
+Text (verbatim and no other visible words): “LatteArt”, “Settings”, “Language”, “繁中”, “English”, “Active tool · Pour”, “Radius”, “Strength”, “Display”, “Resolution”, “Streamlines”, “Advanced simulation”.
+Constraints: preserve all background composition. No language selector in header, no Finish content inside the settings sheet, no Save/Share, no Reset text label, no emoji, no childish colors, no bubble glass, no thick lens edges, no separate cards around every row, no neon, no device frame, no hands, no watermark. Modern Apple-like clarity without copying Apple branding; high contrast and accessible control sizes.
