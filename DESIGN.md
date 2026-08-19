@@ -1,255 +1,237 @@
 ---
 name: LatteArt
-description: A tactile latte-art studio staged as a refined lacquer serving ritual.
-colors:
-  ground: "#010000"
-  ground-warm: "#120e0c"
-  glass: "rgba(18, 14, 12, 0.76)"
-  glass-strong: "rgba(13, 9, 8, 0.9)"
-  glass-soft: "rgba(54, 31, 27, 0.52)"
-  wine: "#a45a52"
-  wine-deep: "#381e1a"
-  copper: "#b86d49"
-  porcelain: "#f5f0ea"
-  text: "#f5f0ea"
-  text-muted: "#c9bbb4"
-  hairline: "rgba(245, 240, 234, 0.16)"
-  hairline-strong: "rgba(184, 109, 73, 0.48)"
-  focus: "#f2b27f"
-typography:
-  display:
-    fontFamily: '"Latte Display", Didot, "Bodoni 72", serif'
-    fontSize: "clamp(2.1rem, 8vw, 3.1rem)"
-    fontWeight: 470
-    lineHeight: 1
-    letterSpacing: "-0.035em"
-  headline:
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif'
-    fontSize: "clamp(1.5rem, 5vw, 2rem)"
-    fontWeight: 500
-    letterSpacing: "-0.025em"
-  title:
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif'
-    fontSize: "1rem"
-    fontWeight: 520
-  body:
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif'
-    fontSize: "1rem"
-    fontWeight: 400
-  label:
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif'
-    fontSize: "0.94rem"
-    fontWeight: 400
-rounded:
-  sm: "14px"
-  md: "18px"
-  sheet: "24px"
-  tray: "28px"
-  pill: "999px"
-spacing:
-  compact: "8px"
-  snug: "10px"
-  sm: "12px"
-  control: "14px"
-  md: "16px"
-  section: "22px"
-  generous: "24px"
-  spatial: "34px"
-components:
-  icon-button:
-    backgroundColor: "{colors.glass-soft}"
-    textColor: "{colors.text}"
-    rounded: "{rounded.sm}"
-    size: "48px"
-  tool-selector:
-    backgroundColor: "{colors.glass}"
-    textColor: "{colors.text-muted}"
-    rounded: "{rounded.sm}"
-    height: "116px"
-  tool-button-active:
-    backgroundColor: "{colors.wine-deep}"
-    textColor: "{colors.porcelain}"
-    padding: "14px 8px 18px"
-  finish-tray:
-    backgroundColor: "{colors.glass-strong}"
-    textColor: "{colors.porcelain}"
-    rounded: "{rounded.tray}"
-    padding: "17px 20px"
-    height: "76px"
-  bottom-sheet:
-    backgroundColor: "{colors.glass-strong}"
-    textColor: "{colors.text}"
-    rounded: "{rounded.sheet}"
-    padding: "12px 22px 24px"
-  completion-action:
-    backgroundColor: "{colors.glass-soft}"
-    textColor: "{colors.text}"
-    rounded: "{rounded.md}"
-    padding: "18px 12px"
-    height: "112px"
-  range-thumb:
-    backgroundColor: "{colors.wine}"
-    rounded: "{rounded.pill}"
-    size: "20px"
-  toggle-control:
-    backgroundColor: "{colors.wine}"
-    textColor: "{colors.porcelain}"
-    rounded: "{rounded.pill}"
-    size: "50px"
-    height: "29px"
-  canvas-stage:
-    backgroundColor: "{colors.porcelain}"
-    rounded: "{rounded.pill}"
-    width: "min(87vw, 52svh, 610px)"
+version: "2.0-mock-baseline"
+source_of_truth:
+  - ".impeccable/mocks/latteart-working-state-v2.png"
+  - ".impeccable/mocks/latteart-completion-state-v2.png"
+  - ".impeccable/mocks/latteart-settings-drawer.png"
+tokens: "assets/design-tokens.css"
+showcase: "design-system.html"
+fonts:
+  signature: '"Latte Display", Didot, "Bodoni 72", serif'
+  ui: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif'
 ---
 
-# Design System: LatteArt
+# LatteArt Design System
 
-## Overview
+## 1. 視覺真實來源
 
-**Creative North Star: "The Lacquer Service Tray"**
+本文件以三張已核准 mock 為唯一視覺基準：創作中、完成、設定抽屜。現有 `index.html`、`assets/styles.css` 與模擬器畫面是待校正的實作，不是反向推導本設計系統的依據。
 
-LatteArt treats the screen as a near-black oxblood lacquer tray, with the matte porcelain cup as the clear center of attention. The atmosphere is modern and intuitive with the comfortable maturity of a retro café: warm, quiet, tactile, and composed rather than nostalgic or ornamental.
+三張圖共同確認的設計方向是「深色漆器托盤上的拉花儀式」：近黑、帶暖度與細緻紋理的底面承載一只高亮度瓷杯；操作介面保持扁平、煙燻、低彩度，透過酒紅互動色與少量銅色建立狀態。它不是明亮咖啡廳、儀表板、霓虹科技或泡泡玻璃風格。
 
-Interaction follows a serving ritual. People select one of three tools, work directly on the cup, tune details only when needed, and raise the bottom tray to finish. Flat smoked-frosted controls stay subordinate to the craft; copper hairlines, restrained wine accents, and layered ambient depth provide structure without making the interface feel bubbly or flashy.
+### 證據優先順序
 
-**Key Characteristics:**
+1. 三張 mock 中實際可見的比例、色階、文字與狀態。
+2. 同目錄的三份 prompt，用來確認互動意圖與不可出現的內容。
+3. `assets/design-tokens.css`，作為後續實作的 canonical token 檔。
+4. 其他現有程式與樣式只能用來了解功能，不能覆蓋 1–3。
 
-- The live porcelain-and-coffee stage is the dominant visual and interactive object.
-- Near-black lacquer, warm oxblood, copper, and porcelain create a mature café palette.
-- Controls are flat, frosted, restrained, and comfortably touchable.
-- Mobile, touch, keyboard, and reduced-motion experiences are first-class.
-- Completion feels like raising a serving tray, not submitting a dashboard form.
+## 2. 核心視覺規則
 
-## Colors
+### 杯面優先
 
-The palette is a low-luminance lacquer field punctuated by porcelain contrast, muted wine action color, and sparing copper warmth.
+- 杯子是畫面最大、最亮、唯一的主視覺圓形。
+- 工作狀態保留可操作的杯面與觸控軌跡；完成狀態移除軌跡並加入細銅色環。
+- 任何控制元件都不得比瓷白杯緣更亮或更搶眼。
 
-### Primary
+### 漆器背景
 
-- **Muted Oxblood:** The principal active-state color for selected tools, range thumbs, toggles, and controlled moments of emphasis.
-- **Deep Wine Lacquer:** A darker companion used inside active tonal gradients and richly grounded surfaces.
+- 主底色採 `#060302`，視狀態可在 `#0E0A09` 至 `#1A1714` 間增加暖度。
+- 紋理是低對比、非規則的漆器／皮革質感；不可使用網格、條紋、彩色噪點或高光亮片。
+- 背景暗角寬而柔，不形成明顯光圈。
 
-### Secondary
+### 酒紅表示互動
 
-- **Warm Copper:** A scarce ceremonial accent for strong hairlines and the completed-cup halo.
-- **Apricot Focus:** The dedicated accessibility accent for visible keyboard focus and cursor indication.
+- 酒紅只用於 selected、active、range progress、thumb、toggle、Reset 以及安靜的文字動作。
+- `#824A42` 是控制色；`#A25C56` 用於較清楚的 active 線與 icon；`#C96961` 用於「Keep editing」等文字動作。
+- 酒紅不得大面積成為頁面背景，也不得升高成鮮紅、粉紅或霓虹紅。
 
-### Neutral
+### 銅色表示完成
 
-- **Black Lacquer:** The page ground; it lets the cup and controls carry the hierarchy.
-- **Warm Lacquer Ground:** The undertone for smoked surfaces and background warmth.
-- **Smoked Glass:** The standard translucent control surface.
-- **Dense Smoked Glass:** The more opaque surface for sheets and transient feedback.
-- **Soft Oxblood Glass:** The warm translucent layer used in selected or emphasized containers.
-- **Matte Porcelain:** The highest-contrast material color for the cup rim, principal text, and icons.
-- **Café Mist:** The quieter text color for labels and secondary controls.
-- **Porcelain Hairline:** A low-contrast boundary that separates controls without turning them into outlined boxes.
-- **Copper Hairline:** A stronger, warmer boundary reserved for the serving tray and ceremonial emphasis.
+- `#CF8F64` 只用於完成杯環、Finish tray 頂緣與極少量儀式性強調。
+- 次階銅色 `#A97453` 可用於較暗的邊緣與陰影。
+- 一般按鈕、滑桿、選取狀態不可使用銅色。
 
-### Named Rules
+## 3. 色彩 Tokens
 
-**The Porcelain Priority Rule.** Matte porcelain owns the brightest value; accents must not compete with the cup or primary text.
+下列 primitive 是從 mock 的代表區域重新取樣後整理出的「畫面合成色」。半透明元件實作應使用 semantic surface token，讓其與底部紋理疊合，而不是直接把所有面塗成同一個實色。
 
-**The Copper Rarity Rule.** Copper marks ceremony, completion, or a decisive boundary. It is never a general-purpose decoration.
+| Primitive | Value | 用途 |
+| --- | --- | --- |
+| `--la-ink-1000` | `#060302` | 主漆器背景 |
+| `--la-ink-950` | `#0E0A09` | 工具列合成後暗面 |
+| `--la-brown-900` | `#1A1714` | Settings／Completion sheet 合成後暗面 |
+| `--la-brown-800` | `#25201C` | 次要完成動作 |
+| `--la-wine-950` | `#311B18` | Save Image 主動作 |
+| `--la-wine-800` | `#4E2F2A` | 語言選取面、作用中控制面 |
+| `--la-wine-650` | `#824A42` | range、toggle、細部互動 |
+| `--la-wine-550` | `#A25C56` | active 底線與 icon |
+| `--la-wine-450` | `#C96961` | Keep editing 文字動作 |
+| `--la-copper-600` | `#A97453` | 銅色暗部 |
+| `--la-copper-400` | `#CF8F64` | 完成杯環與托盤頂緣 |
+| `--la-porcelain-50` | `#EFEDED` | 最高層級文字、圖示、瓷器 |
+| `--la-mist-300` | `#A6A3A1` | 標籤與次要文字 |
+| `--la-mist-500` | `#6A625E` | handle、提示與低層級圖示 |
 
-## Typography
+### Semantic surfaces
 
-**Display Font:** Latte Display, the local Bodoni Moda variable face, with Didot and Bodoni fallbacks  
-**Body Font:** System sans-serif with Segoe UI and Noto Sans TC coverage
+| Token | Material | 對應 mock |
+| --- | --- | --- |
+| `--la-surface-icon` | 低密度煙燻面 | Reset、Settings |
+| `--la-surface-toolbar` | 深黑共用底板 | Pour／Stir／Suction |
+| `--la-surface-tray` | 較暖、較密實 | 底部 Finish tray |
+| `--la-surface-sheet` | 最高密度煙燻面 | Settings、Completion |
+| `--la-surface-action` | 中性暖黑 | Share |
+| `--la-surface-action-primary` | 深酒紅黑 | Save Image |
+| `--la-surface-selected` | 低彩度酒紅 | English selected、active settings |
 
-**Character:** The high-contrast Bodoni wordmark supplies café heritage in one controlled gesture. Everything operational uses a clear system sans so the simulation remains immediate, legible, and native-feeling across languages.
+禁止把上述 surface 合併成單一 `glass` token。三張 mock 的層次差異正是靠透明度、暖度、背景模糊與陰影方向共同建立。
 
-### Hierarchy
+## 4. 字體系統
 
-- **Display** (470, fluid 2.1–3.1rem, line-height 1): The wordmark only; tightly tracked and never used for controls.
-- **Headline** (500, fluid 1.5–2rem): Bottom-sheet titles and completion statements.
-- **Title** (520, 1rem): Settings-section and active-tool headings.
-- **Body** (400, 1rem): Default interface copy and action text.
-- **Label** (400, 0.94rem): Parameter names and secondary controls; compact labels may step down to 0.88–0.9rem.
+### Signature
 
-### Named Rules
+- 字體：本地 `Bodoni Moda Variable`，CSS family 為 `Latte Display`。
+- 用途：只用於 `LatteArt` 字標。
+- 建議：weight 470、line-height 1、tracking `-0.03em`、44–76px fluid scale。
+- 不用於章節標題、按鈕、數字或設定內容。
 
-**The One Bodoni Gesture Rule.** Use the display face for the LatteArt signature, not as a decorative heading system.
+### UI
 
-## Layout
+- 字體：系統無襯線，優先 `-apple-system`、`BlinkMacSystemFont`、`Segoe UI`、`Noto Sans TC`。
+- Sheet title：28–40px、500、tracking `-0.015em`。
+- Section title：18px、500。
+- Body：16px、400、line-height 1.65。
+- Label：15px、400。
+- 數值使用 tabular numerals，避免滑桿操作時寬度跳動。
 
-The application is a single centered stage capped at 920px and sized to the small viewport height so the working cup remains usable without page scrolling. The top bar is compact, the cup is centered, the three-part tool selector sits immediately below it, and the Finish control is fixed to the bottom safe area as the edge of the serving tray.
+### 文字層級
 
-The cup scales from the tighter of viewport width and height, reaching roughly 610–620px on larger displays. Horizontal padding ranges from 14px on the narrowest screens to 48px in the header, while the main vertical gap breathes between 20px and 34px. Controls use at least 44px touch targets; the default icon target is 48px.
+- 主要文字與圖示：瓷白 `#EFEDED`。
+- 次要操作與標籤：Café mist `#A6A3A1`。
+- 不可用純白鋪滿整個介面；亮度必須保留給杯緣、字標與當前主要內容。
 
-At 800px and above, tool choices shift from stacked icon-over-label cells to compact horizontal cells. At 390px and below, margins, labels, and range grids tighten while retaining touch target size. Short viewports below 700px reduce cup and toolbar height. Safe-area insets protect both the top bar and bottom tray.
+## 5. 空間與形狀
 
-**The Cup-First Rule.** Responsive changes protect the largest practical circular work surface before adding chrome or spacing.
+### Spacing
 
-## Elevation & Depth
+使用 4px base：`4 / 8 / 12 / 16 / 20 / 24 / 32 / 40 / 48 / 64 / 80`。元件內部緊密，元件群之間大幅留白。手機兩側內容安全距離約 16–24px，主要卡／抽屜內距約 22–24px。
 
-Depth is layered and ambient, never bubbly. Tonal glass opacity, a softly vignetted lacquer ground, diffuse shadows, backdrop blur, and the physical overlap of cup, selector, tray, and sheets create hierarchy. Surfaces stay visually flat within their own planes; they do not use glossy capsules, inflated highlights, or floating candy-like blobs.
+### Radius
 
-### Shadow Vocabulary
+- `14px`：Reset、Settings、工具列、語言 segmented control。
+- `18px`：Save／Share 動作面。
+- `22px`：Settings／Completion bottom sheet 上緣。
+- `28px`：Finish tray 上緣。
+- `999px`：handle、range track、toggle、thumb，以及真正的圓形機構。
 
-- **Control Float** (`0 8px 22px rgba(0, 0, 0, 0.18)`): A quiet lift beneath compact icon controls.
-- **Toolbar Bed** (`0 16px 36px rgba(0, 0, 0, 0.26)`): Grounds the three-part selector against the lacquer.
-- **Serving Edge** (`0 -14px 34px rgba(0, 0, 0, 0.34)`): Suggests the Finish tray rising from the bottom edge.
-- **Sheet Lift** (`0 -22px 46px rgba(0, 0, 0, 0.46)`): Separates modal bottom sheets from the dimmed workspace.
-- **Ceremonial Halo** (`0 10px 28px rgba(184, 109, 73, 0.2)`): Appears around the cup only at completion.
+矩形元件不得全部做成膠囊。杯子是唯一主導性大圓形。
 
-### Named Rules
+### Borders
 
-**The Ambient Layers Rule.** Elevation comes from broad, low-contrast shadows and tonal overlap; never use bubbly specular highlights or exaggerated floating cards.
+- 一般分隔：1px `rgba(239, 237, 237, 0.10–0.17)`。
+- 作用中酒紅邊界：1px `rgba(162, 92, 86, 0.70)`。
+- Finish／完成銅色邊界：1px `rgba(207, 143, 100, 0.68)`。
+- 邊界必須保持低對比，不做厚玻璃邊、白色高光框或雙層描邊。
 
-## Shapes
+## 6. 深度與材質
 
-The system combines softly squared control planes with one dominant circle. Compact controls use gently rounded 14px corners, action containers use 18px, and bottom sheets use 24px top corners. The Finish tray is slightly broader at 28px along its raised edge. Pills and circles are reserved for handles, range tracks, toggles, indicators, and the porcelain cup itself.
+- Compact control blur：18px。
+- Toolbar blur：20px。
+- Bottom sheet blur：28px。
+- 控制陰影向下：`0 8px 22px rgba(0,0,0,.22)`。
+- 工具列陰影向下且較寬：`0 18px 42px rgba(0,0,0,.34)`。
+- Bottom sheet 陰影向上：`0 -24px 54px rgba(0,0,0,.50)`。
+- 完成杯環可有 `0 12px 34px rgba(207,143,100,.20)`，但銅線仍需清楚可見。
 
-Borders are one-pixel hairlines and remain subordinate to tonal fill. Full rounding communicates mechanism or material—not whimsy—so rectangular controls should not drift into bubbly capsules.
+Blur 的目的，是讓背景紋理透過不同密度的煙燻面形成材質；不可為了「玻璃感」加入亮邊、折射、彩虹、鏡面高光或漂浮泡泡。
 
-**The One Dominant Circle Rule.** The cup is the primary circle; supporting circles must be small and functional.
+## 7. 元件規格
 
-## Components
+### Header actions
 
-### Icon Button
+- Reset 與 Settings 都是 48×48px，最小觸控目標不可低於 44px。
+- 14px 圓角、低密度煙燻面、1px 低對比 border。
+- Reset 使用較安靜的酒紅 icon；Settings 預設瓷白。
+- Settings 開啟時才出現酒紅底面與酒紅邊界。
+- 完成狀態不顯示 Reset，只保留 Settings。
 
-Refined and compact, with a 48px touch target, a 14px corner, smoked translucent fill, porcelain hairline, and 23px line icon. Hover gently warms the surface; expanded state shifts toward wine. A 2px apricot outline with 3px offset is mandatory for keyboard focus.
+### Three-part tool selector
 
-### Three-Part Tool Selector
+- 一個共用底板切成等寬三欄，不是三張獨立卡。
+- 高度約 116px，14px 圓角，欄間只用 1px hairline。
+- icon 30–32px，label 15–16px，inactive 為 Café mist。
+- active 欄使用低彩度酒紅漸層與底部短線；不使用實心亮紅卡。
+- 順序與文字固定：`Pour / Stir / Suction`。
 
-One shared smoked-frosted plane contains Pour, Stir, and Suction as equal cells. Hairlines separate the cells without creating three floating cards. The active tool gains porcelain text, a deep-wine tonal wash, and a short muted-wine underline; inactive tools remain café-mist neutral. On wider screens, icon and label sit in a row.
+### Finish tray
 
-### Finish Serving Tray
+- 固定在畫面底部，是「上托」而非一般 CTA button。
+- 高度約 68–76px，加上 safe-area；上緣 28px 圓角。
+- 由 drag handle、向上 chevron、`Finish` 三者垂直組成一個 touch/swipe target。
+- 僅頂緣使用銅色 hairline，中央可有很淡的酒紅暖度。
 
-The Finish action is the tactile signature. It spans the app width at the bottom safe edge, uses a copper hairline, a quiet grip, an upward cue, and a restrained lacquer gradient. Clicking or swiping upward raises the completion sheet. Its motion uses the system's expressive ease and reads as a physical serving action rather than a generic call-to-action.
+### Bottom sheet
 
-### Bottom Sheets / Settings
+- Settings 約佔 viewport 68–72%，內容可垂直捲動。
+- Completion 約佔下方 25–32%，依小螢幕可增高以避免內容擁擠。
+- 上緣 22px 圓角、頂部置中 drag handle、向上陰影。
+- 開啟時加深色 scrim；背景杯面仍可辨識。
+- Sheet 內使用 full-width list row 與 separator，不把每一列包成 card。
 
-Settings and completion content rise from the same bottom edge on dense smoked glass with 24px top corners, an ambient upward shadow, and a dim scrim. Settings may occupy up to roughly three quarters of the small viewport height and scroll internally. The background workspace becomes inert while a sheet is open; focus moves into the sheet and returns to its trigger when closed.
+### Settings controls
 
-### Completion Actions
+- Language segmented control：兩等份，English selected；selected 使用 `--la-surface-selected`。
+- Range row：label / track / tabular value 三欄，互動高度 44px，track 4px，thumb 20px。
+- Toggle：50×29px，thumb 21px。mock 顯示 Streamlines 為 off，off 仍保留細酒紅邊界。
+- Advanced simulation 預設 collapsed，使用向下 chevron。
 
-Save and Share form a balanced two-column pair with large 112px targets and 18px corners. The primary action uses a warm deep-wine fill; the secondary stays on a faint porcelain tint. Icons remain linear and unfilled. “Keep editing” is a quiet text action below the pair, never a competing card.
+### Completion actions
 
-### Range and Toggle Controls
+- `Save Image` 與 `Share` 是等寬雙欄，最小高度 112px，18px 圓角。
+- Save Image 使用深酒紅黑面；Share 使用中性暖黑面。
+- `Keep editing` 是酒紅文字按鈕，不可做第三張卡。
+- 完成畫面不顯示工具列、Reset 或觸控軌跡。
 
-Range rows align label, track, and tabular value in a stable three-column grid. Tracks are 4px pills with a 20px muted-wine thumb inside a 44px interaction height. Toggles use a 50×29px track with a porcelain 21px thumb and shift to wine when checked. Both controls use the same apricot focus treatment as buttons.
+## 8. 狀態對照
 
-### Canvas / Porcelain Stage
+| 狀態 | Header | Cup | Main controls | Bottom component |
+| --- | --- | --- | --- | --- |
+| Working | Reset + Settings | 可操作、可見 touch trace | 三段工具列 | Collapsed Finish tray |
+| Completion | Settings only | 稍放大、銅色 halo、無 trace | 工具列隱藏 | Completion sheet + Save/Share |
+| Settings | Reset + active Settings | dimmed、仍可辨識 | 背景 inert | 68–72% Settings sheet |
 
-The live canvas is nested within a matte porcelain rim and a broad, blurred cup shadow. It fills 92% of its circular stage and disables browser touch gestures so direct drawing feels immediate. Touch trace and keyboard cursor appear only during relevant interaction. Completion slightly raises and scales the stage, then introduces a thin copper halo.
+## 9. Motion
 
-## Do's and Don'ts
+- 小狀態：180–260ms。
+- Tool selected：260ms，active underline 由中間展開。
+- Tray／sheet：520ms，使用 `cubic-bezier(0.16, 1, 0.3, 1)`。
+- 完成杯面：可在 520–620ms 內微幅上移與放大，再顯示銅環。
+- 支援 `prefers-reduced-motion`；降低動態時仍需保留清楚的最終狀態。
 
-### Do:
+## 10. Accessibility
 
-- **Do** keep the porcelain cup as the brightest, largest, and most immediate element.
-- **Do** use shared frosted planes and hairline dividers to group related controls.
-- **Do** preserve 44–48px touch targets, safe-area padding, visible focus, keyboard operation, and reduced-motion behavior.
-- **Do** make motion feel like serving: short state transitions around 180–260ms and larger tray or stage transitions around 480–720ms with the expressive ease.
-- **Do** use restrained line icons and concise labels; components should feel refined, tactile, and calm.
+- 所有互動目標至少 44×44px。
+- 鍵盤焦點使用 2px 暖杏色 `#EFAD82`，offset 3px；不得只靠顏色深淺表示焦點。
+- Bottom sheet 開啟時移動焦點、鎖定背景互動，關閉後回到觸發元件。
+- Slider、toggle、segmented control 必須有可讀 label 與狀態。
+- 文字與背景需符合 WCAG 對比；次要文字不得低於可讀門檻。
 
-### Don't:
+## 11. 禁止事項
 
-- **Don't** introduce childish color, emoji, playful stickers, or candy-bright accents.
-- **Don't** use bubbly or flashy liquid-glass effects, glossy capsules, or excessive blur and shine.
-- **Don't** scatter unrelated floating cards around the cup or turn the experience into a generic simulator dashboard.
-- **Don't** overuse copper, Bodoni, or strong wine fills; their rarity preserves hierarchy.
-- **Don't** reduce the canvas to make room for secondary settings when a sheet can reveal them on demand.
+- 不新增 mock 中沒有的頂部 language control、badge、統計資訊或浮動卡。
+- 不使用 emoji、貼紙、彩虹、霓虹、糖果色或 playful illustration。
+- 不使用泡泡玻璃、厚鏡片邊、光澤膠囊或散落的 blur blobs。
+- 不把設定列拆成 bento grid，也不讓 Finish 變成大型 floating button。
+- 不把 Bodoni 擴張成全站 heading 字體。
+- 不讓銅色成為一般 active color。
+- 不以現有 CSS 的既有數值推翻本文件；若實作不符，應調整實作。
+
+## 12. 實作與驗收
+
+- Canonical tokens：`assets/design-tokens.css`。
+- 視覺展示：`design-system.html`。
+- 後續調整應逐一對照三個狀態，而非只在單一尺寸看首頁。
+- 每次 UI migration 至少驗證：窄手機、一般手機、桌面，以及 Working／Completion／Settings 三個狀態。
+- 先修正色階、材質層次與大比例，再修微小間距；不要用更多陰影掩蓋錯誤的 surface color。

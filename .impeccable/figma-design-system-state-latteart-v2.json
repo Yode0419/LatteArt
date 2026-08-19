@@ -1,0 +1,70 @@
+{
+  "runId": "latteart-ds-v2-20260819",
+  "fileKey": "jhgFk45GvtkDiucPl1eXQf",
+  "targetNodeId": "2006:109",
+  "phase": "complete",
+  "step": "P5.f",
+  "completedSteps": ["phase0", "phase1", "phase2", "phase3", "phase4", "phase5"],
+  "userCheckpoints": {"phase0": "approved", "phase1": "validated-pass", "phase2": "validated-pass", "phase3": "validated-pass", "phase4": "validated-pass", "phase5": "validated-pass"},
+  "finalAudit": {
+    "status": "PASS",
+    "pages": 21,
+    "collections": 5,
+    "variables": 86,
+    "semanticAliases": 20,
+    "textStyles": 7,
+    "effectStyles": 6,
+    "componentFamilies": 6,
+    "componentObjects": 10,
+    "screens": 3,
+    "utilitiesComplete": true,
+    "mockOnlyScreenSources": true,
+    "temporaryProjectCaptureRemoved": true,
+    "legacyPagesPreserved": true,
+    "targetFrameUntouched": true
+  },
+  "entities": {
+    "pages": {
+      "cover": "2014:2", "gettingStarted": "2014:3", "foundations": "2014:4",
+      "componentsSeparator": "2014:5", "componentsIndex": "2014:6",
+      "screensSeparator": "2041:52", "mockReferences": "2041:53",
+      "workingScreen": "2043:55", "completionScreen": "2043:57", "settingsDrawerScreen": "2043:59",
+      "utilitiesSeparator": "2014:7", "utilitiesIndex": "2014:8",
+      "headerAction": "2023:2", "toolSelector": "2025:2", "finishTray": "2026:66",
+      "settingsControls": "2028:2", "bottomSheet": "2030:3", "completionActions": "2030:4"
+    },
+    "documentation": {"coverRoot": "2015:2", "gettingStartedRoot": "2016:2", "foundationsRoot": "2016:34", "utilitiesRoot": "2052:2"},
+    "screens": {
+      "Working": {"pageId": "2043:55", "wrapperId": "2043:56", "sourceId": "2043:61", "overlayId": "2043:62", "status": "validated-pass"},
+      "Completion": {"pageId": "2043:57", "wrapperId": "2043:58", "sourceId": "2043:63", "overlayId": "2043:64", "status": "validated-pass"},
+      "Settings Drawer": {"pageId": "2043:59", "wrapperId": "2043:60", "sourceId": "2043:65", "overlayId": "2043:66", "status": "validated-pass"}
+    },
+    "collections": {
+      "primitiveColors": {"id": "VariableCollectionId:2009:2", "modeId": "2009:0"},
+      "semanticColors": {"id": "VariableCollectionId:2009:3", "modeId": "2009:1"},
+      "dimensions": {"id": "VariableCollectionId:2009:4", "modeId": "2009:2"},
+      "typography": {"id": "VariableCollectionId:2009:5", "modeId": "2009:3"},
+      "motion": {"id": "VariableCollectionId:2009:6", "modeId": "2009:4"}
+    },
+    "components": {
+      "Header Action": {"pageId": "2023:2", "componentSetId": "2024:28", "variantIds": ["2024:6", "2024:9", "2024:13"], "status": "validated-pass"},
+      "Tool Selector": {"pageId": "2025:2", "componentSetId": "2026:65", "variantIds": ["2026:6", "2026:22", "2026:38"], "status": "validated-pass"}
+      ,"Finish Tray": {"pageId": "2026:66", "componentId": "2027:6", "status": "validated-pass"}
+      ,"Settings Controls": {
+        "pageId": "2028:2",
+        "segmentedControlSetId": "2029:15",
+        "rangeRowId": "2029:16",
+        "toggleRowSetId": "2029:42",
+        "disclosureRowSetId": "2029:54",
+        "status": "validated-pass"
+      }
+      ,"Completion Actions": {
+        "pageId": "2030:4",
+        "componentSetId": "2031:16",
+        "keepEditingId": "2031:17",
+        "status": "validated-pass"
+      }
+      ,"Bottom Sheet": {"pageId": "2030:3", "componentSetId": "2033:78", "variantIds": ["2033:5", "2033:49"], "status": "validated-pass"}
+    }
+  }
+}
