@@ -704,6 +704,19 @@ body:not([data-phase="play"]) .serve-pull {
   .sheet--settings .sheet__header {
     padding-top: var(--space-2);
   }
+
+  /* 出杯按鈕面板維持在下方置中，卡片在上方 */
+  .sheet--finish {
+    left: 50%;
+    right: auto;
+    top: auto;
+    bottom: var(--space-6);
+    transform: translate(-50%, calc(100% + var(--space-8)));
+  }
+
+  .sheet--finish.is-open {
+    transform: translate(-50%, 0);
+  }
 }
 
 .sheet__handle {
@@ -773,11 +786,22 @@ body:not([data-phase="play"]) .serve-pull {
 
 /* ---------- 金框杯卡 ---------- */
 
+/* 位置與大小由 JS 依可用空間計算（--card-*），杯子再對準中間的 slot */
 .serve-card {
-  position: relative;
-  margin: var(--space-2) 0 var(--space-5);
-  padding: var(--space-6) var(--space-6) var(--space-5);
-  border-radius: var(--radius-lg);
+  position: fixed;
+  left: var(--card-x, 50%);
+  top: var(--card-y, 20%);
+  width: var(--card-w, 360px);
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  border-radius: var(--radius-xl);
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(1.14);
+  transition: opacity 260ms var(--ease-out), transform 260ms var(--ease-out),
+    visibility 0s linear 260ms;
   background: radial-gradient(120% 90% at 100% 0%, rgba(214, 168, 92, 0.12), transparent 60%),
     linear-gradient(160deg, rgba(46, 36, 33, 0.9), rgba(20, 15, 14, 0.95));
   isolation: isolate;
@@ -829,8 +853,13 @@ body:not([data-phase="play"]) .serve-pull {
   font-variant-numeric: tabular-nums;
 }
 
+.serve-card__slot {
+  height: var(--slot-h, 240px);
+  margin: var(--space-2) 0;
+}
+
 .serve-card__body {
-  padding: var(--space-8) 0 var(--space-6);
+  padding: var(--space-2) 0 var(--space-4);
 }
 
 .serve-card__eyebrow {
@@ -848,7 +877,7 @@ body:not([data-phase="play"]) .serve-pull {
 .serve-card__pattern {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 48px;
+  font-size: 40px;
   font-weight: var(--weight-medium);
   line-height: 1;
   letter-spacing: -0.01em;
@@ -878,15 +907,49 @@ body:not([data-phase="play"]) .serve-pull {
   color: var(--color-text-secondary);
 }
 
-.sheet.is-open .serve-card {
-  animation: card-rise 700ms var(--ease-out) both 120ms;
+/* 出杯：金框從外側往內套住杯子，文字一行行浮出 */
+.serve-card.is-shown {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 600ms var(--ease-out) 180ms, transform 900ms var(--ease-out) 180ms,
+    visibility 0s;
 }
 
-@keyframes card-rise {
-  from {
-    opacity: 0;
-    transform: translateY(14px) scale(0.98);
-  }
+.serve-card [data-rise] {
+  opacity: 0;
+  transform: translateY(12px);
+  filter: blur(4px);
+  transition: opacity 200ms, transform 200ms, filter 200ms;
+}
+
+.serve-card.is-shown [data-rise] {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  transition: opacity 700ms var(--ease-out), transform 700ms var(--ease-out),
+    filter 700ms var(--ease-out);
+}
+
+.serve-card.is-shown .serve-card__head {
+  transition-delay: 650ms;
+}
+.serve-card.is-shown .serve-card__eyebrow {
+  transition-delay: 800ms;
+}
+.serve-card.is-shown .serve-card__pattern {
+  transition-delay: 900ms;
+}
+.serve-card.is-shown .serve-card__note {
+  transition-delay: 1000ms;
+}
+.serve-card.is-shown .serve-card__foot {
+  transition-delay: 1100ms;
+}
+
+/* 杯子疊在卡片上方 */
+.stage .cup {
+  z-index: 1;
 }
 
 /* ---------- 按鈕 ---------- */

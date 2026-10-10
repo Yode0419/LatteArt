@@ -116,35 +116,48 @@ function finish() {
     save("cupCount", cupNumber);
   }
   lastResult = detectPattern(session.fluid);
+  finishSheet.prepare(lastResult, String(cupNumber).padStart(3, "0"), today());
   setPhase("finish");
-  finishSheet.open(lastResult, String(cupNumber).padStart(3, "0"), today());
-  fitCupAboveSheet();
+  layoutServe();
+  finishSheet.open();
   halo.play();
 }
 
-// 完成時讓杯子避開抽屜：手機縮小移到抽屜上方，桌機往左讓出右側面板
-function fitCupAboveSheet() {
-  for (const prop of ["--cup-shift", "--cup-shift-x", "--cup-scale"]) cupEl.style.removeProperty(prop);
-  const rect = cupEl.getBoundingClientRect();
-  const sheetRect = finishSheet.el.getBoundingClientRect();
-  const margin = 28;
+// 出杯版面：卡片置於頂部列與按鈕抽屜之間，杯子縮小移進卡片中間的 slot
+function layoutServe() {
+  const card = $("serveCard");
+  const slot = finishSheet.slot;
+  const desktop = window.matchMedia("(min-width: 900px)").matches;
+  const top = document.querySelector(".topbar").getBoundingClientRect().bottom + 6;
+  const bottom = window.innerHeight - finishSheet.el.offsetHeight - (desktop ? 40 : 14);
+  const availH = bottom - top;
+  const cardW = Math.min(desktop ? 440 : 400, window.innerWidth - 32);
 
-  if (window.matchMedia("(min-width: 900px)").matches) {
-    const right = window.innerWidth - finishSheet.el.offsetWidth - 32;
-    const available = right - margin * 2;
-    const scale = Math.min(1, available / rect.width);
-    const shiftX = (right / 2) - (rect.left + rect.width / 2);
-    cupEl.style.setProperty("--cup-shift-x", `${Math.min(0, shiftX).toFixed(1)}px`);
-    cupEl.style.setProperty("--cup-scale", scale.toFixed(3));
-    return;
-  }
+  card.style.setProperty("--card-w", `${cardW}px`);
+  card.style.setProperty("--slot-h", "0px");
+  const chrome = card.offsetHeight;
+  const slotH = Math.max(120, Math.min(cardW - 24, availH - chrome));
+  const cardH = chrome + slotH;
+  const cardX = (window.innerWidth - cardW) / 2;
+  const cardY = top + Math.max(0, (availH - cardH) / 2);
+  card.style.setProperty("--slot-h", `${slotH}px`);
+  card.style.setProperty("--card-x", `${cardX}px`);
+  card.style.setProperty("--card-y", `${cardY}px`);
 
-  const top = document.querySelector(".topbar").getBoundingClientRect().bottom;
-  const bottom = window.innerHeight - Math.max(finishSheet.el.offsetHeight, sheetRect.height);
-  const available = bottom - top - margin * 2;
-  const scale = Math.min(1, available / rect.height);
-  const shift = top + margin + available / 2 - (rect.top + rect.height / 2);
-  cupEl.style.setProperty("--cup-shift", `${shift.toFixed(1)}px`);
+  // 杯子原本的位置（用 offset 量，不受進行中的 transform 影響）
+  const stageRect = cupEl.offsetParent.getBoundingClientRect();
+  const rect = {
+    left: stageRect.left + cupEl.offsetLeft,
+    top: stageRect.top + cupEl.offsetTop,
+    width: cupEl.offsetWidth,
+    height: cupEl.offsetHeight,
+  };
+  // slot 留一點邊給出杯光環
+  const scale = slotH / 1.22 / rect.width;
+  const cx = cardX + cardW / 2;
+  const cy = cardY + slot.offsetTop + slotH / 2;
+  cupEl.style.setProperty("--cup-shift-x", `${(cx - (rect.left + rect.width / 2)).toFixed(1)}px`);
+  cupEl.style.setProperty("--cup-shift", `${(cy - (rect.top + rect.height / 2)).toFixed(1)}px`);
   cupEl.style.setProperty("--cup-scale", scale.toFixed(3));
 }
 
@@ -278,7 +291,7 @@ function resize() {
 
 window.addEventListener("resize", () => {
   resize();
-  if (phase === "finish") fitCupAboveSheet();
+  if (phase === "finish") layoutServe();
 });
 
 // ---------- 主迴圈 ----------
@@ -289,8 +302,9 @@ function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000);
   last = now;
 
-  // 杯子傾斜：作畫時減弱，避免手指下的位置一直跑；出杯時回正
-  tilt.strength = pointer.pointerId !== null ? 0.35 : phase === "finish" ? 0.4 : 1;
+  // 杯子傾斜：作畫或示範時停住不動，避免手指下的位置一直跑；出杯時幾乎回正
+  tilt.frozen = pointer.pointerId !== null || phase === "demo";
+  tilt.strength = phase === "finish" ? 0.3 : 1;
   const view = tilt.update(dt);
   session.slosh = tilt.slosh;
   session.advance(dt, (step) => demo.update(step));

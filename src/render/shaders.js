@@ -218,13 +218,10 @@ void main() {
 
   // 液面反光：反射向量對到窗光時亮起，杯子一傾斜反光就會滑動
   vec3 R = reflect(d, N);
-  // 窗戶倒影：在反射方向空間畫一個柔邊的雙格窗，液面晃動時會跟著扭動
+  // 極淡的柔光反射：只給液面一點光澤，不搶花紋
   vec2 rel = R.xy / R.z - Ls.xy / Ls.z;
-  vec2 box = abs(rel) - vec2(0.027, 0.04);
-  float windowShape = 1.0 - smoothstep(-0.004, 0.012, max(box.x, box.y));
-  float mullion = smoothstep(0.0015, 0.004, abs(rel.x)) * smoothstep(0.0015, 0.004, abs(rel.y + 0.008));
-  float win = windowShape * mix(0.6, 1.0, mullion);
-  liquid = mix(liquid, vec3(1.0, 0.95, 0.88), win * mix(0.15, 0.04, fa));
+  float win = exp(-dot(rel, rel) / 0.0035);
+  liquid = mix(liquid, vec3(1.0, 0.95, 0.88), win * mix(0.07, 0.015, fa));
 
   // 杯壁擋光：從液面往光源走到杯口高度，若在杯口外就是陰影
   vec3 q = pl + L * (-pl.z / max(L.z, 0.2));

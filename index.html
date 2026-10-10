@@ -49,6 +49,24 @@
     </header>
 
     <main class="stage">
+      <!-- 出杯杯卡：杯子會縮小移進卡片中間的位置，金框從外往內套入 -->
+      <article class="serve-card" id="serveCard" aria-labelledby="patternName" aria-hidden="true">
+        <header class="serve-card__head" data-rise>
+          <span class="serve-card__brand">LatteArt</span>
+          <span class="serve-card__no" id="cupNo">No. 001</span>
+        </header>
+        <div class="serve-card__slot" id="cardSlot" aria-hidden="true"></div>
+        <div class="serve-card__body">
+          <p class="serve-card__eyebrow" data-rise data-i18n="finish.title">Your latte is ready</p>
+          <h2 class="serve-card__pattern" data-rise id="patternName"></h2>
+          <p class="serve-card__note" data-rise id="comment"></p>
+        </div>
+        <footer class="serve-card__foot" data-rise>
+          <span id="cupDate"></span>
+          <span class="serve-card__sign" data-i18n="finish.signature">Poured by hand</span>
+        </footer>
+      </article>
+
       <div class="cup" id="cup">
         <!-- 畫布比杯子大一圈，留空間給傾斜、桌面陰影與出杯光環 -->
         <div class="cup__space">
@@ -81,22 +99,15 @@
       <div class="toolbar" role="radiogroup" data-i18n-aria="tool.group">
         <button class="tool is-active" data-tool="pour" role="radio" aria-checked="true">
           <svg class="tool__icon" viewBox="0 0 40 40" aria-hidden="true">
-            <path d="M9 11.5h14.5l-1.6 15.2a3 3 0 0 1-3 2.7h-5.3a3 3 0 0 1-3-2.7z" />
-            <path d="M23.5 11.5l4.8-2.6" />
-            <path d="M22.9 15.5c3.2.3 4.7 2.2 4.4 5.3" />
-            <path d="M29.6 12.8c.5 4.6.4 10.4.4 18.7" />
-            <circle cx="30" cy="33.6" r="1.1" />
+            <g transform="rotate(-32 22 20)">
+              <path d="M15.5 10.5h11l2.2 15.3a2.6 2.6 0 0 1-2.6 3h-10.2a2.6 2.6 0 0 1-2.6-3z" />
+              <path d="M15.5 10.5L11 9.8l4.9 3.8" />
+              <path d="M28 14.2c3.4 0 4.3 6.6 1 7.8" />
+            </g>
+            <path d="M7.3 17.4c-.6 3.4-.5 8.4-.2 13.6" />
+            <path d="M2.8 33.4c3 1 6.6 1 9.7 0" />
           </svg>
           <span class="tool__label" data-i18n="tool.pour">Pour</span>
-        </button>
-        <button class="tool" data-tool="etch" role="radio" aria-checked="false">
-          <svg class="tool__icon" viewBox="0 0 40 40" aria-hidden="true">
-            <path d="M25.5 5.5l-6.2 22.3" />
-            <path d="M19.3 27.8l-.6 3.4" />
-            <ellipse cx="19" cy="30.5" rx="11" ry="3.6" />
-            <ellipse cx="19" cy="30.5" rx="5.5" ry="1.7" />
-          </svg>
-          <span class="tool__label" data-i18n="tool.etch">Etch</span>
         </button>
         <button class="tool" data-tool="sink" role="radio" aria-checked="false">
           <svg class="tool__icon" viewBox="0 0 40 40" aria-hidden="true">
@@ -107,6 +118,15 @@
             <path d="M32 32l-6.5-6.5M25.5 30.3v-4.8h4.8" />
           </svg>
           <span class="tool__label" data-i18n="tool.sink">Sink</span>
+        </button>
+        <button class="tool" data-tool="etch" role="radio" aria-checked="false">
+          <svg class="tool__icon" viewBox="0 0 40 40" aria-hidden="true">
+            <path d="M25.5 5.5l-6.2 22.3" />
+            <path d="M19.3 27.8l-.6 3.4" />
+            <ellipse cx="19" cy="30.5" rx="11" ry="3.6" />
+            <ellipse cx="19" cy="30.5" rx="5.5" ry="1.7" />
+          </svg>
+          <span class="tool__label" data-i18n="tool.etch">Etch</span>
         </button>
       </div>
     </section>
@@ -125,25 +145,10 @@
       id="finishSheet"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="patternName"
+      aria-label="Serve"
       aria-hidden="true"
     >
       <div class="sheet__handle" aria-hidden="true"></div>
-      <article class="serve-card">
-        <header class="serve-card__head">
-          <span class="serve-card__brand">LatteArt</span>
-          <span class="serve-card__no" id="cupNo">No. 001</span>
-        </header>
-        <div class="serve-card__body">
-          <p class="serve-card__eyebrow" data-i18n="finish.title">Your latte is ready</p>
-          <h2 class="serve-card__pattern" id="patternName"></h2>
-          <p class="serve-card__note" id="comment"></p>
-        </div>
-        <footer class="serve-card__foot">
-          <span id="cupDate"></span>
-          <span class="serve-card__sign" data-i18n="finish.signature">Poured by you</span>
-        </footer>
-      </article>
 
       <div class="action-row">
         <button class="pill-btn pill-btn--gold" id="saveBtn">

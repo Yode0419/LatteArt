@@ -15,7 +15,7 @@ export const config = {
     damping: 0.45, // 每秒速度衰減率（越大越黏稠）
     vorticity: 0, // 渦度保持，讓漩渦不會很快被抹平
     ambient: 0.006, // 液面自然微流動
-    slosh: 10, // 杯子晃動帶動液面的力道
+    slosh: 6, // 杯子晃動帶動液面的力道
   },
 
   display: {

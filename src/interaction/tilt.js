@@ -3,10 +3,10 @@
 // 液面用一個彈簧—阻尼系統落後於杯子的動作，產生晃動；晃動的速度另外交給流體，
 // 讓奶泡花紋真的被液面帶著走。
 
-const MAX_TILT = 0.2; // 最大傾斜（弧度，約 11°）
+const MAX_TILT = 0.07; // 最大傾斜（弧度，約 4°）：只是氛圍，不干擾作畫
 const SPRING = 38; // 液面回正的彈性
 const DAMP = 3.2; // 液面晃動的阻尼
-const KICK = 0.9; // 杯子轉動傳給液面的力道
+const KICK = 0.5; // 杯子轉動傳給液面的力道
 
 export class TiltController {
   constructor() {
@@ -23,7 +23,8 @@ export class TiltController {
     this.lastInput = -Infinity;
     this.gyroBase = null;
     this.enabled = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    this.strength = 1; // 拖曳作畫時降低傾斜，避免手指下的位置一直跑
+    this.strength = 1; // 傾斜幅度倍率（出杯時減弱）
+    this.frozen = false; // 作畫中：杯子停在當下的角度不動
 
     window.addEventListener("pointermove", (e) => {
       if (e.pointerType !== "mouse") return;
@@ -71,7 +72,8 @@ export class TiltController {
 
     const goalY = tx * MAX_TILT * this.strength; // 左右 → 繞 y 軸
     const goalX = ty * MAX_TILT * this.strength; // 上下 → 繞 x 軸
-    const k = Math.min(1, dt * 5);
+    // 作畫時凍結；放開後以較慢的速度回到跟隨狀態
+    const k = this.frozen ? 0 : Math.min(1, dt * 2.5);
     const nax = this.ax + (goalX - this.ax) * k;
     const nay = this.ay + (goalY - this.ay) * k;
     const vax = (nax - this.ax) / dt;

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-LatteArt is an immersive, mobile-first latte art simulator built with vanilla JavaScript, ES modules and WebGL — no build step, no dependencies (no three.js). A cup is served onto the table; the user paints with milk like a canvas (foam appears immediately, no fill limit), cuts through with a thin stream (Sink) or details with a needle (Etch), then pulls up to serve: a gold halo draws around the rim and a gold-framed cup card appears (no scoring). The cup is ray-traced in 3D and tilts with the mouse (desktop) or gyroscope (mobile), sloshing the liquid. UI copy is bilingual (Traditional Chinese / English) in a warm barista voice.
+LatteArt is an immersive, mobile-first latte art simulator built with vanilla JavaScript, ES modules and WebGL — no build step, no dependencies (no three.js). A cup is served onto the table; the user paints with milk like a canvas (foam appears immediately, no fill limit), cuts through with a thin stream (Sink) or details with a needle (Etch), then pulls up to serve: a gold-framed card closes in around the cup on the main stage (the cup shrinks into the card), a gold halo draws around the rim and the card text rises in; the bottom sheet only holds the actions (no scoring). The cup is ray-traced in 3D and tilts subtly (~4°) with the mouse (desktop) or gyroscope (mobile), sloshing the liquid; it freezes while the user draws. UI copy is bilingual (Traditional Chinese / English) in a warm barista voice.
 
 See `docs/ARCHITECTURE.md` for the module map, phase flow and simulation model.
 
@@ -19,7 +19,7 @@ See `docs/ARCHITECTURE.md` for the module map, phase flow and simulation model.
 
 - `src/main.js` — bootstrap, phase state machine (`body[data-phase]`: intro → serving → play ⇄ finish; demo/handoff only from Settings), main loop.
 - `src/session.js` — one cup's simulation state (fluid, visual fill level, tools, slosh input). No DOM.
-- `src/fluid/` — physics. `fluidCore.js` is a MAC-grid incompressible solver (red-black SOR) with three scalar layers: `foam`, `tint`, `crema`. Tools (`pouring.js`, `sink.js`, `etch.js`) share `begin/move/end/step(dt)`.
+- `src/fluid/` — physics. `fluidCore.js` is a MAC-grid incompressible solver (red-black SOR) with three scalar layers: `foam`, `tint`, `crema`. Tools (`pouring.js`, `sink.js`, `etch.js`; toolbar order Pour / Sink / Etch) share `begin/move/end/step(dt)`.
 - `src/render/` — `geometry.js` holds the 3D cup/camera/tilt math shared by JS and GLSL; `shaders.js` ray-traces rim, inner wall, body, liquid and table shadow; `latteRenderer.js` uploads fields and maps canvas ↔ sim through the tilted liquid plane.
 - `src/interaction/` — `pointer.js` (input → sim coords), `tilt.js` (mouse/gyro tilt + liquid spring slosh).
 - `src/story/` — opt-in barista demo (drives the real simulation per sim step) and contextual hints.
