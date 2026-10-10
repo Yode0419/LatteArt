@@ -486,6 +486,13 @@ body[data-phase="handoff"] .toolbar {
   line-height: 1;
 }
 
+/* 窄螢幕（≤340px）：標籤縮一級，避免「Pull-through」貼到分隔線 */
+@media (max-width: 340px) {
+  .tool__label {
+    font-size: var(--text-sm);
+  }
+}
+
 .tool::after {
   content: "";
   position: absolute;

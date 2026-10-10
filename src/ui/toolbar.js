@@ -1,5 +1,5 @@
 // toolbar.js
-// 底部三個工具：注奶／雕花／下沉。
+// 底部三個工具：注奶／雕花／收尾拉線。
 
 export class Toolbar {
   constructor(root, onSelect) {

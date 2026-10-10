@@ -18,7 +18,7 @@ src/
   fluid/                 物理（純邏輯）
     fluidCore.js           MAC 網格不可壓縮流體 + foam/tint/crema 三層純量場
     pouring.js             拉缸：像畫筆一樣按下就出奶泡，並把液面推開
-    sink.js                下沉：細水柱穿過奶泡，收成愛心的 V 口與尖端
+    sink.js                收尾拉線：細水柱穿過奶泡，收成愛心的 V 口與尖端
     etch.js                雕花針：沿軌跡拖曳液面畫細線
     extraction.js          crema 的初始分佈（端上桌時就已長好）
   render/                畫面

@@ -8,8 +8,7 @@ export function pickHint(session) {
   const name = Object.keys(session.tools).find((k) => session.tools[k] === tool);
   if (name === TOOLS.ETCH) return "hint.etch";
   if (name === TOOLS.SINK) return "hint.sink";
-  if (session.pitcher.active) return "hint.pour.active";
-  return session.hasPoured ? "hint.pour.draw" : "hint.pour.start";
+  return "hint.pour";
 }
 
 // 提示文字淡出、換字、淡入
