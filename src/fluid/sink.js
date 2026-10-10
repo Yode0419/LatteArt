@@ -40,8 +40,9 @@ export class SinkTool {
     this.travel += len;
     // 切入的進度：0 = 剛切入，1 = 已深入奶泡
     const ramp = Math.min(1, Math.max(0, (this.travel - opts.pullDelay) / 0.08));
-    // 剛切入時帶動的範圍較寬，把頂端整片拖出 V 口；之後變細
-    const carryR = radius * (1 + (opts.entryWidth - 1) * (1 - ramp));
+    // 剛切入時帶動的範圍（entryWidth）決定頂端 V 口的寬窄；
+    // 深入之後的範圍（bodyWidth）越寬，下半部越會整片被拖成收尖的心形
+    const carryR = radius * (opts.entryWidth * (1 - ramp) + opts.bodyWidth * ramp);
 
     // 1. 水柱拖著液面走（直接位移純量場，不留下漩渦）
     if (len > 1e-5) {

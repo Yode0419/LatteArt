@@ -306,6 +306,7 @@ window.addEventListener("resize", () => {
 // ---------- 主迴圈 ----------
 
 let last = performance.now();
+const STILL = { x: 0, y: 0 };
 
 function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000);
@@ -315,7 +316,8 @@ function frame(now) {
   tilt.frozen = pointer.pointerId !== null || phase === "demo";
   tilt.strength = 1;
   const view = tilt.update(dt);
-  session.slosh = tilt.slosh;
+  // 示範時液面不受晃動影響，每次都拉出同一顆對稱的心
+  session.slosh = phase === "demo" ? STILL : tilt.slosh;
   session.advance(dt, (step) => demo.update(step));
 
   renderer.fill += (session.cup.fill - renderer.fill) * Math.min(1, dt * 4);

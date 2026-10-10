@@ -157,6 +157,13 @@ export class Fluid {
     this.time = 0;
   }
 
+  // 讓液面靜止下來（保留花紋，只清掉流動）
+  calm() {
+    this.u.fill(0);
+    this.v.fill(0);
+    this.src.fill(0);
+  }
+
   // 對每個在半徑內的流體格子呼叫 fn(c, falloff, dx, dy)
   forEachInRadius(x, y, radius, fn) {
     const n = this.numY;

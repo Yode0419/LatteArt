@@ -52,8 +52,8 @@ export class Pitcher {
     this.flow = lerpRange(opts.strength, 0.4, 1.6);
     const radius = lerpRange(opts.radius, 0.03, 0.09);
     const push = this.flow * opts.push;
-    // 剛落下的 0.15 秒：注流先撐開周圍的舊奶泡，形成分層線
-    const opening = this.time < 0.15;
+    // 剛落下的 0.15 秒：注流先撐開周圍的舊奶泡，形成分層線（可關掉，只留一整塊奶泡）
+    const opening = opts.layering && this.time < 0.15;
     const mix = this.flow * 0.35 * dt;
     const { fluid } = this;
     const { src, foam, tint } = fluid;
