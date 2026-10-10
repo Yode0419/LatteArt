@@ -11,16 +11,17 @@ const POUR = { layering: false };
 // 下沉一口氣從圓的上緣往下穿過，分三段但不放開：
 //   上段：剛切入時帶動範圍寬、切得淺 → 寬而淺的 V 口；兩側幾乎不收，兩瓣保持飽滿
 //   中段：帶動範圍變寬、兩側用力收攏 → 下半部整片被拖成收尖的心形
-//   下段：水柱變細繼續往下 → 拉出細長的尾巴
+//   下段：水柱變得很細繼續往下 → 拉出細長的尾巴
+// 切完 V 口之後兩側奶泡會流回水柱身後（seal），中間不留一道縫，愛心不會像被切成兩半
 // 圓心偏上，往下拉出尾巴之後整顆心剛好落在杯子中央
-const SINK = { entryWidth: 5, pullDelay: 0.015, cut: 3, cutLate: 0.05 };
+const SINK = { entryWidth: 5, pullDelay: 0, cut: 1, cutLate: 0, seal: 20, sealDelay: 0.2 };
 export const HEART = [
   [0.4, 2.9, TOOLS.POUR, 0.5, 0.58, 0.5, 0.58, "demo.pour", POUR],
   [3.4, 4.2, TOOLS.SINK, 0.5, 0.86, 0.5, 0.36, "demo.sink", { ...SINK, pull: 4 }],
-  [4.2, 5.0, TOOLS.SINK, 0.5, 0.36, 0.5, 0.17, "demo.sink", { ...SINK, bodyWidth: 4.5, pull: 30 }],
-  [5.0, 5.6, TOOLS.SINK, 0.5, 0.17, 0.5, 0.04, "demo.tail", { ...SINK, bodyWidth: 1, pull: 8 }],
+  [4.2, 5.0, TOOLS.SINK, 0.5, 0.36, 0.5, 0.22, "demo.sink", { ...SINK, bodyWidth: 4.5, pull: 30 }],
+  [5.0, 5.9, TOOLS.SINK, 0.5, 0.22, 0.5, 0.025, "demo.tail", { ...SINK, bodyWidth: 0.45, pull: 14 }],
 ];
-const END = 7.4;
+const END = 7.7;
 
 // 兩段是否接續成同一次按壓（同一個工具、時間首尾相接）
 function chained(a, b) {

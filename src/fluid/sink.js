@@ -74,8 +74,46 @@ export class SinkTool {
       tint[c] = Math.min(1, tint[c] + sunk * 0.7);
     });
 
+    // 3. 縫合：深入奶泡之後，兩側的奶泡從左右流回水柱身後，把穿心線補起來（愛心不會被切成兩半）
+    //    V 口切完之後才開始縫（sealDelay），頂端的 V 口不會被補回去
+    const sealRamp = Math.min(1, Math.max(0, (this.travel - opts.pullDelay - opts.sealDelay) / 0.08));
+    if (opts.seal > 0 && len > 1e-5) this.seal(dx / len, dy / len, radius, opts.seal * sealRamp * dt);
+
     this.lx = this.x;
     this.ly = this.y;
+  }
+
+  // 水柱身後一段：每格取垂直於行進方向、左右兩側的奶泡，往兩者中較少的那側補齊
+  seal(ux, uy, radius, amount) {
+    if (amount <= 0) return;
+    const fluid = this.fluid;
+    const h2 = fluid.h * 0.5;
+    const { foam, tint } = fluid;
+    const foamCopy = fluid.tmpA;
+    const tintCopy = fluid.tmpB;
+    foamCopy.set(foam);
+    tintCopy.set(tint);
+    const reach = radius * 1.3; // 往兩側取樣的距離（要跨過整條縫）
+    const px = -uy * reach;
+    const py = ux * reach;
+    const bx = this.x - ux * radius * 2;
+    const by = this.y - uy * radius * 2;
+    const k = Math.min(1, amount);
+    fluid.forEachInRadius(bx, by, radius * 2, (c, f, cx, cy) => {
+      const x = bx + cx;
+      const y = by + cy;
+      const a = fluid.sampleGrid(foamCopy, x + px, y + py, h2, h2);
+      const b = fluid.sampleGrid(foamCopy, x - px, y - py, h2, h2);
+      const side = Math.min(a, b);
+      if (side <= foam[c]) return;
+      const w = k * f;
+      foam[c] += (side - foam[c]) * w;
+      const sideTint =
+        0.5 *
+        (fluid.sampleGrid(tintCopy, x + px, y + py, h2, h2) +
+          fluid.sampleGrid(tintCopy, x - px, y - py, h2, h2));
+      tint[c] += (sideTint - tint[c]) * w;
+    });
   }
 
   carry(x, y, mx, my, radius) {
