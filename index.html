@@ -1,169 +1,310 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Coffee Latte Art Simulation</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"
+    />
+    <meta name="theme-color" content="#0c0908" />
+    <title>LatteArt</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=Noto+Sans+TC:wght@400;500&family=Noto+Serif+TC:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/tokens.css" />
     <link rel="stylesheet" href="assets/styles.css" />
   </head>
-  <body>
-    <nav class="navbar">
-      <div class="nav-title">Latte Art Simulator</div>
-      <div class="nav-actions">
-        <button id="toggleControls" class="nav-btn">
-          <span class="nav-icon">⚙️</span>
-        </button>
-        <button id="shareButton" class="nav-btn">
-          <span class="nav-icon">📤</span>
-        </button>
-      </div>
-    </nav>
-
-    <div id="shareLoading" class="loading-overlay hidden">分享準備中...</div>
-
-    <div class="canvas-container">
-      <!-- 使用共享的基本樣式類 -->
-      <!-- 外边框容器及其子元素 -->
-      <div class="border-base outer-border-container">
-        <div class="outer-border"></div>
-      </div>
-      <div class="border-base inner-border"></div>
-      <div class="border-base main-border"></div>
-      <canvas id="myCanvas"></canvas>
+  <body data-phase="intro" data-tool="pour">
+    <div class="ambience" aria-hidden="true">
+      <div class="ambience__light"></div>
+      <div class="ambience__grain"></div>
     </div>
 
-    <!-- 放置在主頁面中，在重新開始按鈕上方 -->
-    <div class="mode-selector-container">
-      <div class="mode-selector">
-        <button id="pouringMode" class="mode-btn active">
-          注入牛奶 (Pour Milk)
+    <header class="topbar">
+      <h1 class="wordmark">LatteArt</h1>
+      <div class="topbar__actions">
+        <button class="icon-btn" id="newCupBtn" data-i18n-aria="action.newCup">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3" />
+            <path d="M4.5 4.5v3.6h3.6" />
+          </svg>
         </button>
-        <button id="stirringMode" class="mode-btn">
-          拉花棒攪拌 (Stirring)
-        </button>
-        <button id="suctionMode" class="mode-btn">
-          吸取咖啡花紋 (Suction)
+        <button
+          class="icon-btn"
+          id="settingsBtn"
+          data-i18n-aria="settings.title"
+          aria-haspopup="dialog"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="2.8" />
+            <path
+              d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.6-2-3.4-2.4.9a7.5 7.5 0 0 0-2.6-1.5L14 2.5h-4l-.4 2.4A7.5 7.5 0 0 0 7 6.4l-2.4-.9-2 3.4 2 1.6a7.6 7.6 0 0 0 0 3l-2 1.6 2 3.4 2.4-.9a7.5 7.5 0 0 0 2.6 1.5l.4 2.4h4l.4-2.4a7.5 7.5 0 0 0 2.6-1.5l2.4.9 2-3.4z"
+            />
+          </svg>
         </button>
       </div>
+    </header>
+
+    <main class="stage">
+      <!-- 出杯杯卡：杯子會縮小移進卡片中間的位置，金框從外往內套入 -->
+      <article class="serve-card" id="serveCard" aria-labelledby="patternName" aria-hidden="true">
+        <span class="serve-card__sheen" aria-hidden="true"></span>
+        <header class="serve-card__head" data-rise>
+          <span class="serve-card__brand">LatteArt</span>
+          <span class="serve-card__no" id="cupNo">No. 001</span>
+        </header>
+        <div class="serve-card__slot" id="cardSlot" aria-hidden="true"></div>
+        <div class="serve-card__body">
+          <p class="serve-card__eyebrow" data-rise data-i18n="finish.title">Your latte is ready</p>
+          <h2 class="serve-card__pattern" data-rise id="patternName"></h2>
+          <p class="serve-card__note" data-rise id="comment"></p>
+        </div>
+        <footer class="serve-card__foot" data-rise>
+          <span id="cupDate"></span>
+          <span class="serve-card__sign" data-i18n="finish.signature">Poured by hand</span>
+        </footer>
+      </article>
+
+      <div class="cup" id="cup">
+        <!-- 畫布比杯子大一圈，留空間給傾斜、桌面陰影與出杯光環 -->
+        <div class="cup__space">
+          <canvas
+            class="cup__canvas"
+            id="latteCanvas"
+            role="img"
+            data-i18n-aria="cup.label"
+          ></canvas>
+          <canvas class="cup__overlay" id="overlayCanvas" aria-hidden="true"></canvas>
+          <canvas class="cup__fx" id="fxCanvas" aria-hidden="true"></canvas>
+          <div class="reticle" id="reticle" aria-hidden="true">
+            <span class="reticle__ring"></span>
+            <span class="reticle__ring reticle__ring--2"></span>
+            <span class="reticle__dot"></span>
+          </div>
+          <div class="ghost" id="ghost" aria-hidden="true">
+            <span class="ghost__ring"></span>
+            <span class="ghost__tip"></span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <section class="dock">
+      <div class="guide">
+        <p class="guide__hint" id="hint" aria-live="polite"></p>
+      </div>
+
+      <div class="toolbar" role="radiogroup" data-i18n-aria="tool.group">
+        <button class="tool is-active" data-tool="pour" role="radio" aria-checked="true">
+          <svg class="tool__icon" viewBox="0 0 40 40" aria-hidden="true">
+            <g transform="rotate(-32 22 20)">
+              <path d="M15.5 10.5h11l2.2 15.3a2.6 2.6 0 0 1-2.6 3h-10.2a2.6 2.6 0 0 1-2.6-3z" />
+              <path d="M15.5 10.5L11 9.8l4.9 3.8" />
+              <path d="M28 14.2c3.4 0 4.3 6.6 1 7.8" />
+            </g>
+            <path d="M7.3 17.4c-.6 3.4-.5 8.4-.2 13.6" />
+            <path d="M2.8 33.4c3 1 6.6 1 9.7 0" />
+          </svg>
+          <span class="tool__label" data-i18n="tool.pour">Pour</span>
+        </button>
+        <button class="tool" data-tool="sink" role="radio" aria-checked="false">
+          <svg class="tool__icon" viewBox="0 0 40 40" aria-hidden="true">
+            <circle cx="20" cy="20" r="2.2" />
+            <path d="M8 8l6.5 6.5M14.5 9.7v4.8H9.7" />
+            <path d="M32 8l-6.5 6.5M25.5 9.7v4.8h4.8" />
+            <path d="M8 32l6.5-6.5M14.5 30.3v-4.8H9.7" />
+            <path d="M32 32l-6.5-6.5M25.5 30.3v-4.8h4.8" />
+          </svg>
+          <span class="tool__label" data-i18n="tool.sink">Sink</span>
+        </button>
+        <button class="tool" data-tool="etch" role="radio" aria-checked="false">
+          <svg class="tool__icon" viewBox="0 0 40 40" aria-hidden="true">
+            <path d="M25.5 5.5l-6.2 22.3" />
+            <path d="M19.3 27.8l-.6 3.4" />
+            <ellipse cx="19" cy="30.5" rx="11" ry="3.6" />
+            <ellipse cx="19" cy="30.5" rx="5.5" ry="1.7" />
+          </svg>
+          <span class="tool__label" data-i18n="tool.etch">Etch</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- 出杯拉環：往上拖（或點一下）把這杯端出去 -->
+    <button class="serve-pull" id="finishBtn" data-i18n-aria="action.finish">
+      <span class="serve-pull__grip" aria-hidden="true"></span>
+      <span class="serve-pull__label" id="servePullLabel" data-i18n="action.pullToServe">Pull up to serve</span>
+    </button>
+
+    <div class="scrim" id="scrim"></div>
+
+    <!-- 出杯：金框杯卡 -->
+    <section
+      class="sheet sheet--finish"
+      id="finishSheet"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Serve"
+      aria-hidden="true"
+    >
+      <div class="sheet__handle" aria-hidden="true"></div>
+
+      <div class="action-row">
+        <button class="pill-btn pill-btn--gold" id="saveBtn">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3.5v11.5M7 10.5l5 5 5-5" />
+            <path d="M4 16.5v3h16v-3" />
+          </svg>
+          <span data-i18n="action.save">Save Image</span>
+        </button>
+        <button class="pill-btn" id="shareBtn">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="18" cy="5.5" r="2.5" />
+            <circle cx="6" cy="12" r="2.5" />
+            <circle cx="18" cy="18.5" r="2.5" />
+            <path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1" />
+          </svg>
+          <span data-i18n="action.share">Share</span>
+        </button>
+      </div>
+
+      <div class="sheet__footer">
+        <button class="link-btn" id="keepEditingBtn" data-i18n="action.keepEditing">
+          Keep editing
+        </button>
+        <span class="sheet__footer-dot" aria-hidden="true"></span>
+        <button class="link-btn link-btn--quiet" id="anotherCupBtn" data-i18n="action.another">
+          Make another
+        </button>
+      </div>
+    </section>
+
+    <!-- 設定 -->
+    <section
+      class="sheet sheet--settings"
+      id="settingsSheet"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="settingsTitle"
+      aria-hidden="true"
+    >
+      <div class="sheet__handle" aria-hidden="true"></div>
+      <header class="sheet__header">
+        <h2 class="sheet__title" id="settingsTitle" data-i18n="settings.title">Settings</h2>
+        <button class="icon-btn icon-btn--ghost" id="closeSettingsBtn" data-i18n-aria="action.close">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+      </header>
+
+      <div class="sheet__scroll">
+        <section class="setting-group">
+          <h3 class="setting-group__title" data-i18n="settings.language">Language</h3>
+          <div class="segmented" role="radiogroup" id="langSwitch">
+            <button class="segmented__item" data-lang="zh-Hant" role="radio">繁中</button>
+            <button class="segmented__item" data-lang="en" role="radio">English</button>
+          </div>
+        </section>
+
+        <section class="setting-group">
+          <h3 class="setting-group__title">
+            <span data-i18n="settings.activeTool">Active tool</span>
+            <span class="setting-group__dot" aria-hidden="true">•</span>
+            <span id="activeToolName"></span>
+          </h3>
+          <div class="field">
+            <label for="toolRadius" data-i18n="settings.radius">Radius</label>
+            <input class="slider" type="range" id="toolRadius" min="0" max="100" step="1" />
+            <output for="toolRadius"></output>
+          </div>
+          <div class="field">
+            <label for="toolStrength" data-i18n="settings.strength">Strength</label>
+            <input class="slider" type="range" id="toolStrength" min="0" max="100" step="1" />
+            <output for="toolStrength"></output>
+          </div>
+        </section>
+
+        <section class="setting-group">
+          <h3 class="setting-group__title" data-i18n="settings.display">Display</h3>
+          <div class="field">
+            <label for="resolution" data-i18n="settings.resolution">Resolution</label>
+            <input class="slider" type="range" id="resolution" min="64" max="192" step="16" />
+            <output for="resolution"></output>
+          </div>
+          <div class="field field--toggle">
+            <label for="streamlines" data-i18n="settings.streamlines">Streamlines</label>
+            <input class="toggle" type="checkbox" role="switch" id="streamlines" />
+          </div>
+        </section>
+
+        <details class="setting-group disclosure">
+          <summary class="disclosure__summary">
+            <span data-i18n="settings.advanced">Advanced simulation</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+          </summary>
+          <div class="field">
+            <label for="damping" data-i18n="settings.damping">Damping</label>
+            <input class="slider" type="range" id="damping" min="0.2" max="4" step="0.1" />
+            <output for="damping"></output>
+          </div>
+          <div class="field">
+            <label for="ambient" data-i18n="settings.ambient">Surface drift</label>
+            <input class="slider" type="range" id="ambient" min="0" max="0.03" step="0.002" />
+            <output for="ambient"></output>
+          </div>
+          <div class="field">
+            <label for="vorticity" data-i18n="settings.vorticity">Swirl</label>
+            <input class="slider" type="range" id="vorticity" min="0" max="6" step="0.5" />
+            <output for="vorticity"></output>
+          </div>
+          <div class="field">
+            <label for="numIters" data-i18n="settings.iterations">Solver iterations</label>
+            <input class="slider" type="range" id="numIters" min="8" max="60" step="2" />
+            <output for="numIters"></output>
+          </div>
+          <div class="field">
+            <label for="overRelaxation" data-i18n="settings.overRelaxation">Over-relaxation</label>
+            <input class="slider" type="range" id="overRelaxation" min="1" max="1.95" step="0.05" />
+            <output for="overRelaxation"></output>
+          </div>
+        </details>
+
+        <section class="setting-group setting-group--last">
+          <button class="row-btn" id="replayDemoBtn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z" /></svg>
+            <span data-i18n="settings.replayDemo">Watch the barista again</span>
+          </button>
+        </section>
+      </div>
+    </section>
+
+    <!-- 開場 -->
+    <div class="intro" id="intro">
+      <p class="intro__line">
+        <span class="intro__part" data-i18n="intro.line1">Make yourself a cup,</span>
+        <span class="intro__part intro__part--2" data-i18n="intro.line2">pour a little art.</span>
+      </p>
     </div>
 
-    <button id="restartButton">重新開始 (Reset)</button>
-
-    <div class="controls hidden">
-      <div class="control-group">
-        <h3>顯示設定 (Display)</h3>
-        <div>
-          <label for="resolution">解析度 (Resolution):</label>
-          <input type="range" id="resolution" min="80" max="300" step="20" />
-          <span class="value-display" id="resolution-value"></span>
-        </div>
-        <div>
-          <label>
-            <input type="checkbox" id="showStreamlines" /> 顯示流線
-            (Streamlines)
-          </label>
-        </div>
-      </div>
-
-      <div class="control-group">
-        <h3>流體模擬參數 (Fluid Parameters)</h3>
-        <div>
-          <label for="viscosity">黏滯性 (Viscosity):</label>
-          <input
-            type="range"
-            id="viscosity"
-            min="0.9"
-            max="1.0"
-            step="0.005"
-            value="0.98"
-          />
-          <span class="value-display" id="viscosity-value">0.98</span>
-        </div>
-        <div>
-          <label for="gravity">重力 (Gravity):</label>
-          <input type="range" id="gravity" min="-20" max="20" step="1" />
-          <span class="value-display" id="gravity-value"></span>
-        </div>
-        <div>
-          <label for="numIters">迭代次數 (Iterations):</label>
-          <input type="range" id="numIters" min="10" max="100" step="5" />
-          <span class="value-display" id="numIters-value"></span>
-        </div>
-        <div>
-          <label for="overRelaxation">過度鬆弛 (Over-relaxation):</label>
-          <input type="range" id="overRelaxation" min="1" max="2" step="0.1" />
-          <span class="value-display" id="overRelaxation-value"></span>
-        </div>
-      </div>
-
-      <div class="control-group" id="pouringControls">
-        <h3>注入設定 (Pouring Settings)</h3>
-        <div>
-          <label for="pourRadius">注入半徑 (Radius):</label>
-          <input
-            type="range"
-            id="pourRadius"
-            min="0.01"
-            max="0.1"
-            step="0.01"
-          />
-          <span class="value-display" id="pourRadius-value"></span>
-        </div>
-        <div>
-          <label for="pourStrength">注入強度 (Strength):</label>
-          <input type="range" id="pourStrength" min="0.5" max="5" step="0.5" />
-          <span class="value-display" id="pourStrength-value"></span>
-        </div>
-      </div>
-
-      <div class="control-group" id="stirringControls">
-        <h3>攪拌設定 (Stirring Settings)</h3>
-        <div>
-          <label for="stirRadius">攪拌半徑 (Radius):</label>
-          <input
-            type="range"
-            id="stirRadius"
-            min="0.05"
-            max="0.3"
-            step="0.05"
-          />
-          <span class="value-display" id="stirRadius-value"></span>
-        </div>
-        <div>
-          <label for="stirStrength">攪拌強度 (Strength):</label>
-          <input type="range" id="stirStrength" min="0.5" max="5" step="0.5" />
-          <span class="value-display" id="stirStrength-value"></span>
-        </div>
-      </div>
-
-      <div class="control-group" id="suctionControls">
-        <h3>吸取設定 (Suction Settings)</h3>
-        <div>
-          <label for="suctionRadius">吸取範圍 (Radius):</label>
-          <input
-            type="range"
-            id="suctionRadius"
-            min="0.01"
-            max="0.2"
-            step="0.01"
-          />
-          <span class="value-display" id="suctionRadius-value"></span>
-        </div>
-        <div>
-          <label for="suctionStrength">吸取強度 (Strength):</label>
-          <input
-            type="range"
-            id="suctionStrength"
-            min="0.5"
-            max="5"
-            step="0.5"
-          />
-          <span class="value-display" id="suctionStrength-value"></span>
-        </div>
-      </div>
+    <!-- 示範 -->
+    <div class="banner" id="demoBanner" aria-live="polite">
+      <span class="banner__dot" aria-hidden="true"></span>
+      <span class="banner__text" id="demoText"></span>
+      <button class="link-btn" id="skipDemoBtn" data-i18n="demo.skip">Skip</button>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <div class="handoff" id="handoff" role="dialog" aria-labelledby="handoffTitle">
+      <p class="eyebrow" data-i18n="handoff.eyebrow">Demo complete</p>
+      <h2 class="handoff__title" id="handoffTitle" data-i18n="handoff.title">Your turn</h2>
+      <p class="handoff__body" data-i18n="handoff.body"></p>
+      <button class="action action--primary action--wide" id="startBtn">
+        <span data-i18n="handoff.start">Start pouring</span>
+      </button>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
     <script type="module" src="src/main.js"></script>
   </body>
 </html>

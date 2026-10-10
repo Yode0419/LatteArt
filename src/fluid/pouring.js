@@ -1,76 +1,82 @@
-export class MilkInjector {
-  constructor(fluid, config) {
+// pouring.js
+// 拉缸：像畫筆一樣，按下就從液面浮出白色奶泡，並把液面往外推開。
+// 操作不追求擬真限制（不需高注打底、不會注滿），但看起來要像真的拉花：
+//   - 奶泡立即出現在注流中心，被推力向外撐開成圓
+//   - 每一注剛落下時會先推開周圍的舊奶泡，留下一圈 crema 分層線（鬱金香的層次）
+//   - 搖擺拉缸時帶一點動量
+
+import { lerpRange } from "../config.js";
+
+export class Pitcher {
+  constructor(fluid, config, cup) {
     this.fluid = fluid;
     this.config = config;
-    this.injectX = 0.0;
-    this.injectY = 0.0;
-    this.isActive = false;
+    this.cup = cup;
+    this.active = false;
+    this.height = 0.15; // 給渲染器與瞄準環用：固定為貼近液面的低注
+    this.time = 0;
+    this.x = this.y = this.px = this.py = 0.5;
+    this.vx = this.vy = 0;
+    this.flow = 0;
   }
 
-  start(x, y) {
-    this.injectX = x;
-    this.injectY = y;
-    this.isActive = true;
-    this.applyInjection(x, y, true);
+  begin(x, y) {
+    this.active = true;
+    this.time = 0;
+    this.x = this.px = x;
+    this.y = this.py = y;
+    this.vx = this.vy = 0;
   }
 
-  update(x, y) {
-    if (!this.isActive) return;
-
-    this.applyInjection(x, y, false);
-    this.injectX = x;
-    this.injectY = y;
+  move(x, y) {
+    this.x = x;
+    this.y = y;
   }
 
   end() {
-    this.isActive = false;
+    this.active = false;
+    this.flow = 0;
   }
 
-  applyInjection(x, y, reset) {
-    const { radius, strength } = this.config?.simulation?.pouring ?? {
-      radius: 0.3,
-      strength: 2.0,
-    };
+  step(dt) {
+    if (!this.active) return;
+    const opts = this.config.tools.pour;
+    this.time += dt;
 
-    // 計算移動速度
-    let vx = 0.0;
-    let vy = 0.0;
+    // 平滑拉缸移動速度，搖擺時才會有乾淨的動量
+    this.vx += ((this.x - this.px) / dt - this.vx) * 0.5;
+    this.vy += ((this.y - this.py) / dt - this.vy) * 0.5;
+    this.px = this.x;
+    this.py = this.y;
 
-    if (!reset) {
-      vx = (x - this.injectX) / this.config.fluid.dt;
-      vy = (y - this.injectY) / this.config.fluid.dt;
-    }
+    this.flow = lerpRange(opts.strength, 0.4, 1.6);
+    const radius = lerpRange(opts.radius, 0.03, 0.09);
+    const push = this.flow * opts.push;
+    // 剛落下的 0.15 秒：注流先撐開周圍的舊奶泡，形成分層線（可關掉，只留一整塊奶泡）
+    const opening = opts.layering && this.time < 0.15;
+    const mix = this.flow * 0.35 * dt;
+    const { fluid } = this;
+    const { src, foam, tint } = fluid;
+    const vx = this.vx;
+    const vy = this.vy;
 
-    const n = this.fluid.numY;
-
-    // 注入牛奶的半徑範圍內
-    for (let i = 1; i < this.fluid.numX - 2; i++) {
-      for (let j = 1; j < this.fluid.numY - 2; j++) {
-        // 只處理非固體格子（即 s 不等於 0.0 的格子）
-        if (this.fluid.s[i * n + j] !== 0.0) {
-          const dx = (i + 0.5) * this.fluid.h - x;
-          const dy = (j + 0.5) * this.fluid.h - y;
-          const d = Math.sqrt(dx * dx + dy * dy);
-
-          if (d < radius) {
-            const factor = 1.0 - d / radius;
-
-            // 1. 設置水平速度（受到注入點移動的影響）
-            this.fluid.u[i * n + j] += vx * factor * 0.5;
-            this.fluid.u[(i + 1) * n + j] += vx * factor * 0.5;
-            this.fluid.v[i * n + j] += vy * factor * 0.5;
-            this.fluid.v[i * n + j + 1] += vy * factor * 0.5;
-
-            // 2. 設置垂直注入速度 (關鍵部分)
-            // 正值表示從Z方向注入到XY平面
-            const injectionStrength = strength * factor;
-            this.fluid.w[i * n + j] = injectionStrength;
-
-            // 3. 直接設置牛奶密度
-            this.fluid.densityField.setDensity(i, j, "milk", 1.0);
-          }
-        }
+    // 推力分佈比奶泡更寬、更平滑，奶泡才會被撐成圓形
+    fluid.forEachInRadius(this.x, this.y, radius * 1.6, (c, f) => {
+      src[c] += push * f * 0.5;
+    });
+    fluid.forEachInRadius(this.x, this.y, radius, (c, f) => {
+      if (f > 0.55) {
+        foam[c] += (1 - foam[c]) * Math.min(1, (f - 0.55) * 4);
+      } else if (opening) {
+        foam[c] *= 1 - 0.35 * f;
+      } else {
+        foam[c] += (1 - foam[c]) * f * 0.5;
       }
-    }
+      tint[c] = Math.min(1, tint[c] + mix * (1 - f));
+      fluid.blendVelocity(c, vx, vy, 0.05 * f);
+    });
+
+    // 液位只是視覺：越倒越接近杯緣，但不會限制繼續注入
+    this.cup.fill = Math.min(1, this.cup.fill + this.flow * opts.fillRate * dt);
   }
 }

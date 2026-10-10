@@ -4,75 +4,38 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-LatteArt is a web-based coffee latte art simulator built with vanilla JavaScript and HTML5 Canvas. The application simulates fluid dynamics to create realistic milk pouring, stirring, and suction effects in a coffee cup visualization.
+LatteArt is an immersive, mobile-first latte art simulator built with vanilla JavaScript, ES modules and WebGL — no build step, no dependencies (no three.js). A cup is served onto the table; the user paints with milk like a canvas (foam appears immediately, no fill limit), cuts through with a thin stream (Sink) or details with a needle (Etch), then pulls up to serve: a gold-framed card closes in around the cup on the main stage (the cup shrinks into the card), a gold halo draws around the rim and the card text rises in; the bottom sheet only holds the actions (no scoring). The cup is ray-traced in 3D and tilts subtly (~4°) with the mouse (desktop) or gyroscope (mobile), sloshing the liquid; it freezes while the user draws. UI copy is bilingual (Traditional Chinese / English) in a warm barista voice.
 
-## Development Commands
+See `docs/ARCHITECTURE.md` for the module map, phase flow and simulation model.
 
-This is a client-side only application with no build process. To develop:
+## Development
 
-1. **Serve the application**: Use any static web server (e.g., `python -m http.server` or VS Code Live Server extension)
-2. **Access the app**: Open `index.html` in a web browser
-3. **Test sharing**: The share feature requires HTTPS to work properly with the Web Share API
+1. Serve the repo root with any static server (e.g. `python3 -m http.server`).
+2. Open `index.html` for the app, `design-system.html` for the design system showcase.
+3. Web Share needs HTTPS; elsewhere sharing falls back to a download.
+4. The barista demo is opt-in: Settings → "Watch the barista".
 
-## Architecture
+## Architecture at a glance
 
-### Core Components
+- `src/main.js` — bootstrap, phase state machine (`body[data-phase]`: intro → serving → play ⇄ finish; demo/handoff only from Settings), main loop.
+- `src/session.js` — one cup's simulation state (fluid, visual fill level, tools, slosh input). No DOM.
+- `src/fluid/` — physics. `fluidCore.js` is a MAC-grid incompressible solver (red-black SOR) with three scalar layers: `foam`, `tint`, `crema`. Tools (`pouring.js`, `sink.js`, `etch.js`; toolbar order Pour / Sink / Etch) share `begin/move/end/step(dt)`.
+- `src/render/` — `geometry.js` holds the 3D cup/camera/tilt math shared by JS and GLSL; `shaders.js` ray-traces rim, inner wall, body, liquid and table shadow; `latteRenderer.js` uploads fields and maps canvas ↔ sim through the tilted liquid plane.
+- `src/interaction/` — `pointer.js` (input → sim coords), `tilt.js` (mouse/gyro tilt + liquid spring slosh).
+- `src/story/` — opt-in barista demo (drives the real simulation per sim step) and contextual hints.
+- `src/analysis/pattern.js` — pattern detection for the card title (heart / tulip / rosetta / monk's head / freeform). No scoring.
+- `src/ui/` — DOM-only components (sheets, toolbar, settings, finish card, serve pull tab, gold halo, cursor, toast).
+- `src/i18n.js`, `src/storage.js` — strings and safe localStorage.
 
-- **main.js**: Entry point that orchestrates the simulation, handles UI events, and manages the animation loop
-- **src/fluid/fluidCore.js**: Core fluid dynamics simulation engine with incompressible flow solver
-- **src/render.js**: Canvas rendering system that visualizes fluid density and streamlines
-- **src/config.js**: Central configuration for simulation parameters and display settings
+## Design system
 
-### Simulation Modules
+- `assets/tokens.css` is the single source of design values (primitive → semantic → component tokens). `assets/styles.css` must only reference tokens.
+- Visual rules: the coffee is the hero; UI stays dark and low-contrast. Shadows and dark areas are always warm brown — never pure black or neutral grey (it reads as dirty). No noisy blotches on the liquid surface.
+- Gold (`--gold-*`, `--gradient-gold`) is reserved for the serve moment: halo, card frame, primary save action, pull tab.
+- Copy: short, warm barista tone; every hint says what is happening or what to do next.
 
-- **src/fluid/pouring.js**: MilkInjector class for adding milk density to the simulation
-- **src/fluid/stir.js**: StirringSimulator for creating rotational flow patterns
-- **src/fluid/suction.js**: SuctionSimulator for removing fluid density
-- **src/fluid/densityField.js**: Manages multiple density layers for different substances
+## Notes
 
-### Interaction System
-
-- **src/interaction/interaction.js**: FluidInteraction class that handles mouse/touch input
-- **src/interaction/controlPanel.js**: Controls class for parameter adjustment UI
-- **src/interaction/inputHandler.js**: Input handling utilities
-
-## Key Technical Details
-
-### Simulation Modes
-The application supports three interaction modes controlled by `SIMULATION_MODES`:
-- `POURING`: Inject milk density into the fluid
-- `STIRRING`: Create rotational motion patterns
-- `SUCTION`: Remove fluid density for latte art effects
-
-### Fluid Physics
-- Uses finite difference method for fluid simulation
-- Implements incompressible Navier-Stokes equations
-- Supports viscosity adjustment (0.9-1.0 range)
-- Circular boundary constraints for coffee cup shape
-
-### Rendering System
-- Real-time density field visualization with color blending
-- Background coffee color (#C66621) mixed with milk color (#FFFCF5)
-- Optional streamline visualization for flow field debugging
-- Canvas-based pixel manipulation for performance
-
-### Share Feature
-Uses html2canvas library to capture the canvas container (including decorative borders) and either:
-- Native Web Share API for mobile devices
-- Automatic download for desktop browsers
-
-## Configuration
-
-All simulation parameters are centralized in `src/config.js`:
-- Fluid properties (density, viscosity, gravity)
-- Display settings (resolution, streamlines)
-- Interaction modes and their parameters
-- Debug flags
-
-## Development Notes
-
-- No external build tools or package managers
-- Uses ES6 modules with `type="module"`
-- Canvas operations are performance-optimized with ImageData manipulation
-- Touch and mouse events are unified through the interaction system
-- Parameter changes trigger real-time simulation updates
+- Simulation coordinates are 0–1 with y up and the cup centered at (0.5, 0.5). Canvas ↔ sim mapping must go through `render/geometry.js` (the cup tilts).
+- Keep the per-step simulation cost low (≈7 ms at resolution 128); the pressure solve iterates over a precomputed fluid-cell list.
+- `PERFORMANCE_OPTIMIZATION.md` describes the previous (pre-rewrite) solver and is kept for reference only.
