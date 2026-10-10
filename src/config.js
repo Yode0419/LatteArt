@@ -1,53 +1,61 @@
 // config.js
-// 移除 import，直接在 config 中定義模式
-export const SIMULATION_MODES = {
-  STIRRING: "STIRRING",
-  POURING: "POURING",
-  SUCTION: "SUCTION", // 新增吸取模式
+// 所有模擬與顯示參數集中在這裡；設定面板直接讀寫這個物件。
+
+export const TOOLS = {
+  POUR: "pour",
+  ETCH: "etch",
+  SINK: "sink",
 };
 
 export const config = {
-  // 流體模擬參數
   fluid: {
-    density: 1000.0,
-    gravity: 0.0,
     dt: 1.0 / 60.0,
-    numIters: 20,
+    numIters: 24,
     overRelaxation: 1.9,
-    viscosity: 0.95, // 🔹 新增黏滯性參數 (範圍建議 0.9 - 1.0)
+    damping: 1.6, // 每秒速度衰減率（越大越黏稠）
+    vorticity: 0, // 渦度保持，讓漩渦不會很快被抹平
+    ambient: 0.006, // 液面自然微流動
   },
 
-  // 顯示設定
   display: {
-    resolution: 200,
+    resolution: 128,
     showStreamlines: false,
   },
 
-  // 模擬模式設定
-  simulation: {
-    currentMode: SIMULATION_MODES.POURING, // 預設為注入模式
+  cup: {
+    startFill: 0.3, // 一份 espresso 的液位
+    lowerFill: 0.5, // 液位到這裡後，拉缸會自動壓低
+  },
 
-    // 攪拌模式參數
-    stirring: {
-      radius: 0.02, // 攪拌棒半徑
-      strength: 2.5, // 攪拌力度
+  tools: {
+    current: TOOLS.POUR,
+
+    // 拉缸：radius / strength 由設定面板以 0–100 調整
+    pour: {
+      radius: 50,
+      strength: 55,
+      lowerAfter: 2.2, // 按住超過幾秒自動壓低
+      heightRate: 3.5, // 拉缸高度變化速度
+      fillRate: 0.1, // 每秒液位上升量（strength = 50 時）
     },
 
-    // 注入模式參數
-    pouring: {
-      radius: 0.05, // 注入點半徑
-      strength: 0.05, // 注入力度
+    etch: {
+      radius: 35,
+      strength: 60,
     },
 
-    suction: {
-      radius: 0.1, // 吸取範圍
-      strength: 0.1, // 吸取強度
+    sink: {
+      radius: 55,
+      strength: 50,
     },
   },
 
-  // Debug 設定
   debug: {
     paused: false,
-    frameNr: 0,
   },
 };
+
+// 將面板上的 0–100 轉為實際物理量
+export function lerpRange(value, min, max) {
+  return min + ((max - min) * value) / 100;
+}

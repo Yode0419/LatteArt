@@ -1,0 +1,165 @@
+/* ==========================================================================
+   LatteArt Design Tokens
+   唯一的設計來源。元件樣式（styles.css）只能引用這裡的語意 token，
+   不直接寫死色碼或尺寸。展示頁：design-system.html
+   分層：Primitive（原始色票／尺度）→ Semantic（用途）→ Component（元件專用）
+   ========================================================================== */
+
+:root {
+  /* ---------- Primitive · 色彩 ---------- */
+
+  /* Roast：帶暖調的近黑色，用於背景與表面 */
+  --roast-1000: #070504;
+  --roast-950: #0c0908;
+  --roast-900: #141010;
+  --roast-850: #1a1514;
+  --roast-800: #221c1a;
+  --roast-700: #2e2624;
+  --roast-600: #3d3431;
+  --roast-500: #5a4f4b;
+  --roast-400: #857a75;
+  --roast-300: #b0a6a0;
+  --roast-200: #d6cec8;
+  --roast-100: #f2ece6;
+
+  /* Copper：品牌強調色（拉缸的銅） */
+  --copper-200: #f0c3b5;
+  --copper-300: #e3a08f;
+  --copper-400: #d27a69;
+  --copper-500: #b25d4f;
+  --copper-600: #8c463b;
+  --copper-700: #62312a;
+  --copper-800: #3f221e;
+
+  /* Coffee：飲品本身的顏色，插畫與資料視覺使用 */
+  --coffee-espresso: #2b1207;
+  --coffee-crema: #9a5422;
+  --coffee-caramel: #c7834a;
+  --coffee-latte: #d4a77a;
+  --coffee-foam: #fbf4e8;
+  --ceramic: #ece7df;
+
+  /* ---------- Primitive · 字體 ---------- */
+  --font-display: "Cormorant Garamond", "Noto Serif TC", Georgia, serif;
+  --font-ui: "Inter", "Noto Sans TC", system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+
+  /* 字級（1.125 比例，手機優先） */
+  --text-2xs: 11px;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-md: 15px;
+  --text-lg: 17px;
+  --text-xl: 21px;
+  --text-2xl: 26px;
+  --text-3xl: 34px;
+  --text-display: clamp(30px, 7vw, 40px);
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  --tracking-wide: 0.04em;
+  --tracking-caps: 0.14em;
+
+  /* ---------- Primitive · 尺度 ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+  --radius-pill: 999px;
+
+  /* ---------- Primitive · 動態 ---------- */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --dur-fast: 150ms;
+  --dur-base: 260ms;
+  --dur-slow: 480ms;
+  --dur-scene: 900ms;
+
+  /* ---------- Semantic · 表面 ---------- */
+  --color-bg: var(--roast-950);
+  --color-bg-elevated: var(--roast-900);
+  --color-surface: rgba(34, 28, 26, 0.72);
+  --color-surface-strong: var(--roast-850);
+  --color-surface-hover: rgba(255, 240, 230, 0.06);
+  --color-surface-pressed: rgba(255, 240, 230, 0.1);
+  --color-scrim: rgba(14, 8, 5, 0.42);
+
+  --color-border: rgba(255, 236, 224, 0.09);
+  --color-border-strong: rgba(255, 236, 224, 0.16);
+  --color-divider: rgba(255, 236, 224, 0.07);
+
+  /* ---------- Semantic · 文字 ---------- */
+  --color-text: var(--roast-100);
+  --color-text-secondary: var(--roast-300);
+  --color-text-tertiary: var(--roast-400);
+  --color-text-on-accent: #fff6f2;
+
+  /* ---------- Semantic · 強調 ---------- */
+  --color-accent: var(--copper-500);
+  --color-accent-strong: var(--copper-400);
+  --color-accent-text: var(--copper-400);
+  --color-accent-soft: rgba(178, 93, 79, 0.18);
+  --color-accent-border: rgba(210, 122, 105, 0.45);
+  --color-focus: var(--copper-300);
+
+  /* ---------- Semantic · 陰影與光 ---------- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-sheet: 0 -12px 48px rgba(0, 0, 0, 0.6);
+  --shadow-inset-top: inset 0 1px 0 rgba(255, 240, 230, 0.06);
+  --glow-accent: 0 0 32px rgba(210, 122, 105, 0.35);
+  --cup-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), 0 8px 18px rgba(0, 0, 0, 0.55);
+
+  /* ---------- Semantic · 層級 ---------- */
+  --z-stage: 1;
+  --z-dock: 10;
+  --z-topbar: 20;
+  --z-scrim: 30;
+  --z-sheet: 40;
+  --z-overlay: 50;
+  --z-toast: 60;
+
+  /* ---------- Component ---------- */
+  --icon-btn-size: 40px;
+  --tool-height: 96px;
+  --sheet-max-width: 520px;
+  --sheet-handle: rgba(255, 236, 224, 0.22);
+  --slider-track: rgba(255, 236, 224, 0.12);
+  --slider-thumb-size: 18px;
+  --toggle-width: 48px;
+  --toggle-height: 28px;
+  --cup-size: min(84vw, 46vh, 520px);
+  --page-gutter: var(--space-5);
+}
+
+@media (min-width: 900px) {
+  :root {
+    --cup-size: min(54vh, 560px);
+    --page-gutter: var(--space-10);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+    --dur-slow: 0ms;
+    --dur-scene: 0ms;
+  }
+}

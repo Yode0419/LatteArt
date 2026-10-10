@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LatteArt Design System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=Noto+Sans+TC:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/tokens.css" />
+    <link rel="stylesheet" href="assets/styles.css" />
+    <style>
+      /* 展示頁專用：覆寫 App 的全螢幕版面，讓頁面可以捲動 */
+      body.ds {
+        display: block;
+        overflow: auto;
+        user-select: text;
+        -webkit-user-select: text;
+        background: var(--color-bg);
+      }
+      .ds-page {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: var(--space-12) var(--page-gutter) 120px;
+      }
+      .ds-header {
+        margin-bottom: var(--space-12);
+      }
+      .ds-header p {
+        color: var(--color-text-secondary);
+        max-width: 640px;
+        margin: var(--space-3) 0 0;
+      }
+      .ds-section {
+        padding: var(--space-10) 0;
+        border-top: 1px solid var(--color-divider);
+      }
+      .ds-section > h2 {
+        margin: 0 0 var(--space-2);
+        font-family: var(--font-display);
+        font-weight: var(--weight-medium);
+        font-size: var(--text-3xl);
+      }
+      .ds-section > p {
+        margin: 0 0 var(--space-6);
+        color: var(--color-text-secondary);
+        max-width: 640px;
+      }
+      .ds-sub {
+        margin: var(--space-6) 0 var(--space-3);
+        font-size: var(--text-xs);
+        letter-spacing: var(--tracking-caps);
+        text-transform: uppercase;
+        color: var(--color-text-tertiary);
+      }
+      .swatches {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: var(--space-3);
+      }
+      .swatch {
+        border-radius: var(--radius-md);
+        border: 1px solid var(--color-border);
+        overflow: hidden;
+        background: var(--color-bg-elevated);
+      }
+      .swatch__chip {
+        height: 64px;
+      }
+      .swatch__meta {
+        padding: var(--space-2) var(--space-3);
+        font-size: var(--text-xs);
+        color: var(--color-text-secondary);
+        line-height: 1.4;
+      }
+      .swatch__meta code {
+        display: block;
+        color: var(--color-text-tertiary);
+        font-size: var(--text-2xs);
+      }
+      .type-row {
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        gap: var(--space-4);
+        align-items: baseline;
+        padding: var(--space-3) 0;
+        border-bottom: 1px solid var(--color-divider);
+      }
+      .type-row code {
+        font-size: var(--text-xs);
+        color: var(--color-text-tertiary);
+      }
+      .scale {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-4);
+        align-items: flex-end;
+      }
+      .scale__item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-2);
+        font-size: var(--text-2xs);
+        color: var(--color-text-tertiary);
+      }
+      .scale__box {
+        background: var(--color-accent-soft);
+        border: 1px solid var(--color-accent-border);
+      }
+      .demo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: var(--space-6);
+      }
+      .demo-card {
+        padding: var(--space-6);
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--color-border);
+        background: var(--color-bg-elevated);
+      }
+      .demo-card h3 {
+        margin: 0 0 var(--space-4);
+        font-size: var(--text-sm);
+        font-weight: var(--weight-medium);
+        color: var(--color-text-secondary);
+      }
+      .row {
+        display: flex;
+        gap: var(--space-3);
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      /* 讓元件在展示頁中以靜態方式呈現 */
+      .static-sheet {
+        position: static;
+        transform: none;
+        visibility: visible;
+        width: 100%;
+        max-height: none;
+        border-radius: var(--radius-2xl);
+        border-bottom: 1px solid var(--color-border);
+        padding-bottom: var(--space-6);
+      }
+      .static-tab {
+        position: static;
+        transform: none;
+        width: 100%;
+      }
+      .ds-page .toolbar {
+        max-width: none;
+      }
+      .motion-demo {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-md);
+        background: var(--color-accent);
+      }
+      .motion-row:hover .motion-demo {
+        transform: translateX(160px);
+      }
+      .motion-row {
+        padding: var(--space-3) 0;
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        align-items: center;
+        font-size: var(--text-sm);
+        color: var(--color-text-secondary);
+      }
+    </style>
+  </head>
+  <body class="ds">
+    <div class="ambience" style="opacity: 1" aria-hidden="true">
+      <div class="ambience__light"></div>
+      <div class="ambience__grain"></div>
+    </div>
+
+    <main class="ds-page" style="position: relative">
+      <header class="ds-header">
+        <p class="eyebrow" style="text-align: left">Design System · v1</p>
+        <h1 class="wordmark" style="font-size: 56px">LatteArt</h1>
+        <p>
+          暗色、溫潤、像精品咖啡館吧台的介面。所有數值定義在
+          <code>assets/tokens.css</code>，元件樣式在 <code>assets/styles.css</code> 只引用語意
+          token。這一頁直接載入兩份樣式，所以永遠和 App 同步。
+        </p>
+      </header>
+
+      <section class="ds-section">
+        <h2>原則</h2>
+        <p>三條原則決定每一個細節的取捨。</p>
+        <div class="demo-grid">
+          <div class="demo-card">
+            <h3>咖啡是主角</h3>
+            <p style="margin: 0; color: var(--color-text-secondary)">
+              介面退到暗處，只有杯子被打光。控制元件使用低對比的表面與細邊框，不和液面搶注意力。
+            </p>
+          </div>
+          <div class="demo-card">
+            <h3>溫暖，不髒</h3>
+            <p style="margin: 0; color: var(--color-text-secondary)">
+              陰影與暗部永遠帶咖啡色調，避免純黑或中性灰；液面不用雜訊斑塊，以乾淨漸層表現。
+            </p>
+          </div>
+          <div class="demo-card">
+            <h3>像咖啡師說話</h3>
+            <p style="margin: 0; color: var(--color-text-secondary)">
+              文案簡短、溫和，帶一點專業術語。告訴使用者「現在發生什麼、下一步做什麼」。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="ds-section">
+        <h2>色彩</h2>
+        <p>Primitive 色票只在 tokens.css 中被語意 token 引用，元件不直接使用。</p>
+        <div id="palettes"></div>
+      </section>
+
+      <section class="ds-section">
+        <h2>字體</h2>
+        <p>
+          Cormorant Garamond 只用於字標與大標題，營造菜單般的質感；介面文字使用 Inter
+          與 Noto Sans TC。
+        </p>
+        <div id="typeScale"></div>
+      </section>
+
+      <section class="ds-section">
+        <h2>間距、圓角與動態</h2>
+        <p>4px 為基本單位。動態以 ease-out 為主，滑出的抽屜與換杯使用較慢的場景節奏。</p>
+        <h3 class="ds-sub">Space</h3>
+        <div class="scale" id="spaceScale"></div>
+        <h3 class="ds-sub">Radius</h3>
+        <div class="scale" id="radiusScale"></div>
+        <h3 class="ds-sub">Motion（滑過看看）</h3>
+        <div id="motionScale"></div>
+      </section>
+
+      <section class="ds-section">
+        <h2>元件</h2>
+        <p>以下都是 App 中實際使用的 class，直接套用相同樣式。</p>
+
+        <div class="demo-grid">
+          <div class="demo-card">
+            <h3>Icon button · .icon-btn</h3>
+            <div class="row">
+              <button class="icon-btn" aria-label="New cup">
+                <svg viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3" /><path d="M4.5 4.5v3.6h3.6" /></svg>
+              </button>
+              <button class="icon-btn is-active" aria-label="Settings (active)">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.8" /><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.6-2-3.4-2.4.9a7.5 7.5 0 0 0-2.6-1.5L14 2.5h-4l-.4 2.4A7.5 7.5 0 0 0 7 6.4l-2.4-.9-2 3.4 2 1.6a7.6 7.6 0 0 0 0 3l-2 1.6 2 3.4 2.4-.9a7.5 7.5 0 0 0 2.6 1.5l.4 2.4h4l.4-2.4a7.5 7.5 0 0 0 2.6-1.5l2.4.9 2-3.4z" /></svg>
+              </button>
+              <button class="icon-btn icon-btn--ghost" aria-label="Close">
+                <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="demo-card">
+            <h3>Link button · .link-btn</h3>
+            <div class="row">
+              <button class="link-btn">繼續修飾</button>
+              <button class="link-btn link-btn--quiet">再做一杯</button>
+            </div>
+          </div>
+
+          <div class="demo-card">
+            <h3>Action · .action / .action--primary</h3>
+            <div class="action-grid">
+              <button class="action action--primary">
+                <svg viewBox="0 0 24 24"><path d="M12 3.5v11.5M7 10.5l5 5 5-5" /><path d="M4 16.5v3h16v-3" /></svg>
+                儲存圖片
+              </button>
+              <button class="action">
+                <svg viewBox="0 0 24 24"><circle cx="18" cy="5.5" r="2.5" /><circle cx="6" cy="12" r="2.5" /><circle cx="18" cy="18.5" r="2.5" /><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1" /></svg>
+                分享
+              </button>
+            </div>
+          </div>
+
+          <div class="demo-card">
+            <h3>Segmented · .segmented</h3>
+            <div class="segmented">
+              <button class="segmented__item" aria-checked="true">繁中</button>
+              <button class="segmented__item" aria-checked="false">English</button>
+            </div>
+          </div>
+
+          <div class="demo-card">
+            <h3>Slider · .slider ／ Toggle · .toggle</h3>
+            <div class="field">
+              <label for="ds-slider">範圍</label>
+              <input class="slider" type="range" id="ds-slider" min="0" max="100" value="30" style="--fill: 30%" />
+              <output>30</output>
+            </div>
+            <div class="field field--toggle">
+              <label for="ds-toggle">流線</label>
+              <input class="toggle" type="checkbox" role="switch" id="ds-toggle" checked />
+            </div>
+          </div>
+
+          <div class="demo-card">
+            <h3>Toast · .toast</h3>
+            <div class="toast is-visible" style="position: static; transform: none; display: inline-block">已儲存圖片</div>
+          </div>
+        </div>
+
+        <h3 class="ds-sub">Toolbar · .toolbar ／ .tool</h3>
+        <div class="toolbar" role="radiogroup" aria-label="Tools">
+          <button class="tool is-active" role="radio" aria-checked="true">
+            <svg class="tool__icon" viewBox="0 0 40 40"><path d="M9 11.5h14.5l-1.6 15.2a3 3 0 0 1-3 2.7h-5.3a3 3 0 0 1-3-2.7z" /><path d="M23.5 11.5l4.8-2.6" /><path d="M22.9 15.5c3.2.3 4.7 2.2 4.4 5.3" /><path d="M29.6 12.8c.5 4.6.4 10.4.4 18.7" /><circle cx="30" cy="33.6" r="1.1" /></svg>
+            <span class="tool__label">注奶</span>
+          </button>
+          <button class="tool" role="radio" aria-checked="false">
+            <svg class="tool__icon" viewBox="0 0 40 40"><path d="M25.5 5.5l-6.2 22.3" /><path d="M19.3 27.8l-.6 3.4" /><ellipse cx="19" cy="30.5" rx="11" ry="3.6" /><ellipse cx="19" cy="30.5" rx="5.5" ry="1.7" /></svg>
+            <span class="tool__label">雕花</span>
+          </button>
+          <button class="tool" role="radio" aria-checked="false">
+            <svg class="tool__icon" viewBox="0 0 40 40"><circle cx="20" cy="20" r="2.2" /><path d="M8 8l6.5 6.5M14.5 9.7v4.8H9.7" /><path d="M32 8l-6.5 6.5M25.5 9.7v4.8h4.8" /><path d="M8 32l6.5-6.5M14.5 30.3v-4.8H9.7" /><path d="M32 32l-6.5-6.5M25.5 30.3v-4.8h4.8" /></svg>
+            <span class="tool__label">下沉</span>
+          </button>
+        </div>
+
+        <h3 class="ds-sub">Sheet · .sheet ／ Tasting · .tasting ／ Metrics · .metrics</h3>
+        <div class="demo-grid">
+          <section class="sheet static-sheet" aria-label="Finish sheet example">
+            <div class="sheet__handle"></div>
+            <p class="eyebrow">No. 012 · 2026.10.10</p>
+            <h2 class="sheet__title sheet__title--center">你的拿鐵完成了</h2>
+            <div class="tasting">
+              <div class="tasting__score">
+                <span class="tasting__num">92</span><span class="tasting__unit">/100</span>
+              </div>
+              <div class="tasting__body">
+                <p class="tasting__pattern">愛心</p>
+                <p class="tasting__comment">對稱、乾淨又置中，這杯可以直接端出去了。</p>
+              </div>
+            </div>
+            <dl class="metrics">
+              <div class="metric" style="--value: 96"><dt>對稱</dt><dd><span class="metric__bar"><span></span></span></dd></div>
+              <div class="metric" style="--value: 90"><dt>置中</dt><dd><span class="metric__bar"><span></span></span></dd></div>
+              <div class="metric" style="--value: 100"><dt>對比</dt><dd><span class="metric__bar"><span></span></span></dd></div>
+              <div class="metric" style="--value: 84"><dt>比例</dt><dd><span class="metric__bar"><span></span></span></dd></div>
+            </dl>
+          </section>
+
+          <div style="display: flex; flex-direction: column; gap: var(--space-6)">
+            <div class="handoff" style="position: static; transform: none; opacity: 1; pointer-events: auto; width: 100%">
+              <p class="eyebrow">示範完成</p>
+              <h2 class="handoff__title">換你了</h2>
+              <p class="handoff__body">按住杯心先高注打底，液位夠了拉缸會自動壓低。</p>
+              <button class="action action--primary action--wide">開始注奶</button>
+            </div>
+            <button class="finish-tab static-tab" style="opacity: 1">
+              <span class="finish-tab__handle"></span>
+              <svg class="finish-tab__chevron" viewBox="0 0 24 24"><path d="M6 14l6-6 6 6" /></svg>
+              <span>完成</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="ds-section">
+        <h2>文案語氣</h2>
+        <p>溫和的咖啡師口吻。每句提示回答「現在發生什麼」或「下一步做什麼」，不超過一行。</p>
+        <div class="demo-grid">
+          <div class="demo-card">
+            <h3>✓ 這樣寫</h3>
+            <p style="margin: 0">拉缸壓低了，奶泡開始浮上來。</p>
+          </div>
+          <div class="demo-card">
+            <h3>✗ 避免</h3>
+            <p style="margin: 0; color: var(--color-text-secondary)">密度場注入中（height = 0.2）。</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const css = getComputedStyle(document.documentElement);
+      const v = (name) => css.getPropertyValue(name).trim();
+
+      const palettes = {
+        "Roast · 表面與文字": ["1000", "950", "900", "850", "800", "700", "600", "500", "400", "300", "200", "100"].map((s) => `--roast-${s}`),
+        "Copper · 品牌強調": ["200", "300", "400", "500", "600", "700", "800"].map((s) => `--copper-${s}`),
+        "Coffee · 飲品": ["--coffee-espresso", "--coffee-crema", "--coffee-caramel", "--coffee-latte", "--coffee-foam", "--ceramic"],
+        "Semantic · 用途": ["--color-bg", "--color-surface-strong", "--color-text", "--color-text-secondary", "--color-text-tertiary", "--color-accent", "--color-accent-text", "--color-focus"],
+      };
+      const root = document.getElementById("palettes");
+      for (const [title, tokens] of Object.entries(palettes)) {
+        const h = document.createElement("h3");
+        h.className = "ds-sub";
+        h.textContent = title;
+        const grid = document.createElement("div");
+        grid.className = "swatches";
+        for (const token of tokens) {
+          grid.insertAdjacentHTML(
+            "beforeend",
+            `<div class="swatch"><div class="swatch__chip" style="background: var(${token})"></div>
+             <div class="swatch__meta">${token.replace("--", "")}<code>${v(token)}</code></div></div>`
+          );
+        }
+        root.append(h, grid);
+      }
+
+      const type = [
+        ["Display", "--font-display", "--text-display", "LatteArt"],
+        ["3XL · 標題", "--font-display", "--text-3xl", "換你了"],
+        ["2XL · Sheet 標題", "--font-ui", "--text-2xl", "你的拿鐵完成了"],
+        ["LG · 工具", "--font-ui", "--text-lg", "注奶 Pour"],
+        ["MD · 內文", "--font-ui", "--text-md", "拉缸壓低了，奶泡開始浮上來。"],
+        ["SM · 輔助", "--font-ui", "--text-sm", "對稱、乾淨又置中。"],
+        ["XS · Eyebrow", "--font-ui", "--text-xs", "NO. 012 · 2026.10.10"],
+      ];
+      const typeRoot = document.getElementById("typeScale");
+      for (const [label, font, size, sample] of type) {
+        typeRoot.insertAdjacentHTML(
+          "beforeend",
+          `<div class="type-row"><code>${label}<br>${size.replace("--", "")} · ${v(size)}</code>
+           <span style="font-family: var(${font}); font-size: var(${size}); line-height: 1.2">${sample}</span></div>`
+        );
+      }
+
+      const space = document.getElementById("spaceScale");
+      for (const s of [1, 2, 3, 4, 5, 6, 8, 10, 12]) {
+        space.insertAdjacentHTML(
+          "beforeend",
+          `<div class="scale__item"><div class="scale__box" style="width: var(--space-${s}); height: var(--space-${s})"></div>space-${s}<br>${v(`--space-${s}`)}</div>`
+        );
+      }
+      const radius = document.getElementById("radiusScale");
+      for (const s of ["sm", "md", "lg", "xl", "2xl", "pill"]) {
+        radius.insertAdjacentHTML(
+          "beforeend",
+          `<div class="scale__item"><div class="scale__box" style="width: 64px; height: 64px; border-radius: var(--radius-${s})"></div>radius-${s}</div>`
+        );
+      }
+      const motion = document.getElementById("motionScale");
+      for (const [dur, ease] of [["--dur-fast", "--ease-out"], ["--dur-base", "--ease-out"], ["--dur-slow", "--ease-out"], ["--dur-base", "--ease-spring"], ["--dur-scene", "--ease-in-out"]]) {
+        motion.insertAdjacentHTML(
+          "beforeend",
+          `<div class="motion-row"><span>${dur.replace("--", "")} · ${ease.replace("--", "")}</span>
+           <div class="motion-demo" style="transition: transform var(${dur}) var(${ease})"></div></div>`
+        );
+      }
+
+      const slider = document.getElementById("ds-slider");
+      slider.addEventListener("input", () => {
+        slider.style.setProperty("--fill", `${slider.value}%`);
+        slider.nextElementSibling.textContent = slider.value;
+      });
+    </script>
+  </body>
+</html>
