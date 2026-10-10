@@ -24,13 +24,13 @@ const strings = {
     "intro.line2": "拉個花。",
 
     "demo.watch": "先看我做一杯",
-    "demo.pour": "在杯心注入，奶泡會浮上來撐開",
-    "demo.grow": "稍微往前推，讓圓更飽滿",
-    "demo.sink": "從上往下穿過，收成一顆心",
+    "demo.pour": "在杯心一段一段注入，每一注都把前一圈推開",
+    "demo.grow": "多注幾次，同心的圈會越疊越大",
+    "demo.sink": "切到下沉，從上緣外往下一口氣穿過，收成一顆心",
     "demo.skip": "跳過",
     "handoff.eyebrow": "示範完成",
     "handoff.title": "換你了",
-    "handoff.body": "按住注奶，奶泡會立刻浮上來；最後切到下沉，從上往下穿過收成愛心。",
+    "handoff.body": "在杯心一段一段注奶疊出圓，再切到下沉，從圓的上緣外一口氣往下劃到底，就是一顆心。",
     "handoff.start": "開始",
 
     "hint.pour.start": "按住杯面注入牛奶，拖曳就能作畫。",
@@ -99,14 +99,14 @@ const strings = {
     "intro.line2": "pour a little art.",
 
     "demo.watch": "Watch me pour one first",
-    "demo.pour": "Pour into the center — the foam rises and spreads",
-    "demo.grow": "Push forward a little to round it out",
-    "demo.sink": "Cut down through the middle to make a heart",
+    "demo.pour": "Pour into the center in short pulses — each one pushes the last ring out",
+    "demo.grow": "A few more pulses and the rings stack up",
+    "demo.sink": "Switch to Sink and cut down from just above the top — a heart",
     "demo.skip": "Skip",
     "handoff.eyebrow": "Demo complete",
     "handoff.title": "Your turn",
     "handoff.body":
-      "Hold to pour and the foam rises right away. Then switch to Sink and cut down through the middle for a heart.",
+      "Pour into the center in short pulses to stack rings, then switch to Sink and cut down from just above the top in one stroke.",
     "handoff.start": "Start",
 
     "hint.pour.start": "Hold on the surface to pour milk — drag to draw.",

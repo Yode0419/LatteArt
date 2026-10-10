@@ -15,6 +15,7 @@ export class SinkTool {
 
   begin(x, y) {
     this.active = true;
+    this.travel = 0;
     this.x = this.lx = x;
     this.y = this.ly = y;
   }
@@ -36,6 +37,11 @@ export class SinkTool {
     const dx = this.x - this.lx;
     const dy = this.y - this.ly;
     const len = Math.hypot(dx, dy);
+    this.travel += len;
+    // 切入的進度：0 = 剛切入，1 = 已深入奶泡
+    const ramp = Math.min(1, Math.max(0, (this.travel - opts.pullDelay) / 0.08));
+    // 剛切入時帶動的範圍較寬，把頂端整片拖出 V 口；之後變細
+    const carryR = radius * (1 + (opts.entryWidth - 1) * (1 - ramp));
 
     // 1. 水柱拖著液面走（直接位移純量場，不留下漩渦）
     if (len > 1e-5) {
@@ -43,7 +49,7 @@ export class SinkTool {
       const sx = dx / steps;
       const sy = dy / steps;
       for (let k = 1; k <= steps; k++) {
-        this.carry(this.lx + sx * k, this.ly + sy * k, sx, sy, radius);
+        this.carry(this.lx + sx * k, this.ly + sy * k, sx, sy, carryR);
       }
     }
 
@@ -51,12 +57,18 @@ export class SinkTool {
     const { fluid } = this;
     const { src, foam, tint } = fluid;
     const still = Math.max(0, 1 - len / dt / 0.3); // 移動越慢，沉得越多
+    // 切入的前段壓得深（切出 V 口），之後變淺，穿心線才不會把愛心切成兩半
+    const cut = opts.cut * (1 - ramp) + opts.cutLate * ramp;
     const core = radius * 0.42;
-    fluid.forEachInRadius(this.x, this.y, radius * 1.8, (c, f) => {
-      src[c] -= 9 * power * f;
-    });
+    // 先切口、後收攏：走過一段後兩側才往中線收，把身後的縫合、收成尖端
+    const pull = opts.pull * power * ramp;
+    if (pull > 0) {
+      fluid.forEachInRadius(this.x, this.y, radius * 1.8, (c, f) => {
+        src[c] -= pull * f;
+      });
+    }
     fluid.forEachInRadius(this.x, this.y, core, (c, f) => {
-      const sunk = foam[c] * Math.min(1, dt * f * power * (2.6 + 10 * still));
+      const sunk = foam[c] * Math.min(1, dt * f * power * (cut + 10 * still));
       foam[c] -= sunk;
       tint[c] = Math.min(1, tint[c] + sunk * 0.7);
     });

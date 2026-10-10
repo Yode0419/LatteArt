@@ -1,16 +1,20 @@
 // demo.js
 // 咖啡師示範：照時間軸驅動真正的模擬，一步步拉出一顆愛心
-// （在杯心注入、往前推圓 → 下沉以細水柱穿心）。
+// （在杯心一段一段注入、疊出同心層次 → 下沉以細水柱從上往下穿心）。
 // 每個片段：[開始秒, 結束秒, 工具, x0, y0, x1, y1, 字幕 key]
 
 import { TOOLS } from "../config.js";
 
+// 一段一段注入：每一注都把前一圈推開，留下同心的層次；最後提高拉缸從上往下穿心
 const HEART = [
-  [0.4, 1.4, TOOLS.POUR, 0.5, 0.5, 0.5, 0.53, "demo.pour"],
-  [1.4, 2.1, TOOLS.POUR, 0.5, 0.53, 0.5, 0.56, "demo.grow"],
-  [2.7, 3.2, TOOLS.SINK, 0.5, 0.74, 0.5, 0.24, "demo.sink"],
+  [0.4, 1.0, TOOLS.POUR, 0.5, 0.47, 0.5, 0.47, "demo.pour"],
+  [1.1, 1.6, TOOLS.POUR, 0.5, 0.47, 0.5, 0.47, "demo.pour"],
+  [1.7, 2.2, TOOLS.POUR, 0.5, 0.47, 0.5, 0.47, "demo.grow"],
+  [2.3, 2.8, TOOLS.POUR, 0.5, 0.47, 0.5, 0.47, "demo.grow"],
+  [2.9, 3.5, TOOLS.POUR, 0.5, 0.47, 0.5, 0.47, "demo.grow"],
+  [4.2, 4.8, TOOLS.SINK, 0.5, 0.82, 0.5, 0.12, "demo.sink"],
 ];
-const END = 4.8;
+const END = 6.6;
 
 export class DemoPlayer {
   constructor({ session, cursor, onCaption, onToolChange, onDone }) {

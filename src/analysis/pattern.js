@@ -57,10 +57,13 @@ export function detectPattern(fluid) {
   }
   const symmetry = Math.max(0, (overlap / Math.max(1, union) - 0.62) / 0.33);
 
-  // 花型：沿垂直線數層數。奶泡中斷，或濃度明顯下凹再回升（分層線）都算新的一層
-  const runsAt = (i) => {
-    if (i < 1 || i >= fluid.numX - 1) return 0;
+  // 花型：沿垂直線數層數
+  //   breaks：奶泡真的斷開的段數（葉子的葉片、分開的鬱金香）
+  //   layers：再加上濃度下凹再回升的分層線（同一塊奶泡裡的同心紋）
+  const scan = (i) => {
+    if (i < 1 || i >= fluid.numX - 1) return { breaks: 0, layers: 0 };
     let runs = 0;
+    let breaks = 0;
     let inside = false;
     let peak = 0;
     let dip = 1;
@@ -70,6 +73,7 @@ export function detectPattern(fluid) {
       if (f >= FOAM) {
         if (!inside) {
           runs++;
+          breaks++;
           inside = true;
           peak = f;
           dipped = false;
@@ -91,19 +95,17 @@ export function detectPattern(fluid) {
         inside = false;
       }
     }
-    return runs;
+    return { breaks, layers: runs };
   };
   const width = maxI - minI;
   const center = Math.round(ci);
   // 中線可能有穿心留下的細線，層數只看兩側
-  const sideRuns = Math.max(
-    runsAt(Math.round(ci - width * 0.18)),
-    runsAt(Math.round(ci + width * 0.18))
-  );
-  const outerRuns = Math.max(
-    runsAt(Math.round(ci - width * 0.3)),
-    runsAt(Math.round(ci + width * 0.3))
-  );
+  const sides = [0.18, 0.3].flatMap((k) => [
+    scan(Math.round(ci - width * k)),
+    scan(Math.round(ci + width * k)),
+  ]);
+  const breaks = Math.max(...sides.map((r) => r.breaks));
+  const sideLayers = Math.max(scan(Math.round(ci - width * 0.18)).layers, scan(Math.round(ci + width * 0.18)).layers);
 
   // 愛心：頂端中央比兩側低，形成凹口
   const topAt = (i) => {
@@ -129,15 +131,20 @@ export function detectPattern(fluid) {
   }
   const hasCrease = crease >= height * 0.35;
 
+  // 明顯的頂端 V 口代表穿心收成的愛心（內部可以有同心紋）
+  const deepNotch = notch >= Math.max(3, height * 0.08);
+
   let pattern = "freeform";
   let layers = 1;
-  if (outerRuns >= 5 || sideRuns >= 5) {
+  if (breaks >= 5) {
     pattern = "rosetta";
-    layers = Math.max(outerRuns, sideRuns);
-  } else if (sideRuns >= 2) {
+    layers = breaks;
+  } else if (deepNotch && symmetry > 0.4) {
+    pattern = "heart";
+  } else if (sideLayers >= 2) {
     pattern = "tulip";
-    layers = sideRuns;
-  } else if ((hasCrease || notch >= Math.max(2, height * 0.06)) && symmetry > 0.4) {
+    layers = sideLayers;
+  } else if (hasCrease && symmetry > 0.4) {
     pattern = "heart";
   } else if (symmetry > 0.55 && Math.abs(width - height) < Math.max(width, height) * 0.25) {
     pattern = "monk";

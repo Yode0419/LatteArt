@@ -12,7 +12,7 @@ export const config = {
     dt: 1.0 / 60.0,
     numIters: 24,
     overRelaxation: 1.9,
-    damping: 0.45, // 每秒速度衰減率（越大越黏稠）
+    damping: 1.2, // 每秒速度衰減率（越大越黏稠）；太低時圓形會被擠成菱形
     vorticity: 0, // 渦度保持，讓漩渦不會很快被抹平
     ambient: 0.006, // 液面自然微流動
     slosh: 6, // 杯子晃動帶動液面的力道
@@ -32,9 +32,9 @@ export const config = {
 
     // 拉缸：radius / strength 由設定面板以 0–100 調整
     pour: {
-      radius: 50,
+      radius: 70,
       strength: 55,
-      push: 16, // 注流把液面往外推的力道
+      push: 22, // 注流把液面往外推的力道
       fillRate: 0.04, // 每秒液位上升量（只是視覺）
     },
 
@@ -46,6 +46,11 @@ export const config = {
     sink: {
       radius: 55,
       strength: 50,
+      pull: 12, // 兩側往水柱收攏的力道（把穿心線縫起來、收成尖端）
+      entryWidth: 3, // 剛切入時帶動範圍的倍數（越大愛心頂端的 V 口越寬）
+      pullDelay: 0.09, // 切入多遠之後才開始收攏、變細（越大 V 口越深）
+      cut: 8, // 剛切入時水柱壓下奶泡的量（切出愛心頂端的 V 口）
+      cutLate: 0.3, // 進入奶泡之後壓下的量（越大穿心線越明顯）
     },
   },
 

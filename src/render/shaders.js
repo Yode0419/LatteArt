@@ -206,7 +206,7 @@ void main() {
   vec3 foamC = vec3(0.98, 0.955, 0.91);
   foamC = mix(vec3(0.95, 0.89, 0.80), foamC, smoothstep(0.5, 0.85, foam));
   foamC *= 0.995 + 0.008 * (grain - 0.5);
-  foamC = mix(foamC, vec3(0.80, 0.60, 0.40), valley * 0.75);
+  foamC = mix(foamC, vec3(0.86, 0.70, 0.50), valley * 0.38);
   vec3 liquid = mix(base, foamC, fa);
 
   // 注流漣漪（模擬座標）
