@@ -33,11 +33,11 @@ const strings = {
     "handoff.body": "在杯心偏上穩穩地一次注出一個圓，再切到下沉，從圓的上緣一口氣往下劃過、帶出尾巴，就是一顆心。",
     "handoff.start": "開始",
 
-    "hint.pour.start": "按住杯面注入牛奶，拖曳就能作畫。",
-    "hint.pour.active": "奶泡浮上來了，左右搖擺或往前推看看。",
-    "hint.pour.draw": "再注一次疊出層次，或切到下沉收尾。",
-    "hint.etch": "用針尖輕輕勾出細線，替花型加點細節。",
-    "hint.sink": "從花型上方往下劃過，細水柱會穿過奶泡收成尖端。",
+    "hint.pour.start": "按住杯面開始注奶，拖曳就能作畫。",
+    "hint.pour.active": "奶泡浮上來了，左右輕晃或往前推，花紋就成形了。",
+    "hint.pour.draw": "再注一次疊出層次，或切到「下沉」劃開花型。",
+    "hint.etch": "用針尖輕輕劃過奶泡，勾出細緻的線條。",
+    "hint.sink": "從花型上緣往下劃，細水柱會穿過奶泡，把花型收成尖端。",
 
     "settings.title": "設定",
     "settings.language": "語言",
@@ -109,11 +109,11 @@ const strings = {
       "Pour one steady disc just above the center, then switch to Sink and cut down from its top edge in one stroke, drawing out a tail.",
     "handoff.start": "Start",
 
-    "hint.pour.start": "Hold on the surface to pour milk — drag to draw.",
-    "hint.pour.active": "The foam is up. Try a wiggle, or push it forward.",
-    "hint.pour.draw": "Pour again to stack layers, or switch to Sink to finish.",
-    "hint.etch": "Use the needle tip to draw fine details.",
-    "hint.sink": "Drag down through the design — the thin stream pulls it into a point.",
+    "hint.pour.start": "Press and hold the cup to pour milk — drag to draw.",
+    "hint.pour.active": "The foam is rising. Wiggle side to side or push forward to shape it.",
+    "hint.pour.draw": "Pour again to build layers, or switch to Sink to cut the design.",
+    "hint.etch": "Drag the needle tip lightly through the foam to draw fine lines.",
+    "hint.sink": "Drag down from the top of the design — the thin stream cuts through the foam and pulls it into a point.",
 
     "settings.title": "Settings",
     "settings.language": "Language",
