@@ -123,6 +123,17 @@ function finish() {
   halo.play();
 }
 
+// 杯卡跟杯子同一個傾斜：卡片用 CSS 透視轉動（幅度放大一些），光澤反向滑動
+const serveCardEl = $("serveCard");
+function tiltCard(view) {
+  const deg = 180 / Math.PI;
+  const k = 1.6;
+  serveCardEl.style.setProperty("--card-rx", `${(-view.ax * deg * k).toFixed(2)}deg`);
+  serveCardEl.style.setProperty("--card-ry", `${(view.ay * deg * k).toFixed(2)}deg`);
+  serveCardEl.style.setProperty("--sheen-x", `${(50 - view.ay * 500).toFixed(1)}%`);
+  serveCardEl.style.setProperty("--sheen-y", `${(30 + view.ax * 500).toFixed(1)}%`);
+}
+
 // 出杯版面：卡片置於頂部列與按鈕抽屜之間，杯子縮小移進卡片中間的 slot
 function layoutServe() {
   const card = $("serveCard");
@@ -163,10 +174,8 @@ function layoutServe() {
 
 async function makeCard() {
   return composeCard({
+    card: serveCardEl,
     cupCanvas: renderer.snapshot(1024, { time: performance.now() / 1000, glow: 0 }),
-    cupNo: String(cupNumber).padStart(3, "0"),
-    date: today(),
-    result: lastResult,
   });
 }
 
@@ -304,7 +313,7 @@ function frame(now) {
 
   // 杯子傾斜：作畫或示範時停住不動，避免手指下的位置一直跑；出杯時幾乎回正
   tilt.frozen = pointer.pointerId !== null || phase === "demo";
-  tilt.strength = phase === "finish" ? 0.3 : 1;
+  tilt.strength = 1;
   const view = tilt.update(dt);
   session.slosh = tilt.slosh;
   session.advance(dt, (step) => demo.update(step));
@@ -336,6 +345,7 @@ function frame(now) {
   else cursor.reticle.classList.remove("is-active");
 
   hint.set(phase === "play" ? pickHint(session) : "");
+  if (phase === "finish") tiltCard(view);
   halo.update(dt);
 
   requestAnimationFrame(frame);

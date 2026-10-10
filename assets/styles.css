@@ -796,11 +796,16 @@ body:not([data-phase="play"]) .serve-pull {
   display: flex;
   flex-direction: column;
   padding: var(--space-5) var(--space-5) var(--space-4);
-  border-radius: var(--radius-xl);
+  --card-radius: var(--radius-xl);
+  --card-inset: 7px;
+  border-radius: var(--card-radius);
   opacity: 0;
   visibility: hidden;
-  transform: scale(1.14);
-  transition: opacity 260ms var(--ease-out), transform 260ms var(--ease-out),
+  /* 進場用 scale（有過渡）；傾斜用 transform（每幀由 JS 更新，不加過渡） */
+  scale: 1.14;
+  transform: perspective(900px) rotateX(var(--card-rx, 0deg)) rotateY(var(--card-ry, 0deg));
+  transform-style: preserve-3d;
+  transition: opacity 260ms var(--ease-out), scale 260ms var(--ease-out),
     visibility 0s linear 260ms;
   background: radial-gradient(120% 90% at 100% 0%, rgba(214, 168, 92, 0.12), transparent 60%),
     linear-gradient(160deg, rgba(46, 36, 33, 0.9), rgba(20, 15, 14, 0.95));
@@ -822,11 +827,12 @@ body:not([data-phase="play"]) .serve-pull {
 }
 
 /* 內框：更細的一圈，做出雙線框的精緻感 */
+/* 內框與外框同圓心：內縮多少，圓角就少多少 */
 .serve-card::after {
   content: "";
   position: absolute;
-  inset: 7px;
-  border-radius: calc(var(--radius-lg) - 5px);
+  inset: var(--card-inset);
+  border-radius: calc(var(--card-radius) - var(--card-inset));
   border: 1px solid var(--color-gold-border);
   pointer-events: none;
 }
@@ -911,9 +917,23 @@ body:not([data-phase="play"]) .serve-pull {
 .serve-card.is-shown {
   opacity: 1;
   visibility: visible;
-  transform: none;
-  transition: opacity 600ms var(--ease-out) 180ms, transform 900ms var(--ease-out) 180ms,
+  scale: 1;
+  transition: opacity 600ms var(--ease-out) 180ms, scale 900ms var(--ease-out) 180ms,
     visibility 0s;
+}
+
+/* 隨傾斜角度移動的金色光澤 */
+.serve-card__sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    60% 45% at var(--sheen-x, 30%) var(--sheen-y, 20%),
+    rgba(255, 226, 170, 0.13),
+    transparent 70%
+  );
+  mix-blend-mode: screen;
 }
 
 .serve-card [data-rise] {
