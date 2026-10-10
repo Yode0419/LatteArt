@@ -3,19 +3,13 @@
 
 import { TOOLS } from "../config.js";
 
-export function pickHint(session, phase) {
-  if (session.isExtracting) return "hint.extracting";
+export function pickHint(session) {
   const tool = session.activeTool;
-  const pitcher = session.pitcher;
   const name = Object.keys(session.tools).find((k) => session.tools[k] === tool);
-
   if (name === TOOLS.ETCH) return "hint.etch";
   if (name === TOOLS.SINK) return "hint.sink";
-
-  if (pitcher.isFull) return "hint.pour.full";
-  if (pitcher.active) return pitcher.height < 0.5 ? "hint.pour.low" : "hint.pour.high";
-  if (session.cup.fill >= 0.5) return "hint.pour.draw";
-  return phase === "play" ? "hint.pour.start" : "";
+  if (session.pitcher.active) return "hint.pour.active";
+  return session.hasPoured ? "hint.pour.draw" : "hint.pour.start";
 }
 
 // 提示文字淡出、換字、淡入

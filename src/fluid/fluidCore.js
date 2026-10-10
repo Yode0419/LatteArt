@@ -77,7 +77,8 @@ export class Fluid {
           for (let dj = -2; dj <= 2; dj++) {
             const ii = i + di;
             const jj = j + dj;
-            if (ii < 0 || jj < 0 || ii >= this.numX || jj >= this.numY) continue;
+            if (ii < 0 || jj < 0 || ii >= this.numX || jj >= this.numY)
+              continue;
             if (this.s[ii * n + jj] === 0.0) continue;
             const d = di * di + dj * dj;
             if (d < bestD) {
@@ -96,25 +97,29 @@ export class Fluid {
     this.ghostSrc = Int32Array.from(srcIdx);
 
     // 壓力求解用：流體格清單、鄰格遮罩（左右下上 = 1,2,4,8）與 1 / 鄰格數
+    // 紅黑棋盤順序：先解 (i + j) 為偶數的格子再解奇數，避免固定掃描方向造成的偏斜
     const cells = [];
     const masks = [];
     const inv = [];
-    for (let i = 1; i < this.numX - 1; i++) {
-      for (let j = 1; j < this.numY - 1; j++) {
-        const c = i * n + j;
-        if (this.s[c] === 0.0) continue;
-        const m =
-          (this.s[c - n] ? 1 : 0) |
-          (this.s[c + n] ? 2 : 0) |
-          (this.s[c - 1] ? 4 : 0) |
-          (this.s[c + 1] ? 8 : 0);
-        const sum = (m & 1) + ((m >> 1) & 1) + ((m >> 2) & 1) + ((m >> 3) & 1);
-        if (sum === 0) continue;
-        cells.push(c);
-        masks.push(m);
-        inv.push(1 / sum);
+    for (let parity = 0; parity < 2; parity++)
+      for (let i = 1; i < this.numX - 1; i++) {
+        for (let j = 1; j < this.numY - 1; j++) {
+          const c = i * n + j;
+          if ((i + j) % 2 !== parity) continue;
+          if (this.s[c] === 0.0) continue;
+          const m =
+            (this.s[c - n] ? 1 : 0) |
+            (this.s[c + n] ? 2 : 0) |
+            (this.s[c - 1] ? 4 : 0) |
+            (this.s[c + 1] ? 8 : 0);
+          const sum =
+            (m & 1) + ((m >> 1) & 1) + ((m >> 2) & 1) + ((m >> 3) & 1);
+          if (sum === 0) continue;
+          cells.push(c);
+          masks.push(m);
+          inv.push(1 / sum);
+        }
       }
-    }
     // 碰到固體格子的速度面（清除用）
     const wallU = new Set();
     const wallV = new Set();
@@ -233,6 +238,21 @@ export class Fluid {
     }
   }
 
+  // 液面晃動：一側的液面升高、另一側降低，表層的液體就會橫向流過去
+  applySlosh(gx, gy, gain) {
+    if (gx === 0 && gy === 0) return;
+    const n = this.numY;
+    const h = this.h;
+    for (let i = 1; i < this.numX - 1; i++) {
+      const x = (i + 0.5) * h - 0.5;
+      for (let j = 1; j < this.numY - 1; j++) {
+        const c = i * n + j;
+        if (this.s[c] === 0.0) continue;
+        this.src[c] += gain * (gx * x + gy * ((j + 0.5) * h - 0.5));
+      }
+    }
+  }
+
   computeCenterVelocities() {
     const n = this.numY;
     for (let i = 0; i < this.numX - 1; i++) {
@@ -258,7 +278,7 @@ export class Fluid {
         curl[c] =
           s[c] === 0.0
             ? 0
-            : ((vc[c + n] - vc[c - n]) - (uc[c + 1] - uc[c - 1])) * inv2h;
+            : (vc[c + n] - vc[c - n] - (uc[c + 1] - uc[c - 1])) * inv2h;
       }
     }
     fx.fill(0);
@@ -417,7 +437,7 @@ export class Fluid {
           (i + 0.5) * h - dt * uc[c],
           (j + 0.5) * h - dt * vc[c],
           h2,
-          h2
+          h2,
         );
       }
     }
@@ -432,7 +452,7 @@ export class Fluid {
           (i + 0.5) * h + dt * uc[c],
           (j + 0.5) * h + dt * vc[c],
           h2,
-          h2
+          h2,
         );
       }
     }
@@ -465,13 +485,7 @@ export class Fluid {
   }
 
   simulate(dt, params) {
-    const {
-      numIters,
-      overRelaxation,
-      damping,
-      vorticity,
-      ambient,
-    } = params;
+    const { numIters, overRelaxation, damping, vorticity, ambient } = params;
     this.time += dt;
 
     this.applyAmbient(dt, ambient);

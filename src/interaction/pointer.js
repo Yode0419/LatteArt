@@ -26,6 +26,12 @@ export class PointerInput {
     };
   }
 
+  // 是否按在杯子上（含杯緣），按在桌面上不會開始注入
+  isOnCup(uv) {
+    const p = this.renderer.canvasToSim(uv.u, uv.v);
+    return Math.hypot(p.x - 0.5, p.y - 0.5) < this.renderer.simRadius * 1.12;
+  }
+
   toSim(uv) {
     const p = this.renderer.canvasToSim(uv.u, uv.v);
     // 限制在液面內
@@ -42,6 +48,7 @@ export class PointerInput {
 
   onDown(e) {
     if (!this.enabled || this.pointerId !== null) return;
+    if (!this.isOnCup(this.toUv(e))) return;
     e.preventDefault();
     this.pointerId = e.pointerId;
     this.canvas.setPointerCapture(e.pointerId);

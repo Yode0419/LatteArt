@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=Noto+Sans+TC:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=Noto+Sans+TC:wght@400;500&family=Noto+Serif+TC:wght@500&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="assets/tokens.css" />
@@ -50,23 +50,25 @@
 
     <main class="stage">
       <div class="cup" id="cup">
-        <div class="cup__halo" aria-hidden="true"></div>
-        <div class="cup__shadow" aria-hidden="true"></div>
-        <canvas
-          class="cup__canvas"
-          id="latteCanvas"
-          role="img"
-          data-i18n-aria="cup.label"
-        ></canvas>
-        <canvas class="cup__overlay" id="overlayCanvas" aria-hidden="true"></canvas>
-        <div class="reticle" id="reticle" aria-hidden="true">
-          <span class="reticle__ring"></span>
-          <span class="reticle__ring reticle__ring--2"></span>
-          <span class="reticle__dot"></span>
-        </div>
-        <div class="ghost" id="ghost" aria-hidden="true">
-          <span class="ghost__ring"></span>
-          <span class="ghost__tip"></span>
+        <!-- 畫布比杯子大一圈，留空間給傾斜、桌面陰影與出杯光環 -->
+        <div class="cup__space">
+          <canvas
+            class="cup__canvas"
+            id="latteCanvas"
+            role="img"
+            data-i18n-aria="cup.label"
+          ></canvas>
+          <canvas class="cup__overlay" id="overlayCanvas" aria-hidden="true"></canvas>
+          <canvas class="cup__fx" id="fxCanvas" aria-hidden="true"></canvas>
+          <div class="reticle" id="reticle" aria-hidden="true">
+            <span class="reticle__ring"></span>
+            <span class="reticle__ring reticle__ring--2"></span>
+            <span class="reticle__dot"></span>
+          </div>
+          <div class="ghost" id="ghost" aria-hidden="true">
+            <span class="ghost__ring"></span>
+            <span class="ghost__tip"></span>
+          </div>
         </div>
       </div>
     </main>
@@ -74,12 +76,6 @@
     <section class="dock">
       <div class="guide">
         <p class="guide__hint" id="hint" aria-live="polite"></p>
-        <div class="level" id="level" aria-hidden="true">
-          <div class="level__track">
-            <div class="level__fill" id="levelFill"></div>
-            <div class="level__mark"></div>
-          </div>
-        </div>
       </div>
 
       <div class="toolbar" role="radiogroup" data-i18n-aria="tool.group">
@@ -115,70 +111,49 @@
       </div>
     </section>
 
-    <button class="finish-tab" id="finishBtn">
-      <span class="finish-tab__handle" aria-hidden="true"></span>
-      <svg class="finish-tab__chevron" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M6 14l6-6 6 6" />
-      </svg>
-      <span data-i18n="action.finish">Finish</span>
+    <!-- 出杯拉環：往上拖（或點一下）把這杯端出去 -->
+    <button class="serve-pull" id="finishBtn" data-i18n-aria="action.finish">
+      <span class="serve-pull__grip" aria-hidden="true"></span>
+      <span class="serve-pull__label" id="servePullLabel" data-i18n="action.pullToServe">Pull up to serve</span>
     </button>
 
     <div class="scrim" id="scrim"></div>
 
-    <!-- 完成：品杯評語 -->
+    <!-- 出杯：金框杯卡 -->
     <section
       class="sheet sheet--finish"
       id="finishSheet"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="finishTitle"
+      aria-labelledby="patternName"
       aria-hidden="true"
     >
       <div class="sheet__handle" aria-hidden="true"></div>
-      <p class="eyebrow" id="cupNo"></p>
-      <h2 class="sheet__title sheet__title--center" id="finishTitle" data-i18n="finish.title">
-        Your latte is ready
-      </h2>
+      <article class="serve-card">
+        <header class="serve-card__head">
+          <span class="serve-card__brand">LatteArt</span>
+          <span class="serve-card__no" id="cupNo">No. 001</span>
+        </header>
+        <div class="serve-card__body">
+          <p class="serve-card__eyebrow" data-i18n="finish.title">Your latte is ready</p>
+          <h2 class="serve-card__pattern" id="patternName"></h2>
+          <p class="serve-card__note" id="comment"></p>
+        </div>
+        <footer class="serve-card__foot">
+          <span id="cupDate"></span>
+          <span class="serve-card__sign" data-i18n="finish.signature">Poured by you</span>
+        </footer>
+      </article>
 
-      <div class="tasting">
-        <div class="tasting__score">
-          <span class="tasting__num" id="scoreNum">0</span>
-          <span class="tasting__unit">/100</span>
-        </div>
-        <div class="tasting__body">
-          <p class="tasting__pattern" id="patternName"></p>
-          <p class="tasting__comment" id="comment"></p>
-        </div>
-      </div>
-
-      <dl class="metrics" id="metrics">
-        <div class="metric" data-metric="symmetry">
-          <dt data-i18n="metric.symmetry">Symmetry</dt>
-          <dd><span class="metric__bar"><span></span></span></dd>
-        </div>
-        <div class="metric" data-metric="centering">
-          <dt data-i18n="metric.centering">Centering</dt>
-          <dd><span class="metric__bar"><span></span></span></dd>
-        </div>
-        <div class="metric" data-metric="contrast">
-          <dt data-i18n="metric.contrast">Contrast</dt>
-          <dd><span class="metric__bar"><span></span></span></dd>
-        </div>
-        <div class="metric" data-metric="balance">
-          <dt data-i18n="metric.balance">Balance</dt>
-          <dd><span class="metric__bar"><span></span></span></dd>
-        </div>
-      </dl>
-
-      <div class="action-grid">
-        <button class="action action--primary" id="saveBtn">
+      <div class="action-row">
+        <button class="pill-btn pill-btn--gold" id="saveBtn">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M12 3.5v11.5M7 10.5l5 5 5-5" />
             <path d="M4 16.5v3h16v-3" />
           </svg>
           <span data-i18n="action.save">Save Image</span>
         </button>
-        <button class="action" id="shareBtn">
+        <button class="pill-btn" id="shareBtn">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="18" cy="5.5" r="2.5" />
             <circle cx="6" cy="12" r="2.5" />
@@ -300,10 +275,10 @@
 
     <!-- 開場 -->
     <div class="intro" id="intro">
-      <p class="intro__eyebrow" data-i18n="intro.eyebrow">Specialty coffee bar</p>
-      <p class="intro__title">LatteArt</p>
-      <p class="intro__status" id="introStatus" data-i18n="intro.pulling">Pulling a shot…</p>
-      <p class="intro__skip" data-i18n="intro.skip">Tap to skip</p>
+      <p class="intro__line">
+        <span class="intro__part" data-i18n="intro.line1">Make yourself a cup,</span>
+        <span class="intro__part intro__part--2" data-i18n="intro.line2">pour a little art.</span>
+      </p>
     </div>
 
     <!-- 示範 -->

@@ -1,5 +1,5 @@
 // session.js
-// 一杯咖啡的模擬狀態：流體、液位、三種工具與開場萃取。
+// 一杯咖啡的模擬狀態：流體、液位、三種工具與液面晃動。
 // 純邏輯、不碰 DOM，方便示範腳本與 UI 共用同一套操作介面。
 
 import { Fluid } from "./fluid/fluidCore.js";
@@ -13,11 +13,12 @@ export class LatteSession {
   constructor() {
     this.cup = { fill: config.cup.startFill };
     this.accumulator = 0;
+    this.slosh = { x: 0, y: 0 }; // 由傾斜控制器每幀寫入
     this.reset();
   }
 
-  // 新的一杯：清空液面，回到一份 espresso 的液位，重新萃取
-  reset({ extract = true } = {}) {
+  // 新的一杯：清空液面，crema 已經長好（端上桌前就準備好了）
+  reset({ extract = false } = {}) {
     if (!this.fluid || this.fluid.N !== config.display.resolution) {
       this.fluid = new Fluid(config.display.resolution);
     } else {
@@ -44,6 +45,11 @@ export class LatteSession {
 
   get pitcher() {
     return this.tools[TOOLS.POUR];
+  }
+
+  // 這杯是否已經注過奶
+  get hasPoured() {
+    return this.cup.fill > config.cup.startFill + 0.005;
   }
 
   get isExtracting() {
@@ -78,6 +84,7 @@ export class LatteSession {
     while (this.accumulator >= dt) {
       if (onStep) onStep(dt);
       if (!this.extraction.done) this.extraction.step(dt);
+      this.fluid.applySlosh(this.slosh.x, this.slosh.y, config.fluid.slosh);
       for (const tool of Object.values(this.tools)) tool.step(dt);
       this.fluid.simulate(dt, config.fluid);
       this.accumulator -= dt;

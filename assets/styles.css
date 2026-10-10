@@ -190,95 +190,75 @@ body.is-lit .ambience {
   width: var(--cup-size);
   height: var(--cup-size);
   touch-action: none;
-  opacity: 0;
-  transform: scale(0.94) translateY(12px);
-  transition: transform var(--dur-scene) var(--ease-out),
-    opacity var(--dur-scene) var(--ease-out);
-}
-
-body.is-lit .cup {
-  opacity: 1;
-  transform: none;
+  transition: transform var(--dur-scene) var(--ease-out);
 }
 
 body[data-phase="finish"] .cup {
   transform: translate(var(--cup-shift-x, 0), var(--cup-shift, 0)) scale(var(--cup-scale, 1));
 }
 
-.cup.is-leaving {
-  transition: transform 520ms var(--ease-in-out), opacity 520ms var(--ease-in-out);
-  transform: translateX(-70vw) rotate(-8deg);
-  opacity: 0;
+/* 還沒端上桌：藏在吧台那側（畫面上方外） */
+.cup.is-offstage {
+  visibility: hidden;
 }
 
-.cup.is-arriving {
-  transition: none;
-  transform: translateX(70vw) rotate(8deg);
-  opacity: 0;
+/* 端上桌：從上方滑入，落定時輕輕一沉 */
+.cup.is-serving {
+  animation: cup-serve 1000ms var(--ease-out) both;
+}
+
+@keyframes cup-serve {
+  0% {
+    transform: translateY(-110vh) rotate(-6deg) scale(0.96);
+  }
+  72% {
+    transform: translateY(10px) rotate(0.6deg) scale(1);
+  }
+  86% {
+    transform: translateY(-3px) rotate(-0.2deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+
+/* 收走：往側邊滑出畫面 */
+.cup.is-leaving {
+  animation: cup-clear 560ms var(--ease-in-out) both;
+}
+
+@keyframes cup-clear {
+  0% {
+    transform: translate(var(--cup-shift-x, 0), var(--cup-shift, 0)) scale(var(--cup-scale, 1));
+  }
+  20% {
+    transform: translate(var(--cup-shift-x, 0), calc(var(--cup-shift, 0px) - 8px))
+      scale(var(--cup-scale, 1));
+  }
+  100% {
+    transform: translate(85vw, -14vh) rotate(10deg) scale(0.9);
+    opacity: 0;
+  }
+}
+
+/* 畫布比杯子大一圈：容納傾斜、桌面陰影與出杯光環 */
+.cup__space {
+  position: absolute;
+  inset: -16%;
 }
 
 .cup__canvas,
-.cup__overlay {
+.cup__overlay,
+.cup__fx {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  border-radius: 50%;
 }
 
-.cup__overlay {
+.cup__overlay,
+.cup__fx {
   pointer-events: none;
-}
-
-.cup__shadow {
-  position: absolute;
-  inset: 1.5%;
-  border-radius: 50%;
-  box-shadow: var(--cup-shadow);
-  transform: translate(2%, 3%);
-}
-
-/* 完成時的銅色光環 */
-.cup__halo {
-  position: absolute;
-  inset: -5%;
-  border-radius: 50%;
-  opacity: 0;
-  transform: scale(0.96);
-  transition: opacity var(--dur-scene) var(--ease-out),
-    transform var(--dur-scene) var(--ease-out);
-  background: conic-gradient(
-    from 200deg,
-    transparent 0deg,
-    rgba(227, 160, 143, 0.0) 40deg,
-    rgba(240, 160, 110, 0.85) 150deg,
-    rgba(255, 210, 170, 0.95) 180deg,
-    rgba(240, 160, 110, 0.85) 210deg,
-    transparent 320deg
-  );
-  -webkit-mask: radial-gradient(closest-side, transparent 96%, #000 97.5%, transparent 100%);
-  mask: radial-gradient(closest-side, transparent 96%, #000 97.5%, transparent 100%);
-  filter: drop-shadow(0 0 10px rgba(240, 150, 100, 0.6));
-}
-
-.cup__halo::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  box-shadow: 0 0 60px 10px rgba(210, 122, 105, 0.25);
-}
-
-body[data-phase="finish"] .cup__halo {
-  opacity: 1;
-  transform: scale(1);
-  animation: halo-spin 9s linear infinite;
-}
-
-@keyframes halo-spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 /* 注流位置的瞄準環：環越大代表拉缸越高 */
@@ -420,6 +400,7 @@ body[data-tool="sink"] .reticle__ring {
 }
 
 body[data-phase="intro"] .dock,
+body[data-phase="serving"] .dock,
 body[data-phase="finish"] .dock {
   opacity: 0;
   transform: translateY(16px);
@@ -456,38 +437,6 @@ body[data-phase="handoff"] .toolbar {
   opacity: 0;
 }
 
-.level {
-  width: 120px;
-  opacity: 0.9;
-}
-
-.level__track {
-  position: relative;
-  height: 3px;
-  border-radius: var(--radius-pill);
-  background: var(--slider-track);
-  overflow: visible;
-}
-
-.level__fill {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 30%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, var(--coffee-crema), var(--coffee-latte));
-  transition: width 120ms linear;
-}
-
-/* 打底完成、開始作畫的液位 */
-.level__mark {
-  position: absolute;
-  left: 50%;
-  top: -3px;
-  width: 1px;
-  height: 9px;
-  background: var(--color-text-tertiary);
-}
-
 .toolbar {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -510,8 +459,8 @@ body[data-phase="handoff"] .toolbar {
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  color: var(--color-text-secondary);
-  transition: color var(--dur-fast), background var(--dur-fast);
+  color: var(--color-text-tertiary);
+  transition: color var(--dur-base), background var(--dur-base);
 }
 
 .tool + .tool {
@@ -519,22 +468,20 @@ body[data-phase="handoff"] .toolbar {
 }
 
 .tool:hover {
-  background: var(--color-surface-hover);
-}
-
-.tool:active {
-  background: var(--color-surface-pressed);
+  color: var(--color-text-secondary);
 }
 
 .tool__icon {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   stroke-width: 1.3;
-  transition: transform var(--dur-base) var(--ease-spring);
+  opacity: 0.7;
+  transition: transform var(--dur-base) var(--ease-spring), opacity var(--dur-base),
+    filter var(--dur-base);
 }
 
 .tool__label {
-  font-size: var(--text-lg);
+  font-size: var(--text-md);
   font-weight: var(--weight-medium);
   line-height: 1;
 }
@@ -543,80 +490,125 @@ body[data-phase="handoff"] .toolbar {
   content: "";
   position: absolute;
   left: 50%;
-  bottom: 12px;
-  width: 30px;
-  height: 2px;
-  margin-left: -15px;
+  bottom: 10px;
+  width: 28px;
+  height: 3px;
+  margin-left: -14px;
   border-radius: var(--radius-pill);
   background: var(--color-accent-strong);
+  box-shadow: 0 0 10px rgba(210, 122, 105, 0.7);
   transform: scaleX(0);
   transition: transform var(--dur-base) var(--ease-out);
 }
 
+/* 選中：銅色光暈底、圖示與文字全亮，差異一眼可見 */
 .tool.is-active {
   color: var(--color-text);
+  background: radial-gradient(90% 90% at 50% 100%, rgba(210, 122, 105, 0.32), transparent 70%),
+    linear-gradient(180deg, rgba(178, 93, 79, 0.08), rgba(178, 93, 79, 0.2));
+  box-shadow: inset 0 0 0 1px var(--color-accent-border);
 }
 
 .tool.is-active .tool__icon {
-  transform: translateY(-2px);
+  opacity: 1;
+  color: var(--copper-200);
+  transform: translateY(-2px) scale(1.06);
+  filter: drop-shadow(0 0 6px rgba(227, 160, 143, 0.55));
+}
+
+.tool.is-active .tool__label {
+  color: var(--color-text);
 }
 
 .tool.is-active::after {
   transform: scaleX(1);
 }
 
-/* ---------- Finish 拉環 ---------- */
+.toolbar .tool:first-child.is-active {
+  border-radius: var(--radius-xl) 0 0 var(--radius-xl);
+}
 
-.finish-tab {
+.toolbar .tool:last-child.is-active {
+  border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
+}
+
+/* ---------- 出杯拉環 ---------- */
+
+.serve-pull {
+  --pull: 0px;
   position: fixed;
   left: 50%;
   bottom: 0;
   z-index: var(--z-dock);
   width: min(100%, var(--sheet-max-width));
-  transform: translateX(-50%);
-  height: calc(76px + env(safe-area-inset-bottom));
+  height: calc(72px + env(safe-area-inset-bottom));
   padding-bottom: env(safe-area-inset-bottom);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: var(--space-2);
   border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-gold-border);
   border-bottom: 0;
-  background: radial-gradient(
-      120% 140% at 50% 0%,
-      rgba(140, 70, 59, 0.28),
-      transparent 60%
-    ),
+  background: radial-gradient(120% 160% at 50% 0%, rgba(214, 168, 92, 0.16), transparent 62%),
     linear-gradient(180deg, var(--roast-850), var(--roast-950));
   box-shadow: var(--shadow-inset-top), var(--shadow-sheet);
-  color: var(--color-text);
-  font-size: var(--text-lg);
-  transition: transform var(--dur-slow) var(--ease-out),
-    opacity var(--dur-slow) var(--ease-out);
+  color: var(--color-gold-text);
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-wide);
+  touch-action: none;
+  transform: translate(-50%, var(--pull));
+  transition: transform var(--dur-slow) var(--ease-spring),
+    opacity var(--dur-slow) var(--ease-out), border-color var(--dur-base);
 }
 
-.finish-tab:hover .finish-tab__chevron {
-  transform: translateY(-3px);
+.serve-pull.is-dragging {
+  transition: border-color var(--dur-base);
 }
 
-.finish-tab__handle {
-  width: 32px;
-  height: 3px;
+/* 唯一的拉動提示：一條會輕輕往上提的把手 */
+.serve-pull__grip {
+  width: 44px;
+  height: 4px;
   border-radius: var(--radius-pill);
-  background: var(--sheet-handle);
-  margin-bottom: 4px;
+  background: var(--color-gold);
+  box-shadow: 0 0 12px rgba(232, 190, 110, 0.5);
+  animation: grip-nudge 2.4s var(--ease-in-out) infinite;
 }
 
-.finish-tab__chevron {
-  width: 20px;
-  height: 20px;
-  color: var(--color-text-secondary);
-  transition: transform var(--dur-base) var(--ease-out);
+.serve-pull.is-dragging .serve-pull__grip {
+  animation: none;
 }
 
-body:not([data-phase="play"]) .finish-tab {
+.serve-pull.is-ready {
+  border-color: var(--color-gold);
+}
+
+.serve-pull.is-ready .serve-pull__grip {
+  width: 64px;
+  transition: width var(--dur-base) var(--ease-out);
+}
+
+@keyframes grip-nudge {
+  0%,
+  60%,
+  100% {
+    transform: none;
+  }
+  72% {
+    transform: translateY(-6px);
+  }
+  84% {
+    transform: translateY(0);
+  }
+  90% {
+    transform: translateY(-3px);
+  }
+}
+
+body:not([data-phase="play"]) .serve-pull {
   transform: translate(-50%, 110%);
   opacity: 0;
   pointer-events: none;
@@ -779,104 +771,171 @@ body:not([data-phase="play"]) .finish-tab {
   font-variant-numeric: tabular-nums;
 }
 
-/* ---------- 品杯評語 ---------- */
+/* ---------- 金框杯卡 ---------- */
 
-.tasting {
-  display: flex;
-  align-items: center;
-  gap: var(--space-5);
-  margin: var(--space-6) 0 var(--space-4);
-  padding: var(--space-4) var(--space-5);
+.serve-card {
+  position: relative;
+  margin: var(--space-2) 0 var(--space-5);
+  padding: var(--space-6) var(--space-6) var(--space-5);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-  background: rgba(255, 240, 230, 0.025);
+  background: radial-gradient(120% 90% at 100% 0%, rgba(214, 168, 92, 0.12), transparent 60%),
+    linear-gradient(160deg, rgba(46, 36, 33, 0.9), rgba(20, 15, 14, 0.95));
+  isolation: isolate;
 }
 
-.tasting__score {
+/* 外框：金色漸層細線（以 mask 只留下邊框） */
+.serve-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1.5px;
+  border-radius: inherit;
+  background: var(--gradient-gold);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  pointer-events: none;
+}
+
+/* 內框：更細的一圈，做出雙線框的精緻感 */
+.serve-card::after {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border-radius: calc(var(--radius-lg) - 5px);
+  border: 1px solid var(--color-gold-border);
+  pointer-events: none;
+}
+
+.serve-card__head,
+.serve-card__foot {
   display: flex;
+  justify-content: space-between;
   align-items: baseline;
-  flex: none;
+}
+
+.serve-card__brand {
   font-family: var(--font-display);
-  color: var(--color-accent-text);
-}
-
-.tasting__num {
-  font-size: 52px;
-  line-height: 1;
-  font-weight: var(--weight-medium);
-  font-variant-numeric: tabular-nums;
-}
-
-.tasting__unit {
-  font-size: var(--text-lg);
-  color: var(--color-text-tertiary);
-  margin-left: 2px;
-}
-
-.tasting__body {
-  min-width: 0;
-}
-
-.tasting__pattern {
-  margin: 0 0 var(--space-1);
-  font-size: var(--text-lg);
+  font-size: var(--text-xl);
   font-weight: var(--weight-medium);
   color: var(--color-text);
 }
 
-.tasting__comment {
+.serve-card__no {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--color-gold-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.serve-card__body {
+  padding: var(--space-8) 0 var(--space-6);
+}
+
+.serve-card__eyebrow {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.serve-card__pattern {
   margin: 0;
+  font-family: var(--font-display);
+  font-size: 48px;
+  font-weight: var(--weight-medium);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+}
+
+.serve-card__note {
+  margin: var(--space-3) 0 0;
+  max-width: 30ch;
   font-size: var(--text-sm);
+  line-height: 1.6;
   color: var(--color-text-secondary);
-  line-height: 1.55;
 }
 
-.metrics {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-3) var(--space-6);
-  margin: 0 0 var(--space-6);
-}
-
-.metric {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.metric dt {
+.serve-card__foot {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-divider);
   font-size: var(--text-xs);
   color: var(--color-text-tertiary);
-  letter-spacing: var(--tracking-wide);
+  font-variant-numeric: tabular-nums;
 }
 
-.metric dd {
-  margin: 0;
+.serve-card__sign {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
 }
 
-.metric__bar {
-  display: block;
-  height: 3px;
-  border-radius: var(--radius-pill);
-  background: var(--slider-track);
-  overflow: hidden;
+.sheet.is-open .serve-card {
+  animation: card-rise 700ms var(--ease-out) both 120ms;
 }
 
-.metric__bar span {
-  display: block;
-  height: 100%;
-  width: calc(var(--value, 0) * 1%);
-  border-radius: inherit;
-  background: var(--color-accent-strong);
-  transition: width 900ms var(--ease-out) 200ms;
+@keyframes card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
 }
 
 /* ---------- 按鈕 ---------- */
 
-.action-grid {
+.action-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-3);
+}
+
+.pill-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 52px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border-strong);
+  background: rgba(255, 240, 230, 0.04);
+  color: var(--color-text);
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
+  transition: transform var(--dur-fast), border-color var(--dur-fast),
+    background var(--dur-fast);
+}
+
+.pill-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.pill-btn:hover {
+  border-color: var(--color-gold-border);
+}
+
+.pill-btn:active {
+  transform: scale(0.97);
+}
+
+.pill-btn--gold {
+  border-color: transparent;
+  background: var(--gradient-gold);
+  color: var(--roast-950);
+  box-shadow: 0 6px 24px rgba(214, 168, 92, 0.25);
+}
+
+.pill-btn--gold:hover {
+  border-color: transparent;
+  filter: brightness(1.05);
 }
 
 .action {
@@ -1176,15 +1235,12 @@ body:not([data-phase="play"]) .finish-tab {
   position: fixed;
   inset: 0;
   z-index: var(--z-overlay);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  padding-bottom: calc(14vh + env(safe-area-inset-bottom));
-  gap: var(--space-2);
+  display: grid;
+  place-items: center;
+  padding: var(--page-gutter);
   text-align: center;
   cursor: pointer;
-  transition: opacity var(--dur-scene) var(--ease-out);
+  transition: opacity 700ms var(--ease-out);
 }
 
 body:not([data-phase="intro"]) .intro {
@@ -1192,53 +1248,38 @@ body:not([data-phase="intro"]) .intro {
   pointer-events: none;
 }
 
-.intro__eyebrow,
-.intro__title,
-.intro__status,
-.intro__skip {
+.intro__line {
   margin: 0;
-  opacity: 0;
-  transform: translateY(8px);
-  animation: rise 1.1s var(--ease-out) forwards;
-}
-
-.intro__eyebrow {
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-caps);
-  text-transform: uppercase;
-  color: var(--color-text-tertiary);
-  animation-delay: 0.3s;
-}
-
-.intro__title {
   font-family: var(--font-display);
+  font-weight: var(--weight-medium);
   font-size: var(--text-display);
-  line-height: 1.1;
-  animation-delay: 0.45s;
+  line-height: 1.25;
+  color: var(--color-text);
 }
 
-.intro__status {
-  font-size: var(--text-md);
-  color: var(--color-text-secondary);
-  animation-delay: 0.9s;
+.intro__part {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(10px);
+  filter: blur(6px);
+  animation: intro-in 1.1s var(--ease-out) forwards 0.25s;
 }
 
-.intro__skip {
-  margin-top: var(--space-4);
-  font-size: var(--text-xs);
-  color: var(--color-text-tertiary);
-  animation-delay: 1.6s;
+.intro__part--2 {
+  animation-delay: 0.75s;
+  color: var(--color-gold-text);
+}
+
+@keyframes intro-in {
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
 }
 
 body[data-phase="intro"] .topbar {
   opacity: 0;
-}
-
-@keyframes rise {
-  to {
-    opacity: 1;
-    transform: none;
-  }
 }
 
 /* ---------- 示範橫幅與交棒卡 ---------- */
@@ -1259,7 +1300,8 @@ body[data-phase="intro"] .topbar {
   -webkit-backdrop-filter: blur(12px);
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
-  white-space: nowrap;
+  width: max-content;
+  max-width: calc(100vw - 2 * var(--space-4));
   transform: translate(-50%, -12px);
   opacity: 0;
   pointer-events: none;

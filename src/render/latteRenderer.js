@@ -1,10 +1,19 @@
 // latteRenderer.js
-// 將流體純量場上傳成貼圖，交給 shader 畫出整杯咖啡。
-// 沒有 WebGL 時退回簡易的 Canvas 2D 繪製。
+// 將流體純量場上傳成貼圖，交給 shader 以 3D 視角畫出整杯咖啡。
+// 也負責 canvas ↔ 模擬座標的換算（會考慮杯子傾斜與液面晃動）。
+// 沒有 WebGL 時退回簡易的 Canvas 2D 繪製（不傾斜）。
 
-import { vertexSource, fragmentSource, RIM_IN, RIM_OUT } from "./shaders.js";
-
-export { RIM_IN, RIM_OUT };
+import { vertexSource, fragmentSource } from "./shaders.js";
+import {
+  RIM_INNER,
+  RIM_OUTER,
+  EXTENT,
+  makeView,
+  rotationUniform,
+  canvasToLiquid,
+  liquidToCanvas,
+  rimToCanvas,
+} from "./geometry.js";
 
 function compile(gl, type, source) {
   const shader = gl.createShader(type);
@@ -21,8 +30,10 @@ function compile(gl, type, source) {
 export class LatteRenderer {
   constructor(canvas) {
     this.canvas = canvas;
-    this.fill = 0.3;
+    this.fill = 0.75;
     this.simRadius = 0.48;
+    this.tilt = { ax: 0, ay: 0, wx: 0, wy: 0 };
+    this.view = makeView({ fill: this.fill });
     this.pixels = null;
     this.texW = 0;
     this.texH = 0;
@@ -84,8 +95,10 @@ export class LatteRenderer {
       "uTexSize",
       "uRes",
       "uTime",
-      "uLiquidR",
-      "uSimScale",
+      "uRot",
+      "uLiquidN",
+      "uDepth",
+      "uSimR",
       "uPour",
       "uGlow",
     ]) {
@@ -103,24 +116,26 @@ export class LatteRenderer {
     if (this.gl) this.gl.viewport(0, 0, px, px);
   }
 
-  // 液位越高，液面越接近杯緣
-  get liquidR() {
-    return RIM_IN * (0.88 + 0.12 * this.fill) - 0.002;
-  }
-
-  get simScale() {
-    return this.simRadius / this.liquidR;
+  // 每幀更新視角（傾斜角、液面晃動、液位）
+  setTilt(tilt) {
+    this.tilt = tilt;
+    this.view = makeView({ ...tilt, fill: this.fill });
   }
 
   // canvas uv（0–1，y 向上）↔ 模擬座標
   canvasToSim(u, v) {
-    const k = this.simScale;
-    return { x: 0.5 + (u - 0.5) * k, y: 0.5 + (v - 0.5) * k };
+    const p = canvasToLiquid(this.view, u, v);
+    const k = this.simRadius / RIM_INNER;
+    return { x: 0.5 + p.x * k, y: 0.5 + p.y * k };
   }
 
   simToCanvas(x, y) {
-    const k = this.simScale;
-    return { u: 0.5 + (x - 0.5) / k, v: 0.5 + (y - 0.5) / k };
+    const k = RIM_INNER / this.simRadius;
+    return liquidToCanvas(this.view, (x - 0.5) * k, (y - 0.5) * k);
+  }
+
+  rimToCanvas(theta, r = RIM_OUTER) {
+    return rimToCanvas(this.view, theta, r);
   }
 
   upload(fluid) {
@@ -173,12 +188,13 @@ export class LatteRenderer {
     gl.uniform2f(U.uTexSize, this.texW, this.texH);
     gl.uniform2f(U.uRes, this.canvas.width, this.canvas.height);
     gl.uniform1f(U.uTime, time);
-    gl.uniform1f(U.uLiquidR, this.liquidR);
-    gl.uniform1f(U.uSimScale, this.simScale);
+    gl.uniformMatrix3fv(U.uRot, false, rotationUniform(this.view));
+    gl.uniform3f(U.uLiquidN, ...this.view.normal);
+    gl.uniform1f(U.uDepth, this.view.depth);
+    gl.uniform1f(U.uSimR, this.simRadius);
     gl.uniform1f(U.uGlow, glow);
     if (pour) {
-      const c = this.simToCanvas(pour.x, pour.y);
-      gl.uniform4f(U.uPour, c.u, c.v, pour.height, pour.active ? 1 : 0);
+      gl.uniform4f(U.uPour, pour.x, pour.y, pour.height, pour.active ? 1 : 0);
     } else {
       gl.uniform4f(U.uPour, -1, -1, 1, 0);
     }
@@ -190,12 +206,15 @@ export class LatteRenderer {
   // 以指定解析度另外渲染一張畫面（分享卡用），完成後恢復原尺寸
   snapshot(px, drawOptions) {
     const prev = this.canvas.width;
+    const prevTilt = this.tilt;
+    this.setTilt({ ax: 0, ay: 0, wx: 0, wy: 0 });
     this.resize(px, 1);
     this.draw(drawOptions);
     const copy = document.createElement("canvas");
     copy.width = copy.height = px;
     copy.getContext("2d").drawImage(this.canvas, 0, 0);
     this.resize(prev, 1);
+    this.setTilt(prevTilt);
     this.draw(drawOptions);
     return copy;
   }
@@ -238,15 +257,15 @@ export class LatteRenderer {
     const W = canvas.width;
     ctx.clearRect(0, 0, W, W);
     ctx.save();
+    const scale = W / (2 * EXTENT);
     ctx.beginPath();
-    ctx.arc(W / 2, W / 2, W * RIM_OUT, 0, Math.PI * 2);
+    ctx.arc(W / 2, W / 2, scale * RIM_OUTER, 0, Math.PI * 2);
     ctx.fillStyle = "#ece7df";
     ctx.fill();
     ctx.beginPath();
-    ctx.arc(W / 2, W / 2, W * this.liquidR, 0, Math.PI * 2);
+    ctx.arc(W / 2, W / 2, scale * RIM_INNER, 0, Math.PI * 2);
     ctx.clip();
-    const k = this.simScale;
-    const size = W / k;
+    const size = (scale * RIM_INNER) / this.simRadius;
     ctx.imageSmoothingEnabled = true;
     ctx.drawImage(this.buffer2D, W / 2 - size / 2, W / 2 - size / 2, size, size);
     ctx.restore();

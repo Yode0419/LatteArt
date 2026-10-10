@@ -1,5 +1,5 @@
 // finishSheet.js
-// 「你的拿鐵完成了」抽屜：杯號、分數、花型、評語與四項指標。
+// 出杯抽屜：金框杯卡（杯號、日期、花型、一句咖啡師的話）與儲存／分享。
 
 import { Sheet } from "./sheet.js";
 import { t } from "../i18n.js";
@@ -34,17 +34,7 @@ export class FinishSheet {
     this.cupNo = cupNo;
     this.date = date;
     this.render();
-    // 先歸零再填入，讓指標條有長出來的動畫
-    for (const el of document.querySelectorAll(".metric")) el.style.setProperty("--value", 0);
     this.sheet.open();
-    requestAnimationFrame(() =>
-      requestAnimationFrame(() => {
-        for (const el of document.querySelectorAll(".metric")) {
-          el.style.setProperty("--value", Math.round(result.metrics[el.dataset.metric] * 100));
-        }
-      })
-    );
-    this.countUp(result.score);
   }
 
   close() {
@@ -54,19 +44,9 @@ export class FinishSheet {
   render() {
     if (!this.result) return;
     const r = this.result;
-    $("cupNo").textContent = t("finish.cupNo", { no: this.cupNo, date: this.date });
-    $("patternName").textContent = t(`pattern.${r.pattern}`, { layers: r.layers });
-    $("comment").textContent = t(`comment.${r.comment}`);
-  }
-
-  countUp(target) {
-    const el = $("scoreNum");
-    const start = performance.now();
-    const tick = (now) => {
-      const k = Math.min(1, (now - start) / 900);
-      el.textContent = Math.round(target * (1 - Math.pow(1 - k, 3)));
-      if (k < 1) requestAnimationFrame(tick);
-    };
-    requestAnimationFrame(tick);
+    $("cupNo").textContent = t("finish.cupNo", { no: this.cupNo });
+    $("cupDate").textContent = this.date;
+    $("patternName").textContent = t(`pattern.${r.pattern}`);
+    $("comment").textContent = t(`note.${r.pattern}`, { layers: r.layers });
   }
 }

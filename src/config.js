@@ -12,9 +12,10 @@ export const config = {
     dt: 1.0 / 60.0,
     numIters: 24,
     overRelaxation: 1.9,
-    damping: 1.6, // 每秒速度衰減率（越大越黏稠）
+    damping: 0.45, // 每秒速度衰減率（越大越黏稠）
     vorticity: 0, // 渦度保持，讓漩渦不會很快被抹平
     ambient: 0.006, // 液面自然微流動
+    slosh: 10, // 杯子晃動帶動液面的力道
   },
 
   display: {
@@ -23,8 +24,7 @@ export const config = {
   },
 
   cup: {
-    startFill: 0.3, // 一份 espresso 的液位
-    lowerFill: 0.5, // 液位到這裡後，拉缸會自動壓低
+    startFill: 0.75, // 端上桌時的液位（只影響畫面上液面離杯緣多近）
   },
 
   tools: {
@@ -34,9 +34,8 @@ export const config = {
     pour: {
       radius: 50,
       strength: 55,
-      lowerAfter: 2.2, // 按住超過幾秒自動壓低
-      heightRate: 3.5, // 拉缸高度變化速度
-      fillRate: 0.1, // 每秒液位上升量（strength = 50 時）
+      push: 16, // 注流把液面往外推的力道
+      fillRate: 0.04, // 每秒液位上升量（只是視覺）
     },
 
     etch: {

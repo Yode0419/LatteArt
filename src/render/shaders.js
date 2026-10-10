@@ -1,9 +1,18 @@
 // shaders.js
-// 杯子與液面全部在一個全畫面 fragment shader 裡完成：
-// 液面（crema 斑紋、焦糖混色、奶泡、光影、注流漣漪）→ 杯內壁 → 陶瓷杯緣。
+// 一個全畫面 fragment shader 以光線追蹤畫出整杯咖啡：
+//   正交相機從正上方看下來，杯子依傾斜角旋轉；
+//   依序求出杯口頂面、杯內壁（圓柱）與液面（會晃動的平面）的交點，
+//   液面再取樣流體貼圖畫出 crema、奶泡與注流。杯外是桌面上的柔和陰影。
 
-export const RIM_IN = 0.445; // 杯緣內側（液面最大半徑），以 canvas uv 計
-export const RIM_OUT = 0.492; // 杯緣外側
+import {
+  RIM_OUTER,
+  RIM_INNER,
+  EXTENT,
+  PIVOT_Z,
+  CAMERA_Z,
+  BODY_DEPTH,
+  BODY_TAPER,
+} from "./geometry.js";
 
 export const vertexSource = `
 attribute vec2 aPos;
@@ -22,13 +31,20 @@ uniform sampler2D uField;   // R = foam, G = tint, B = crema
 uniform vec2 uTexSize;
 uniform vec2 uRes;
 uniform float uTime;
-uniform float uLiquidR;     // 目前液面半徑（canvas uv）
-uniform float uSimScale;    // canvas uv → 模擬 uv 的縮放
-uniform vec4 uPour;         // xy = 注流位置（canvas uv），z = 拉缸高度，w = 是否注入
-uniform float uGlow;        // 完成時的杯緣光暈
+uniform mat3 uRot;          // 本地 ← 世界
+uniform vec3 uLiquidN;      // 液面法向量（本地座標）
+uniform float uDepth;       // 液面離杯口的深度
+uniform float uSimR;        // 模擬座標中的液面半徑
+uniform vec4 uPour;         // xy = 注流位置（模擬座標），w = 是否注入
+uniform float uGlow;        // 出杯時的杯緣光暈
 
-const float RIM_IN = ${RIM_IN.toFixed(4)};
-const float RIM_OUT = ${RIM_OUT.toFixed(4)};
+const float RIM_OUTER = ${RIM_OUTER.toFixed(4)};
+const float RIM_INNER = ${RIM_INNER.toFixed(4)};
+const float EXTENT = ${EXTENT.toFixed(4)};
+const float PIVOT_Z = ${PIVOT_Z.toFixed(4)};
+const float CAMERA_Z = ${CAMERA_Z.toFixed(4)};
+const float BODY_DEPTH = ${BODY_DEPTH.toFixed(4)};
+const float BODY_TAPER = ${BODY_TAPER.toFixed(4)};
 
 float hash(vec2 p) {
   p = fract(p * vec2(123.34, 456.21));
@@ -85,46 +101,102 @@ vec4 sampleField(vec2 uv) {
 }
 
 void main() {
-  vec2 p = vUv - 0.5;
-  float r = length(p);
-  vec2 dir = r > 1e-5 ? p / r : vec2(0.0, 1.0);
-  float aa = 1.4 / uRes.x;
-  vec3 L = normalize(vec3(-0.45, 0.55, 0.75));
-  vec3 H = normalize(L + vec3(0.0, 0.0, 1.0));
-  vec3 ceramic = vec3(0.925, 0.905, 0.87);
+  float aa = 2.4 * EXTENT / uRes.x; // 一個像素約多少世界單位
+  vec2 w = (vUv * 2.0 - 1.0) * EXTENT;
+  vec3 pivot = vec3(0.0, 0.0, PIVOT_Z);
+  vec3 o = uRot * (vec3(0.0, 0.0, CAMERA_Z) - pivot) + pivot;
+  vec3 d = normalize(uRot * vec3(w, -CAMERA_Z));
+  vec3 L = normalize(uRot * vec3(-0.45, 0.55, 0.78));
+  // 窗光（反光用）：反射點約落在液面左上方，杯子一傾斜就會滑動
+  vec3 Ls = normalize(uRot * vec3(-0.05, 0.06, 1.0));
+  vec3 V = -d;
+  vec3 ceramic = vec3(0.93, 0.91, 0.875);
+  vec3 ceramicShade = vec3(0.83, 0.75, 0.66);
+  vec3 warmShade = vec3(0.42, 0.17, 0.06);
 
-  // ---------- 液面 ----------
-  vec2 suv = 0.5 + p * uSimScale;
+  // ---------- 杯口頂面 ----------
+  float t0 = -o.z / d.z;
+  vec3 p0 = o + d * t0;
+  float r0 = length(p0.xy);
+  float cupAlpha = 1.0 - smoothstep(RIM_OUTER - aa, RIM_OUTER + aa, r0);
+
+  // 桌面陰影（世界座標，不隨杯子傾斜）：視線打到桌面的位置
+  vec2 tw2 = w * (CAMERA_Z + BODY_DEPTH + PIVOT_Z * 0.0) / CAMERA_Z;
+  vec2 sp = tw2 - vec2(0.09, -0.13);
+  float shadow = 0.6 * (1.0 - smoothstep(0.78, 1.32, length(sp * vec2(1.0, 1.04))));
+  shadow = max(shadow, 0.35 * (1.0 - smoothstep(0.95, 1.12, length(tw2 - vec2(0.03, -0.05)))));
+  vec3 sc = vec3(0.07, 0.035, 0.018);
+
+  if (cupAlpha <= 0.0) {
+    // 杯身側面（略收窄的圓錐）：杯子傾斜時從杯緣下方露出來
+    // r(z) = 1 + z * k，z ∈ [-BODY_DEPTH, 0]
+    float k = BODY_TAPER;
+    float A = dot(d.xy, d.xy) - k * k * d.z * d.z;
+    float B = 2.0 * (dot(o.xy, d.xy) - k * d.z * (RIM_OUTER + k * o.z));
+    float C = dot(o.xy, o.xy) - pow(RIM_OUTER + k * o.z, 2.0);
+    float D = B * B - 4.0 * A * C;
+    float bodyA = 0.0;
+    vec3 body = ceramic;
+    if (D > 0.0 && abs(A) > 1e-6) {
+      float tb = (-B - sqrt(D)) / (2.0 * A);
+      vec3 pb = o + d * tb;
+      if (tb > 0.0 && pb.z < 0.0 && pb.z > -BODY_DEPTH) {
+        vec3 Nb = normalize(vec3(pb.xy / length(pb.xy), k));
+        float lb = 0.5 + 0.5 * dot(Nb, L);
+        body = mix(ceramicShade * 0.82, ceramic, smoothstep(0.1, 0.95, lb));
+        body = mix(body, ceramicShade * 0.7, smoothstep(0.0, 1.0, -pb.z / BODY_DEPTH) * 0.5);
+        // 剪影邊緣抗鋸齒：以離錐面切線的距離估計
+        bodyA = clamp(sqrt(D) / (abs(A) * aa * 6.0), 0.0, 1.0);
+      }
+    }
+    float outA = bodyA + (1.0 - bodyA) * shadow;
+    gl_FragColor = vec4(body * bodyA + sc * shadow * (1.0 - bodyA), outA);
+    return;
+  }
+
+  vec2 dir = r0 > 1e-5 ? p0.xy / r0 : vec2(0.0, 1.0);
+  float tr = clamp((r0 - RIM_INNER) / (RIM_OUTER - RIM_INNER), 0.0, 1.0);
+  float ang = mix(-0.6, 0.95, tr);
+  vec3 Nr = normalize(vec3(dir * sin(ang), cos(ang)));
+  float lit = 0.5 + 0.5 * dot(Nr, L);
+  vec3 rim = mix(ceramicShade, ceramic * 1.03, smoothstep(0.2, 0.9, lit));
+  rim += pow(max(dot(reflect(d, Nr), Ls), 0.0), 40.0) * 0.22;
+  rim = mix(rim, ceramicShade, smoothstep(0.82, 1.0, tr) * 0.45);
+  rim += vec3(0.98, 0.72, 0.38) * uGlow * smoothstep(0.55, 1.0, tr) * 0.3;
+
+  // ---------- 杯內：液面或內壁 ----------
+  float a = dot(d.xy, d.xy);
+  float b = 2.0 * dot(o.xy, d.xy);
+  float c = dot(o.xy, o.xy) - RIM_INNER * RIM_INNER;
+  float disc = b * b - 4.0 * a * c;
+  float tw = a > 1e-6 && disc > 0.0 ? (-b + sqrt(disc)) / (2.0 * a) : 1e6;
+  float tl = dot(uLiquidN, vec3(0.0, 0.0, -uDepth) - o) / dot(uLiquidN, d);
+  vec3 pl = o + d * tl;
+  vec3 pw = o + d * tw;
+
+  // 液面
+  vec2 lp = pl.xy / RIM_INNER;
+  float rn = length(lp);
+  vec2 suv = 0.5 + lp * uSimR;
   vec4 F = sampleField(suv);
   float foam = F.r;
   float tint = F.g;
   float crema = F.b;
+  float grain = noise(suv * uTexSize * 3.0);
 
-  float grain = noise(vUv * uRes * 0.5);
-  float rn = r / uLiquidR;
-
-  // 陰影一律用暖色混合，不用灰黑相乘，避免顏色變混濁
-  vec3 warmShade = vec3(0.42, 0.17, 0.06);
-
-  // crema：乾淨的徑向漸層，中心榛果色、往杯緣過渡到紅棕色
   vec3 cremaEdge = vec3(0.50, 0.22, 0.08);
   vec3 cremaMid = vec3(0.66, 0.36, 0.15);
   vec3 cremaCenter = vec3(0.76, 0.48, 0.24);
   vec3 base = mix(cremaCenter, cremaMid, smoothstep(0.0, 0.65, rn));
   base = mix(base, cremaEdge, smoothstep(0.6, 1.0, rn));
-  // crema 被注流打散的地方偏淡
   base = mix(base * vec3(1.02, 0.98, 0.95), base, smoothstep(0.2, 0.8, crema));
-
-  // 高注混入的牛奶：溫潤的焦糖拿鐵色
   vec3 latte = vec3(0.80, 0.58, 0.38);
   base = mix(base, latte, smoothstep(0.0, 1.0, clamp(tint, 0.0, 1.0)) * 0.8);
 
-  // 奶泡邊緣：由白過渡到淺焦糖
   float fa = smoothstep(0.30, 0.52, foam);
   float fringe = smoothstep(0.06, 0.34, foam) * (1.0 - fa);
   base = mix(base, vec3(0.84, 0.64, 0.44), fringe * 0.3);
 
-  // 奶泡內的凹谷（新一注推開舊花紋留下的分層線）畫成淺焦糖細線
   float d2 = 2.2 / uTexSize.x;
   float ring = 0.25 * (
     sampleField(suv + vec2(d2, 0.0)).r + sampleField(suv - vec2(d2, 0.0)).r +
@@ -137,54 +209,49 @@ void main() {
   foamC = mix(foamC, vec3(0.80, 0.60, 0.40), valley * 0.75);
   vec3 liquid = mix(base, foamC, fa);
 
-  // 注流漣漪
-  vec2 pp = vUv - uPour.xy;
+  // 注流漣漪（模擬座標）
+  vec2 pp = suv - uPour.xy;
   float pr = length(pp);
-  float wave = sin(pr * 230.0 - uTime * 12.0) * exp(-pr * 34.0) * uPour.w;
+  float wave = sin(pr * 210.0 - uTime * 12.0) * exp(-pr * 30.0) * uPour.w;
   vec2 rip = pr > 1e-5 ? (pp / pr) * wave : vec2(0.0);
-  vec3 N = normalize(vec3(rip * 0.2, 1.0));
+  vec3 N = normalize(uLiquidN + vec3(rip * 0.2, 0.0));
 
-  // 柔和的窗光反射（只在液體，奶泡是霧面）
-  vec2 wp = (p - vec2(-0.11, 0.13) + N.xy * 0.03) * vec2(1.0, 1.7);
-  float win = smoothstep(0.18, 0.0, length(wp));
-  liquid = mix(liquid, vec3(1.0, 0.93, 0.84), win * mix(0.08, 0.02, fa));
-  liquid += pow(max(dot(N, H), 0.0), 40.0) * 0.04 * uPour.w;
+  // 液面反光：反射向量對到窗光時亮起，杯子一傾斜反光就會滑動
+  vec3 R = reflect(d, N);
+  // 窗戶倒影：在反射方向空間畫一個柔邊的雙格窗，液面晃動時會跟著扭動
+  vec2 rel = R.xy / R.z - Ls.xy / Ls.z;
+  vec2 box = abs(rel) - vec2(0.027, 0.04);
+  float windowShape = 1.0 - smoothstep(-0.004, 0.012, max(box.x, box.y));
+  float mullion = smoothstep(0.0015, 0.004, abs(rel.x)) * smoothstep(0.0015, 0.004, abs(rel.y + 0.008));
+  float win = windowShape * mix(0.6, 1.0, mullion);
+  liquid = mix(liquid, vec3(1.0, 0.95, 0.88), win * mix(0.15, 0.04, fa));
 
-  // 杯壁的柔和暖色陰影
-  float ds = length(p - L.xy * 0.03);
-  float wallShade = smoothstep(uLiquidR - 0.06, uLiquidR + 0.01, ds) * 0.35
-                  + smoothstep(uLiquidR - 0.015, uLiquidR, r) * 0.2;
+  // 杯壁擋光：從液面往光源走到杯口高度，若在杯口外就是陰影
+  vec3 q = pl + L * (-pl.z / max(L.z, 0.2));
+  float wallShade = smoothstep(RIM_INNER - 0.08, RIM_INNER + 0.06, length(q.xy)) * 0.38
+                  + smoothstep(0.93, 1.0, rn) * 0.2;
   liquid = mix(liquid, liquid * warmShade * 1.6, wallShade);
+  liquid += vec3(1.0, 0.9, 0.8) * exp(-pow((rn - 0.996) / 0.006, 2.0)) * 0.05;
 
-  // 注流本身：高注細、低注粗，帶一點高光
-  float streamR = mix(0.011, 0.0055, uPour.z);
+  float streamR = 0.011;
   float st = uPour.w * (1.0 - smoothstep(streamR * 0.55, streamR, pr));
   liquid = mix(liquid, vec3(1.0, 0.975, 0.94), st * 0.95);
 
-  // ---------- 杯內壁（暖米色，不用灰） ----------
-  vec3 ceramicShade = vec3(0.83, 0.75, 0.66);
-  float t = clamp((r - uLiquidR) / max(RIM_IN - uLiquidR, 1e-4), 0.0, 1.0);
-  float facing = dot(-dir, normalize(L.xy));
-  vec3 wall = mix(ceramic, ceramicShade, 0.35 + 0.25 * facing);
-  wall = mix(wall, vec3(0.70, 0.55, 0.42), (1.0 - smoothstep(0.0, 0.7, t)) * 0.35);
+  // 杯內壁：越深越暗（暖色），迎光面亮
+  vec3 Nw = vec3(-pw.xy / RIM_INNER, 0.0);
+  float depthK = clamp(-pw.z / max(uDepth, 0.05), 0.0, 1.0);
+  vec3 wall = mix(ceramic, ceramicShade, 0.3 + 0.3 * (1.0 - max(dot(Nw, L), 0.0)));
+  wall = mix(wall, vec3(0.66, 0.50, 0.38), depthK * 0.45);
 
-  // ---------- 杯緣（平口瓷杯） ----------
-  float tr = clamp((r - RIM_IN) / (RIM_OUT - RIM_IN), 0.0, 1.0);
-  float ang = mix(-0.55, 0.85, tr);
-  vec3 Nr = normalize(vec3(dir * sin(ang), cos(ang)));
-  float lit = 0.5 + 0.5 * dot(Nr, L);
-  vec3 rim = mix(ceramicShade, ceramic * 1.03, smoothstep(0.2, 0.9, lit));
-  rim = mix(rim, ceramicShade, smoothstep(0.8, 1.0, tr) * 0.5);
-  rim += vec3(0.95, 0.55, 0.35) * uGlow * smoothstep(0.6, 1.0, tr) * 0.25;
+  float liquidMask = smoothstep(-aa * 1.5, aa * 1.5, tw - tl);
+  vec3 inside = mix(wall, liquid, liquidMask);
 
-  // ---------- 合成 ----------
-  float liquidMask = 1.0 - smoothstep(uLiquidR - aa, uLiquidR + aa, r);
-  float rimMask = smoothstep(RIM_IN - aa, RIM_IN + aa, r);
-  float alpha = 1.0 - smoothstep(RIM_OUT - aa, RIM_OUT + aa, r);
-
-  vec3 col = mix(wall, liquid, liquidMask);
-  col = mix(col, rim, rimMask);
+  vec3 col = mix(inside, rim, smoothstep(RIM_INNER - aa, RIM_INNER + aa, r0));
   col += (hash(vUv * uRes + uTime) - 0.5) / 255.0;
-  gl_FragColor = vec4(col * alpha, alpha);
+
+  // 杯子與陰影合成（premultiplied alpha）
+  float outA = cupAlpha + (1.0 - cupAlpha) * shadow;
+  vec3 outC = col * cupAlpha + sc * shadow * (1.0 - cupAlpha);
+  gl_FragColor = vec4(outC, outA);
 }
 `;

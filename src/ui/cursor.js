@@ -4,15 +4,16 @@
 export class CupCursor {
   constructor(cupEl, renderer) {
     this.cup = cupEl;
+    this.space = cupEl.querySelector(".cup__space");
     this.renderer = renderer;
     this.reticle = cupEl.querySelector("#reticle");
     this.ghost = cupEl.querySelector("#ghost");
   }
 
-  // 模擬座標 → 杯子元素內的 CSS 像素
+  // 模擬座標 → 畫布空間內的 CSS 像素（已考慮 3D 傾斜）
   toPx(x, y) {
     const c = this.renderer.simToCanvas(x, y);
-    const size = this.cup.clientWidth;
+    const size = this.space.clientWidth;
     return { left: c.u * size, top: (1 - c.v) * size };
   }
 

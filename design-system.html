@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=Noto+Sans+TC:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=Noto+Sans+TC:wght@400;500&family=Noto+Serif+TC:wght@500&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="assets/tokens.css" />
@@ -269,13 +269,13 @@
           </div>
 
           <div class="demo-card">
-            <h3>Action · .action / .action--primary</h3>
-            <div class="action-grid">
-              <button class="action action--primary">
+            <h3>Pill button · .pill-btn / .pill-btn--gold</h3>
+            <div class="action-row">
+              <button class="pill-btn pill-btn--gold">
                 <svg viewBox="0 0 24 24"><path d="M12 3.5v11.5M7 10.5l5 5 5-5" /><path d="M4 16.5v3h16v-3" /></svg>
                 儲存圖片
               </button>
-              <button class="action">
+              <button class="pill-btn">
                 <svg viewBox="0 0 24 24"><circle cx="18" cy="5.5" r="2.5" /><circle cx="6" cy="12" r="2.5" /><circle cx="18" cy="18.5" r="2.5" /><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1" /></svg>
                 分享
               </button>
@@ -325,40 +325,37 @@
           </button>
         </div>
 
-        <h3 class="ds-sub">Sheet · .sheet ／ Tasting · .tasting ／ Metrics · .metrics</h3>
+        <h3 class="ds-sub">Serve card · .serve-card ／ Serve pull · .serve-pull</h3>
         <div class="demo-grid">
           <section class="sheet static-sheet" aria-label="Finish sheet example">
             <div class="sheet__handle"></div>
-            <p class="eyebrow">No. 012 · 2026.10.10</p>
-            <h2 class="sheet__title sheet__title--center">你的拿鐵完成了</h2>
-            <div class="tasting">
-              <div class="tasting__score">
-                <span class="tasting__num">92</span><span class="tasting__unit">/100</span>
+            <article class="serve-card">
+              <header class="serve-card__head">
+                <span class="serve-card__brand">LatteArt</span>
+                <span class="serve-card__no">No. 012</span>
+              </header>
+              <div class="serve-card__body">
+                <p class="serve-card__eyebrow">你的拿鐵完成了</p>
+                <h2 class="serve-card__pattern">愛心</h2>
+                <p class="serve-card__note">一顆飽滿的心，給今天的自己。</p>
               </div>
-              <div class="tasting__body">
-                <p class="tasting__pattern">愛心</p>
-                <p class="tasting__comment">對稱、乾淨又置中，這杯可以直接端出去了。</p>
-              </div>
-            </div>
-            <dl class="metrics">
-              <div class="metric" style="--value: 96"><dt>對稱</dt><dd><span class="metric__bar"><span></span></span></dd></div>
-              <div class="metric" style="--value: 90"><dt>置中</dt><dd><span class="metric__bar"><span></span></span></dd></div>
-              <div class="metric" style="--value: 100"><dt>對比</dt><dd><span class="metric__bar"><span></span></span></dd></div>
-              <div class="metric" style="--value: 84"><dt>比例</dt><dd><span class="metric__bar"><span></span></span></dd></div>
-            </dl>
+              <footer class="serve-card__foot">
+                <span>2026.10.10</span>
+                <span class="serve-card__sign">親手拉花</span>
+              </footer>
+            </article>
           </section>
 
           <div style="display: flex; flex-direction: column; gap: var(--space-6)">
             <div class="handoff" style="position: static; transform: none; opacity: 1; pointer-events: auto; width: 100%">
               <p class="eyebrow">示範完成</p>
               <h2 class="handoff__title">換你了</h2>
-              <p class="handoff__body">按住杯心先高注打底，液位夠了拉缸會自動壓低。</p>
-              <button class="action action--primary action--wide">開始注奶</button>
+              <p class="handoff__body">按住注奶，奶泡會立刻浮上來。</p>
+              <button class="action action--primary action--wide">開始</button>
             </div>
-            <button class="finish-tab static-tab" style="opacity: 1">
-              <span class="finish-tab__handle"></span>
-              <svg class="finish-tab__chevron" viewBox="0 0 24 24"><path d="M6 14l6-6 6 6" /></svg>
-              <span>完成</span>
+            <button class="serve-pull static-tab" style="opacity: 1; transform: none">
+              <span class="serve-pull__grip"></span>
+              <span class="serve-pull__label">上滑出杯</span>
             </button>
           </div>
         </div>
@@ -370,7 +367,7 @@
         <div class="demo-grid">
           <div class="demo-card">
             <h3>✓ 這樣寫</h3>
-            <p style="margin: 0">拉缸壓低了，奶泡開始浮上來。</p>
+            <p style="margin: 0">奶泡浮上來了，左右搖擺或往前推看看。</p>
           </div>
           <div class="demo-card">
             <h3>✗ 避免</h3>
@@ -387,6 +384,7 @@
       const palettes = {
         "Roast · 表面與文字": ["1000", "950", "900", "850", "800", "700", "600", "500", "400", "300", "200", "100"].map((s) => `--roast-${s}`),
         "Copper · 品牌強調": ["200", "300", "400", "500", "600", "700", "800"].map((s) => `--copper-${s}`),
+        "Gold · 出杯時刻": ["100", "200", "300", "400", "500", "600"].map((s) => `--gold-${s}`),
         "Coffee · 飲品": ["--coffee-espresso", "--coffee-crema", "--coffee-caramel", "--coffee-latte", "--coffee-foam", "--ceramic"],
         "Semantic · 用途": ["--color-bg", "--color-surface-strong", "--color-text", "--color-text-secondary", "--color-text-tertiary", "--color-accent", "--color-accent-text", "--color-focus"],
       };
