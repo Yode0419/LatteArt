@@ -78,6 +78,7 @@ const pointer = new PointerInput(canvas, renderer, {
 
 const settingsBtn = $("settingsBtn");
 const settingsSheet = new Sheet($("settingsSheet"), {
+  axis: "x",
   onClose: () => settingsBtn.setAttribute("aria-expanded", "false"),
 });
 const settings = new SettingsPanel({

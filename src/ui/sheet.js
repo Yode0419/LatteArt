@@ -1,5 +1,5 @@
 // sheet.js
-// 底部抽屜：開關、共用遮罩、Esc 關閉、拖曳把手往下滑關閉。
+// 抽屜：開關、共用遮罩、Esc 關閉、拖曳關閉（axis "y" 往下滑，"x" 往右滑）。
 
 const scrim = document.getElementById("scrim");
 const openSheets = new Set();
@@ -20,8 +20,9 @@ function syncScrim() {
 }
 
 export class Sheet {
-  constructor(el, { dismissible = true, dimmed = true, onClose = null } = {}) {
+  constructor(el, { dismissible = true, dimmed = true, axis = "y", onClose = null } = {}) {
     this.el = el;
+    this.axis = axis;
     this.dismissible = dismissible;
     this.dimmed = dimmed;
     this.onClose = onClose;
@@ -49,36 +50,46 @@ export class Sheet {
     openSheets.delete(this);
     this.el.classList.remove("is-open");
     this.el.setAttribute("aria-hidden", "true");
-    this.el.style.transform = "";
+    this.resetDrag();
     syncScrim();
     if (this.returnFocus && this.returnFocus.focus) this.returnFocus.focus({ preventScroll: true });
     if (!silent && this.onClose) this.onClose();
   }
 
-  // 從把手或標題列往下拖超過 80px 就關閉
+  setDrag(px) {
+    if (this.axis === "x") this.el.style.setProperty("--drag", `${px}px`);
+    else this.el.style.transform = `translate(-50%, ${px}px)`;
+  }
+
+  resetDrag() {
+    this.el.style.removeProperty("--drag");
+    this.el.style.transform = "";
+  }
+
+  // 從把手或標題列拖超過 80px 就關閉（方向看 axis）
   setupDrag() {
     const handle = this.el.querySelector(".sheet__handle");
     const header = this.el.querySelector(".sheet__header") || handle;
-    let startY = null;
-    let dy = 0;
+    let start = null;
+    let delta = 0;
     const down = (e) => {
       if (!this.dismissible || e.target.closest("button")) return;
-      startY = e.clientY;
-      dy = 0;
+      start = this.axis === "x" ? e.clientX : e.clientY;
+      delta = 0;
       this.el.classList.add("is-dragging");
       e.currentTarget.setPointerCapture(e.pointerId);
     };
     const move = (e) => {
-      if (startY === null) return;
-      dy = Math.max(0, e.clientY - startY);
-      this.el.style.transform = `translate(-50%, ${dy}px)`;
+      if (start === null) return;
+      delta = Math.max(0, (this.axis === "x" ? e.clientX : e.clientY) - start);
+      this.setDrag(delta);
     };
     const up = () => {
-      if (startY === null) return;
-      startY = null;
+      if (start === null) return;
+      start = null;
       this.el.classList.remove("is-dragging");
-      this.el.style.transform = "";
-      if (dy > 80) this.close();
+      this.resetDrag();
+      if (delta > 80) this.close();
     };
     for (const el of new Set([handle, header])) {
       if (!el) continue;

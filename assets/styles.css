@@ -681,6 +681,37 @@ body:not([data-phase="play"]) .serve-pull {
   transition: none;
 }
 
+/* 手機：設定改成右側全高貼邊側欄，往右滑關閉 */
+@media (max-width: 899.98px) {
+  .sheet--settings {
+    left: auto;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: min(360px, 88vw);
+    max-height: none;
+    padding: calc(var(--space-3) + env(safe-area-inset-top)) var(--space-6)
+      calc(var(--space-6) + env(safe-area-inset-bottom));
+    border-radius: var(--radius-2xl) 0 0 var(--radius-2xl);
+    border-bottom: 1px solid var(--color-border);
+    border-right: 0;
+    box-shadow: var(--shadow-inset-top), var(--shadow-drawer);
+    transform: translateX(105%);
+  }
+
+  .sheet--settings.is-open {
+    transform: translateX(var(--drag, 0px));
+  }
+
+  .sheet--settings .sheet__handle {
+    display: none;
+  }
+
+  .sheet--settings .sheet__header {
+    padding-top: var(--space-2);
+  }
+}
+
 /* 桌機：抽屜改成右側浮動面板，杯子保持在畫面中 */
 @media (min-width: 900px) {
   .sheet {
@@ -697,11 +728,11 @@ body:not([data-phase="play"]) .serve-pull {
   }
 
   .sheet.is-open {
-    transform: translate(0, -50%);
+    transform: translate(var(--drag, 0px), -50%);
   }
 
-  .sheet.is-dragging {
-    transform: translate(0, -50%) !important;
+  .sheet--finish.is-dragging {
+    transform: translate(-50%, 0) !important;
   }
 
   .sheet__handle {
